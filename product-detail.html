@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Abacus Landscape Jasper Bracelet - Aurum Brothers</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="product-detail.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <div class="container">
+            <div class="header-content">
+                <div class="logo">
+                    <h1>AURUM BROTHERS</h1>
+                </div>
+                <nav class="nav">
+                    <ul class="nav-list">
+                        <li><a href="index.html" class="nav-link">Shop</a></li>
+                        <li><a href="#" class="nav-link">Collections</a></li>
+                        <li><a href="#" class="nav-link">About</a></li>
+                        <li><a href="#" class="nav-link">Contact</a></li>
+                    </ul>
+                </nav>
+                <div class="header-actions">
+                    <button class="cart-btn">Cart (0)</button>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Breadcrumb -->
+    <nav class="breadcrumb">
+        <div class="container">
+            <ul class="breadcrumb-list">
+                <li><a href="index.html">Home</a></li>
+                <li><a href="#">Shop</a></li>
+                <li class="active">Abacus Landscape Jasper Bracelet</li>
+            </ul>
+        </div>
+    </nav>
+
+    <!-- Product Detail -->
+    <section class="product-detail">
+        <div class="container">
+            <div class="product-detail-grid">
+                <!-- Product Images -->
+                <div class="product-images">
+                    <div class="main-image">
+                        <img src="images/product1-large.jpg" alt="Abacus Landscape Jasper Bracelet" id="main-product-image">
+                    </div>
+                    <div class="thumbnail-images">
+                        <img src="images/product1-thumb1.jpg" alt="Product view 1" class="thumbnail active" onclick="changeImage(this.src)">
+                        <img src="images/product1-thumb2.jpg" alt="Product view 2" class="thumbnail" onclick="changeImage(this.src)">
+                        <img src="images/product1-thumb3.jpg" alt="Product view 3" class="thumbnail" onclick="changeImage(this.src)">
+                        <img src="images/product1-thumb4.jpg" alt="Product view 4" class="thumbnail" onclick="changeImage(this.src)">
+                    </div>
+                </div>
+
+                <!-- Product Info -->
+                <div class="product-info">
+                    <h1 class="product-title">Abacus Landscape Jasper Bracelet</h1>
+                    <p class="product-subtitle">Hematite & Snake 6mm Silver Bracelet</p>
+                    <div class="product-rating">
+                        <div class="stars">★★★★★</div>
+                        <span class="rating-text">4.8 (124 reviews)</span>
+                    </div>
+                    
+                    <div class="product-price">
+                        <span class="current-price">$129.00</span>
+                    </div>
+
+                    <div class="product-options">
+                        <div class="option-group">
+                            <label class="option-label">Size:</label>
+                            <div class="size-options">
+                                <button class="size-btn active" data-size="6mm">6mm</button>
+                                <button class="size-btn" data-size="8mm">8mm</button>
+                                <button class="size-btn" data-size="10mm">10mm</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="product-actions">
+                        <button class="btn btn-primary btn-add-cart">Add to Cart</button>
+                        <button class="btn btn-secondary btn-wishlist">♡ Add to Wishlist</button>
+                    </div>
+
+                    <div class="product-description">
+                        <h3>Description</h3>
+                        <p>Experience the perfect blend of natural beauty and modern craftsmanship with our Abacus Landscape Jasper Bracelet. Each bead is carefully selected for its unique patterns and rich earth tones, creating a one-of-a-kind piece that tells its own story.</p>
+                        <p>The combination of landscape jasper, hematite, and snake-like textures creates a sophisticated accessory that transitions seamlessly from casual to formal occasions.</p>
+                    </div>
+
+                    <div class="product-features">
+                        <h3>Features</h3>
+                        <ul>
+                            <li>Premium landscape jasper beads</li>
+                            <li>Hematite accent stones</li>
+                            <li>6mm bead diameter</li>
+                            <li>Sterling silver components</li>
+                            <li>Handcrafted with precision</li>
+                            <li>Adjustable sizing</li>
+                        </ul>
+                    </div>
+
+                    <div class="product-care">
+                        <h3>Care Instructions</h3>
+                        <ul>
+                            <li>Avoid contact with water and chemicals</li>
+                            <li>Store in a dry place when not wearing</li>
+                            <li>Clean with a soft, dry cloth</li>
+                            <li>Handle with care to maintain quality</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Related Products -->
+    <section class="related-products">
+        <div class="container">
+            <h2 class="section-title">You Might Also Like</h2>
+            <div class="products-grid">
+                <div class="product-card">
+                    <div class="product-image">
+                        <img src="images/product2.jpg" alt="Premium Onyx Bracelet" class="product-img">
+                    </div>
+                    <div class="product-info">
+                        <h3 class="product-title">Premium Onyx</h3>
+                        <p class="product-description">Matte Black & Silver Accent Bracelet</p>
+                        <p class="product-price">$149.00</p>
+                        <a href="#" class="btn btn-secondary">View Details</a>
+                    </div>
+                </div>
+                
+                <div class="product-card">
+                    <div class="product-image">
+                        <img src="images/product3.jpg" alt="Tiger Eye Bracelet" class="product-img">
+                    </div>
+                    <div class="product-info">
+                        <h3 class="product-title">Tiger Eye</h3>
+                        <p class="product-description">Natural Stone & Gold Detail Bracelet</p>
+                        <p class="product-price">$139.00</p>
+                        <a href="#" class="btn btn-secondary">View Details</a>
+                    </div>
+                </div>
+
+                <div class="product-card">
+                    <div class="product-image">
+                        <img src="images/product4.jpg" alt="Lava Stone Bracelet" class="product-img">
+                    </div>
+                    <div class="product-info">
+                        <h3 class="product-title">Lava Stone</h3>
+                        <p class="product-description">Volcanic Rock & Steel Bracelet</p>
+                        <p class="product-price">$119.00</p>
+                        <a href="#" class="btn btn-secondary">View Details</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-section">
+                    <h4>AURUM BROTHERS</h4>
+                    <p>Crafting premium bracelets with passion and precision.</p>
+                </div>
+                <div class="footer-section">
+                    <h4>Quick Links</h4>
+                    <ul>
+                        <li><a href="index.html">Shop</a></li>
+                        <li><a href="#">Collections</a></li>
+                        <li><a href="#">About</a></li>
+                        <li><a href="#">Contact</a></li>
+                    </ul>
+                </div>
+                <div class="footer-section">
+                    <h4>Customer Service</h4>
+                    <ul>
+                        <li><a href="#">Shipping</a></li>
+                        <li><a href="#">Returns</a></li>
+                        <li><a href="#">Size Guide</a></li>
+                        <li><a href="#">Care Instructions</a></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2024 Aurum Brothers. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        function changeImage(src) {
+            document.getElementById('main-product-image').src = src;
+            
+            // Update active thumbnail
+            document.querySelectorAll('.thumbnail').forEach(thumb => {
+                thumb.classList.remove('active');
+            });
+            event.target.classList.add('active');
+        }
+
+        // Size selection
+        document.querySelectorAll('.size-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                document.querySelectorAll('.size-btn').forEach(b => b.classList.remove('active'));
+                this.classList.add('active');
+            });
+        });
+
+        // Add to cart functionality
+        document.querySelector('.btn-add-cart').addEventListener('click', function() {
+            this.textContent = 'Added to Cart!';
+            this.style.backgroundColor = '#dc2626';
+            setTimeout(() => {
+                this.textContent = 'Add to Cart';
+                this.style.backgroundColor = '#171717';
+            }, 2000);
+        });
+    </script>
+</body>
+</html>
