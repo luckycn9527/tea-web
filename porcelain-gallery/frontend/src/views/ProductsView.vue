@@ -156,7 +156,7 @@
         <ProductCard 
           v-for="product in displayProducts" 
           :key="product.id" 
-          :product="product"
+          :product="product as any"
         />
       </div>
 
@@ -219,6 +219,7 @@ import ProductCard from '@/components/ProductCard.vue'
 const { locale } = useI18n()
 const productsStore = useProductsStore()
 const adminStore = useAdminStore()
+
 
 const selectedDynasty = ref('')
 const selectedShape = ref('')
@@ -308,7 +309,6 @@ function clearAllFilters() {
 
 async function refreshProducts() {
   console.log('Refreshing products from adminStore...')
-  await adminStore.loadAllData()
   refreshTrigger.value++
   console.log('Products refreshed:', adminStore.products.length)
 }
@@ -330,7 +330,7 @@ watch(() => adminStore.products, (newProducts, oldProducts) => {
   console.log('AdminStore products changed:', {
     old: oldProducts?.length || 0,
     new: newProducts.length,
-    products: newProducts.map(p => ({ id: p.id, name: p.name_en || p.name_cn }))
+    products: newProducts.map((p: any) => ({ id: p.id, name: p.name_en || p.name_cn }))
   })
   
   // Force reactivity update by incrementing refresh trigger
@@ -351,16 +351,35 @@ watch(() => adminStore.products, (newProducts) => {
 }, { deep: true })
 
 onMounted(async () => {
-  // Ensure adminStore is initialized first and wait for it to complete
-  await adminStore.loadAllData()
+  // Load admin settings to ensure we have the latest data from localStorage
+  console.log('ProductsView: Loading admin settings...')
+  adminStore.loadSettings()
   
-  // Use adminStore products as configured in admin panel
-  console.log('Using adminStore products:', adminStore.products.length)
-  console.log('AdminStore products details:', adminStore.products.map(p => ({ id: p.id, name: p.name_en, image: p.primary_image })))
+  // Force a reactive update by accessing the products
+  console.log('ProductsView: Current products count:', adminStore.products.length)
+  console.log('ProductsView: Products details:', adminStore.products.map((p: any) => ({ 
+    id: p.id, 
+    name: p.name_en || p.name_cn, 
+    image: p.primary_image 
+  })))
   
   // Clear any existing products from productsStore to avoid confusion
   productsStore.products = []
-  console.log('Cleared productsStore products, now has:', productsStore.products.length)
+  console.log('ProductsView: Cleared productsStore products, now has:', productsStore.products.length)
+  
+  // Force reactivity update
+  refreshTrigger.value++
+  
+  // Add localStorage listener for real-time updates
+  const handleStorageChange = (e: StorageEvent) => {
+    if (e.key === 'products' && e.newValue) {
+      console.log('localStorage products changed, reloading adminStore...')
+      adminStore.loadSettings()
+      refreshTrigger.value++
+    }
+  }
+  
+  window.addEventListener('storage', handleStorageChange)
   
   // Check for URL parameters
   const urlParams = new URLSearchParams(window.location.search)

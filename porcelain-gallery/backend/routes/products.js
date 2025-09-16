@@ -1,148 +1,416 @@
+// Products API routes
 const express = require('express');
 const router = express.Router();
-const { pool } = require('../server');
+const { Product, ProductImage, ProductVideo, ProductAttribute, ProductTag } = require('../models/Product');
+const database = require('../config/database');
 
-// Get all products with pagination and filtering
+// Get all products with pagination and filters
 router.get('/', async (req, res) => {
   try {
-    const { page = 1, limit = 12, dynasty_id, shape_id, is_featured, lang = 'en' } = req.query;
-    const offset = (page - 1) * limit;
-    
-    let query = `
-      SELECT p.*, 
-             d.name_${lang} as dynasty_name, 
-             s.name_${lang} as shape_name,
-             (SELECT image_path FROM product_images WHERE product_id = p.id AND is_primary = 1 LIMIT 1) as primary_image
-      FROM products p
-      LEFT JOIN dynasties d ON p.dynasty_id = d.id
-      LEFT JOIN shapes s ON p.shape_id = s.id
-      WHERE p.is_available = 1
-    `;
-    
-    const params = [];
-    
-    if (dynasty_id) {
-      query += ' AND p.dynasty_id = ?';
-      params.push(dynasty_id);
-    }
-    
-    if (shape_id) {
-      query += ' AND p.shape_id = ?';
-      params.push(shape_id);
-    }
-    
-    if (is_featured) {
-      query += ' AND p.is_featured = 1';
-    }
-    
-    query += ' ORDER BY p.created_at DESC LIMIT ? OFFSET ?';
-    params.push(parseInt(limit), parseInt(offset));
-    
-    const [products] = await pool.execute(query, params);
-    
+    const {
+      page = 1,
+      limit = 12,
+      dynasty_id,
+      shape_id,
+      category_id,
+      is_featured,
+      is_available = true,
+      search,
+      sort_by = 'created_at',
+      sort_order = 'DESC'
+    } = req.query;
+
+    const options = {
+      page: parseInt(page),
+      limit: parseInt(limit),
+      dynasty_id: dynasty_id ? parseInt(dynasty_id) : undefined,
+      shape_id: shape_id ? parseInt(shape_id) : undefined,
+      category_id: category_id ? parseInt(category_id) : undefined,
+      is_featured: is_featured !== undefined ? (is_featured === 'true' ? 1 : 0) : undefined,
+      is_available: is_available === 'true' ? 1 : 0,
+      search,
+      sort_by,
+      sort_order
+    };
+
+    const products = await Product.findAll(database, options);
+
     // Get total count for pagination
-    let countQuery = 'SELECT COUNT(*) as total FROM products WHERE is_available = 1';
+    let countSql = 'SELECT COUNT(*) as total FROM products WHERE is_available = 1';
     const countParams = [];
     
     if (dynasty_id) {
-      countQuery += ' AND dynasty_id = ?';
-      countParams.push(dynasty_id);
+      countSql += ' AND dynasty_id = ?';
+      countParams.push(parseInt(dynasty_id));
     }
-    
     if (shape_id) {
-      countQuery += ' AND shape_id = ?';
-      countParams.push(shape_id);
+      countSql += ' AND shape_id = ?';
+      countParams.push(parseInt(shape_id));
     }
-    
-    if (is_featured) {
-      countQuery += ' AND is_featured = 1';
+    if (category_id) {
+      countSql += ' AND category_id = ?';
+      countParams.push(parseInt(category_id));
     }
-    
-    const [countResult] = await pool.execute(countQuery, countParams);
-    const total = countResult[0].total;
-    
+    if (is_featured !== undefined) {
+      countSql += ' AND is_featured = ?';
+      countParams.push(is_featured === 'true' ? 1 : 0);
+    }
+    if (search) {
+      countSql += ' AND (name_en LIKE ? OR name_cn LIKE ? OR description_en LIKE ? OR description_cn LIKE ?)';
+      const searchTerm = `%${search}%`;
+      countParams.push(searchTerm, searchTerm, searchTerm, searchTerm);
+    }
+
+    const countResult = await database.queryOne(countSql, countParams);
+    const total = countResult.total;
+    const totalPages = Math.ceil(total / parseInt(limit));
+
     res.json({
-      products,
+      success: true,
+      data: products,
       pagination: {
         page: parseInt(page),
         limit: parseInt(limit),
         total,
-        pages: Math.ceil(total / limit)
+        totalPages,
+        hasNext: parseInt(page) < totalPages,
+        hasPrev: parseInt(page) > 1
       }
     });
   } catch (error) {
     console.error('Error fetching products:', error);
-    res.status(500).json({ error: 'Failed to fetch products' });
+    res.status(500).json({
+      success: false,
+      message: 'Failed to fetch products',
+      error: error.message
+    });
   }
 });
 
-// Get single product by ID
+// Get product by ID
 router.get('/:id', async (req, res) => {
   try {
     const { id } = req.params;
-    const { lang = 'en' } = req.query;
-    
-    const query = `
-      SELECT p.*, 
-             d.name_${lang} as dynasty_name, 
-             s.name_${lang} as shape_name
-      FROM products p
-      LEFT JOIN dynasties d ON p.dynasty_id = d.id
-      LEFT JOIN shapes s ON p.shape_id = s.id
-      WHERE p.id = ? AND p.is_available = 1
-    `;
-    
-    const [products] = await pool.execute(query, [id]);
-    
-    if (products.length === 0) {
-      return res.status(404).json({ error: 'Product not found' });
+    const product = await Product.findById(database, parseInt(id));
+
+    if (!product) {
+      return res.status(404).json({
+        success: false,
+        message: 'Product not found'
+      });
     }
-    
-    const product = products[0];
-    
-    // Get all images for this product
-    const [images] = await pool.execute(
-      'SELECT * FROM product_images WHERE product_id = ? ORDER BY sort_order, is_primary DESC',
-      [id]
-    );
-    
-    // Get all videos for this product
-    const [videos] = await pool.execute(
-      'SELECT * FROM product_videos WHERE product_id = ? ORDER BY sort_order',
-      [id]
-    );
-    
-    product.images = images;
-    product.videos = videos;
-    
-    res.json(product);
+
+    // Increment view count
+    await product.incrementViewCount(database);
+
+    res.json({
+      success: true,
+      data: product
+    });
   } catch (error) {
     console.error('Error fetching product:', error);
-    res.status(500).json({ error: 'Failed to fetch product' });
+    res.status(500).json({
+      success: false,
+      message: 'Failed to fetch product',
+      error: error.message
+    });
   }
 });
 
-// Get all dynasties
-router.get('/filters/dynasties', async (req, res) => {
+// Get product by slug
+router.get('/slug/:slug', async (req, res) => {
   try {
-    const { lang = 'en' } = req.query;
-    const [dynasties] = await pool.execute(`SELECT id, name_${lang} as name, period FROM dynasties ORDER BY name_${lang}`);
-    res.json(dynasties);
+    const { slug } = req.params;
+    const product = await Product.findBySlug(database, slug);
+
+    if (!product) {
+      return res.status(404).json({
+        success: false,
+        message: 'Product not found'
+      });
+    }
+
+    // Increment view count
+    await product.incrementViewCount(database);
+
+    res.json({
+      success: true,
+      data: product
+    });
   } catch (error) {
-    console.error('Error fetching dynasties:', error);
-    res.status(500).json({ error: 'Failed to fetch dynasties' });
+    console.error('Error fetching product by slug:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Failed to fetch product',
+      error: error.message
+    });
   }
 });
 
-// Get all shapes
-router.get('/filters/shapes', async (req, res) => {
+// Get featured products
+router.get('/featured/list', async (req, res) => {
   try {
-    const { lang = 'en' } = req.query;
-    const [shapes] = await pool.execute(`SELECT id, name_${lang} as name FROM shapes ORDER BY name_${lang}`);
-    res.json(shapes);
+    const { limit = 6 } = req.query;
+    const products = await Product.findFeatured(database, parseInt(limit));
+
+    res.json({
+      success: true,
+      data: products
+    });
   } catch (error) {
-    console.error('Error fetching shapes:', error);
-    res.status(500).json({ error: 'Failed to fetch shapes' });
+    console.error('Error fetching featured products:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Failed to fetch featured products',
+      error: error.message
+    });
+  }
+});
+
+// Get related products
+router.get('/:id/related', async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { limit = 4 } = req.query;
+    
+    const product = await Product.findById(database, parseInt(id));
+    if (!product) {
+      return res.status(404).json({
+        success: false,
+        message: 'Product not found'
+      });
+    }
+
+    const relatedProducts = await product.getRelated(database, parseInt(limit));
+
+    res.json({
+      success: true,
+      data: relatedProducts
+    });
+  } catch (error) {
+    console.error('Error fetching related products:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Failed to fetch related products',
+      error: error.message
+    });
+  }
+});
+
+// Create new product (Admin only)
+router.post('/', async (req, res) => {
+  try {
+    const productData = req.body;
+    
+    // Generate slug if not provided
+    if (!productData.slug) {
+      productData.slug = productData.name_en
+        .toLowerCase()
+        .replace(/[^a-z0-9]+/g, '-')
+        .replace(/(^-|-$)/g, '');
+    }
+
+    const product = await Product.create(database, productData);
+
+    res.status(201).json({
+      success: true,
+      message: 'Product created successfully',
+      data: product
+    });
+  } catch (error) {
+    console.error('Error creating product:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Failed to create product',
+      error: error.message
+    });
+  }
+});
+
+// Update product (Admin only)
+router.put('/:id', async (req, res) => {
+  try {
+    const { id } = req.params;
+    const updateData = req.body;
+
+    const product = await Product.findById(database, parseInt(id));
+    if (!product) {
+      return res.status(404).json({
+        success: false,
+        message: 'Product not found'
+      });
+    }
+
+    const updatedProduct = await product.update(database, updateData);
+
+    res.json({
+      success: true,
+      message: 'Product updated successfully',
+      data: updatedProduct
+    });
+  } catch (error) {
+    console.error('Error updating product:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Failed to update product',
+      error: error.message
+    });
+  }
+});
+
+// Delete product (Admin only)
+router.delete('/:id', async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    const product = await Product.findById(database, parseInt(id));
+    if (!product) {
+      return res.status(404).json({
+        success: false,
+        message: 'Product not found'
+      });
+    }
+
+    await product.delete(database);
+
+    res.json({
+      success: true,
+      message: 'Product deleted successfully'
+    });
+  } catch (error) {
+    console.error('Error deleting product:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Failed to delete product',
+      error: error.message
+    });
+  }
+});
+
+// Add product image (Admin only)
+router.post('/:id/images', async (req, res) => {
+  try {
+    const { id } = req.params;
+    const imageData = {
+      ...req.body,
+      product_id: parseInt(id)
+    };
+
+    const imageId = await ProductImage.create(database, imageData);
+
+    res.status(201).json({
+      success: true,
+      message: 'Image added successfully',
+      data: { id: imageId }
+    });
+  } catch (error) {
+    console.error('Error adding product image:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Failed to add product image',
+      error: error.message
+    });
+  }
+});
+
+// Delete product image (Admin only)
+router.delete('/images/:imageId', async (req, res) => {
+  try {
+    const { imageId } = req.params;
+
+    await ProductImage.delete(database, parseInt(imageId));
+
+    res.json({
+      success: true,
+      message: 'Image deleted successfully'
+    });
+  } catch (error) {
+    console.error('Error deleting product image:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Failed to delete product image',
+      error: error.message
+    });
+  }
+});
+
+// Get product images
+router.get('/:id/images', async (req, res) => {
+  try {
+    const { id } = req.params;
+    const images = await ProductImage.findByProductId(database, parseInt(id));
+
+    res.json({
+      success: true,
+      data: images
+    });
+  } catch (error) {
+    console.error('Error fetching product images:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Failed to fetch product images',
+      error: error.message
+    });
+  }
+});
+
+// Get product videos
+router.get('/:id/videos', async (req, res) => {
+  try {
+    const { id } = req.params;
+    const videos = await ProductVideo.findByProductId(database, parseInt(id));
+
+    res.json({
+      success: true,
+      data: videos
+    });
+  } catch (error) {
+    console.error('Error fetching product videos:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Failed to fetch product videos',
+      error: error.message
+    });
+  }
+});
+
+// Get product attributes
+router.get('/:id/attributes', async (req, res) => {
+  try {
+    const { id } = req.params;
+    const attributes = await ProductAttribute.findByProductId(database, parseInt(id));
+
+    res.json({
+      success: true,
+      data: attributes
+    });
+  } catch (error) {
+    console.error('Error fetching product attributes:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Failed to fetch product attributes',
+      error: error.message
+    });
+  }
+});
+
+// Get product tags
+router.get('/:id/tags', async (req, res) => {
+  try {
+    const { id } = req.params;
+    const tags = await ProductTag.findByProductId(database, parseInt(id));
+
+    res.json({
+      success: true,
+      data: tags
+    });
+  } catch (error) {
+    console.error('Error fetching product tags:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Failed to fetch product tags',
+      error: error.message
+    });
   }
 });
 

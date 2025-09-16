@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Page Test</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .test-section {
+            margin: 20px 0;
+            padding: 15px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+        .success {
+            background-color: #d4edda;
+            border-color: #c3e6cb;
+        }
+        .error {
+            background-color: #f8d7da;
+            border-color: #f5c6cb;
+        }
+        .info {
+            background-color: #d1ecf1;
+            border-color: #bee5eb;
+        }
+        button {
+            background-color: #007bff;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+        .test-results {
+            margin-top: 10px;
+            padding: 10px;
+            background-color: #f8f9fa;
+            border-radius: 3px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Admin Page Functionality Test</h1>
+    
+    <div class="test-section info">
+        <h3>Test Instructions</h3>
+        <p>This page helps test the admin functionality. Follow these steps:</p>
+        <ol>
+            <li>Open the admin page at <a href="http://localhost:5173/admin" target="_blank">http://localhost:5173/admin</a></li>
+            <li>Open browser developer tools (F12)</li>
+            <li>Go to the Console tab</li>
+            <li>Run the test commands below</li>
+        </ol>
+    </div>
+
+    <div class="test-section">
+        <h3>Test 1: Check Admin Store Initialization</h3>
+        <button onclick="testAdminStoreInit()">Test Store Init</button>
+        <div id="store-init-results" class="test-results"></div>
+    </div>
+
+    <div class="test-section">
+        <h3>Test 2: Test Product CRUD Operations</h3>
+        <button onclick="testProductOperations()">Test Product CRUD</button>
+        <div id="product-results" class="test-results"></div>
+    </div>
+
+    <div class="test-section">
+        <h3>Test 3: Test Dynasty Operations</h3>
+        <button onclick="testDynastyOperations()">Test Dynasty CRUD</button>
+        <div id="dynasty-results" class="test-results"></div>
+    </div>
+
+    <div class="test-section">
+        <h3>Test 4: Test Shape Operations</h3>
+        <button onclick="testShapeOperations()">Test Shape CRUD</button>
+        <div id="shape-results" class="test-results"></div>
+    </div>
+
+    <div class="test-section">
+        <h3>Console Commands</h3>
+        <p>Copy and paste these commands into the browser console on the admin page:</p>
+        <textarea readonly style="width: 100%; height: 200px; font-family: monospace;">
+// Test Admin Store Initialization
+console.log('Testing Admin Store...');
+const adminStore = window.__VUE_DEVTOOLS_GLOBAL_HOOK__.apps[0].config.globalProperties.$pinia._s.get('admin');
+
+if (adminStore) {
+    console.log('✅ Admin store found');
+    console.log('Products:', adminStore.products.length);
+    console.log('Dynasties:', adminStore.dynasties.length);
+    console.log('Shapes:', adminStore.shapes.length);
+    console.log('Content Sections:', adminStore.contentSections.length);
+} else {
+    console.log('❌ Admin store not found');
+}
+
+// Test Product Addition
+const testProduct = {
+    name: 'Test Product',
+    name_cn: '测试产品',
+    description: 'A test product',
+    description_cn: '测试产品描述',
+    price: 99.99,
+    dynasty_id: 1,
+    shape_id: 1,
+    primary_image: '/src/assets/tea_image/test.jpg',
+    images: ['/src/assets/tea_image/test.jpg'],
+    is_active: true
+};
+
+console.log('Adding test product...');
+adminStore.addProduct(testProduct);
+console.log('Products after addition:', adminStore.products.length);
+
+// Test Product Deletion
+console.log('Deleting test product...');
+adminStore.deleteProduct(adminStore.products.length - 1);
+console.log('Products after deletion:', adminStore.products.length);
+        </textarea>
+    </div>
+
+    <script>
+        function testAdminStoreInit() {
+            const results = document.getElementById('store-init-results');
+            results.innerHTML = '<p>Open the admin page and run the console commands to test store initialization.</p>';
+        }
+
+        function testProductOperations() {
+            const results = document.getElementById('product-results');
+            results.innerHTML = '<p>Use the console commands to test product CRUD operations.</p>';
+        }
+
+        function testDynastyOperations() {
+            const results = document.getElementById('dynasty-results');
+            results.innerHTML = '<p>Use the console commands to test dynasty CRUD operations.</p>';
+        }
+
+        function testShapeOperations() {
+            const results = document.getElementById('shape-results');
+            results.innerHTML = '<p>Use the console commands to test shape CRUD operations.</p>';
+        }
+    </script>
+</body>
+</html>
+

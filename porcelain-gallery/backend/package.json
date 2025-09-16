@@ -1,16 +1,24 @@
 {
-  "name": "backend",
+  "name": "porcelain-gallery-backend",
   "version": "1.0.0",
-  "main": "index.js",
+  "description": "Backend API for Chinese Porcelain Gallery",
+  "main": "server.js",
   "scripts": {
     "start": "node server.js",
-    "dev": "node server.js",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "dev": "nodemon server.js",
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "init-db": "node scripts/init-database.js"
   },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
-  "description": "",
+  "keywords": [
+    "porcelain",
+    "gallery",
+    "api",
+    "nodejs",
+    "express",
+    "sqlite"
+  ],
+  "author": "luckycn9527",
+  "license": "MIT",
   "dependencies": {
     "bcryptjs": "^3.0.2",
     "cors": "^2.8.5",
@@ -18,6 +26,14 @@
     "express": "^5.1.0",
     "jsonwebtoken": "^9.0.2",
     "multer": "^2.0.2",
-    "mysql2": "^3.14.5"
+    "mysql2": "^3.14.5",
+    "sharp": "^0.33.5",
+    "sqlite3": "^5.1.7"
+  },
+  "devDependencies": {
+    "nodemon": "^3.0.2"
+  },
+  "engines": {
+    "node": ">=18.0.0"
   }
 }

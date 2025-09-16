@@ -1,16 +1,46 @@
 <script setup lang="ts">
-import { computed } from 'vue'
+import { computed, ref } from 'vue'
 import { RouterView, useRoute } from 'vue-router'
 import NavigationBar from '@/components/NavigationBar.vue'
+import AuthModal from '@/components/AuthModal.vue'
+import { useAuthStore } from '@/stores/auth'
 
 const route = useRoute()
-const isAdminRoute = computed(() => route.path === '/admin')
+const authStore = useAuthStore()
+
+const isAdminRoute = computed(() => route.path.startsWith('/admin'))
+
+// Auth modal state
+const showAuthModal = ref(false)
+const authModalMode = ref<'login' | 'register'>('login')
+const authRedirectPath = ref('')
+
+// Show auth modal
+const showAuth = (mode: 'login' | 'register' = 'login', redirectPath?: string) => {
+  authModalMode.value = mode
+  authRedirectPath.value = redirectPath || ''
+  showAuthModal.value = true
+}
+
+// Hide auth modal
+const hideAuth = () => {
+  showAuthModal.value = false
+}
+
+// Handle auth success
+const handleAuthSuccess = () => {
+  hideAuth()
+}
+
+// Expose methods globally for use in other components
+window.showAuthModal = showAuth
+window.hideAuthModal = hideAuth
 </script>
 
 <template>
-  <div id="app" class="bg-black min-h-screen" style="background-color: black !important;">
+  <div id="app" :class="isAdminRoute ? 'bg-gray-100 min-h-screen' : 'bg-black min-h-screen'" :style="isAdminRoute ? '' : 'background-color: black !important;'">
     <NavigationBar v-if="!isAdminRoute" />
-    <main class="min-h-screen bg-black" style="background-color: black !important;">
+    <main :class="isAdminRoute ? 'min-h-screen bg-gray-100' : 'min-h-screen bg-black'" :style="isAdminRoute ? '' : 'background-color: black !important;'">
       <RouterView />
     </main>
     
@@ -82,6 +112,15 @@ const isAdminRoute = computed(() => route.path === '/admin')
         </div>
       </div>
     </footer>
+
+    <!-- Auth Modal -->
+    <AuthModal
+      :show="showAuthModal"
+      :mode="authModalMode"
+      :redirect-path="authRedirectPath"
+      @close="hideAuth"
+      @success="handleAuthSuccess"
+    />
   </div>
 </template>
 

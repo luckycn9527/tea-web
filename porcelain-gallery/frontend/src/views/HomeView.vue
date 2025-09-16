@@ -50,18 +50,26 @@ const bestSellers = ref<BestSellerProduct[]>([])
 
 // Use watchEffect to ensure reactivity
 watchEffect(() => {
-  bestSellers.value = adminStore.bestSellersProducts.map((product, index) => {
-    const generatedId = index + 1 + (index * 1000)
-    console.log(`Best Seller ${index}: name="${product.name}", generated ID=${generatedId}`)
+  // Force reactivity by accessing the array length and each element
+  const products = adminStore.bestSellersProducts
+  console.log('watchEffect triggered, products length:', products.length)
+  
+  bestSellers.value = products.map((product: any, index) => {
+    const generatedId = index + 10000 // Use 10000+ range to avoid conflicts with regular products (1-10)
+    const productName = product.name_en || product.name || `Product ${index + 1}`
+    console.log(`Best Seller ${index}: name="${productName}", generated ID=${generatedId}`)
     return {
       ...product,
       id: generatedId, // Make IDs unique
-      name_en: product.name,
-      name_cn: product.name,
+      name: productName,
+      name_en: product.name_en || productName,
+      name_cn: product.name_cn || productName,
       is_featured: true,
       is_available: true
     }
   })
+  
+  console.log('Best Sellers updated:', bestSellers.value.length, 'products')
 })
 
 // Create a computed property for product thumbnails that's reactive
@@ -69,12 +77,19 @@ const productThumbnails = computed(() => {
   const thumbnailsMap: Record<number, string[]> = {}
   
   bestSellers.value.forEach((product) => {
-    const originalIndex = Math.floor((product.id - 1) / 1001)
+    const originalIndex = product.id - 10000
+    console.log(`Product ${product.id}: originalIndex=${originalIndex}, productName="${product.name}"`)
+    
     if (originalIndex >= 0 && originalIndex < adminStore.bestSellersProducts.length) {
       // Process thumbnails through getImageSrc to ensure correct URL handling
-      thumbnailsMap[product.id] = adminStore.bestSellersProducts[originalIndex].thumbnails.map(thumb => getImageSrc(thumb))
+      const adminProduct = adminStore.bestSellersProducts[originalIndex]
+      console.log(`Admin product ${originalIndex}: name="${adminProduct.name}", thumbnails=`, adminProduct.thumbnails)
+      
+      thumbnailsMap[product.id] = adminProduct.thumbnails.map(thumb => getImageSrc(thumb))
+      console.log(`Processed thumbnails for product ${product.id}:`, thumbnailsMap[product.id])
     } else {
       // Fallback to original logic
+      console.log(`Using fallback logic for product ${product.id}`)
       const baseImageNumber = (product.id % 1000) % 21 + 1
       thumbnailsMap[product.id] = [
         getAssetUrl(`${baseImageNumber}.png`),
@@ -104,6 +119,30 @@ onMounted(async () => {
     console.log('Best Sellers computed:', bestSellers.value)
     console.log('Product Thumbnails computed:', productThumbnails.value)
     console.log('Featured Products from Admin Store:', featuredProducts.value.length)
+    
+    // 强制触发响应式更新
+    bestSellers.value = [...bestSellers.value]
+    
+    // 监听localStorage变化，实时同步Best Sellers数据
+    const handleStorageChange = (e: StorageEvent) => {
+      if (e.key === 'bestSellersProducts' && e.newValue) {
+        console.log('检测到Best Sellers数据变化，重新加载...')
+        try {
+          const newBestSellers = JSON.parse(e.newValue)
+          adminStore.bestSellersProducts.splice(0, adminStore.bestSellersProducts.length, ...newBestSellers)
+          console.log('Best Sellers数据已同步:', newBestSellers.length, '个产品')
+        } catch (error) {
+          console.error('同步Best Sellers数据失败:', error)
+        }
+      }
+    }
+    
+    window.addEventListener('storage', handleStorageChange)
+    
+    // 清理监听器
+    onUnmounted(() => {
+      window.removeEventListener('storage', handleStorageChange)
+    })
   } catch (error) {
     console.error('Error loading products:', error)
   } finally {
@@ -115,9 +154,9 @@ function goToProduct(productId: number) {
   console.log(`goToProduct called with productId: ${productId}`)
   
   // Extract the original product ID by reversing the ID generation formula
-  // Best Seller IDs are generated as index + 1 + (index * 1000)
-  // So we can extract the original index: (productId - 1) / 1001
-  const originalIndex = Math.floor((productId - 1) / 1001)
+  // Best Seller IDs are generated as index + 10000
+  // So we can extract the original index: productId - 10000
+  const originalIndex = productId - 10000
   const currentImageIndex = getCurrentImageIndex(productId)
   
   console.log(`Navigating from product ID ${productId} to original index ${originalIndex}, final route: /products/${productId}`)
@@ -126,19 +165,38 @@ function goToProduct(productId: number) {
   router.push(`/products/${productId}?imageIndex=${currentImageIndex}`)
 }
 
+function handleImageError(event: Event) {
+  const target = event.target as HTMLImageElement
+  target.src = '/src/assets/tea_image/1.png'
+}
+
 function getImageSrc(imagePath: string) {
+  // 检查输入参数
+  if (!imagePath || imagePath === 'undefined' || imagePath.includes('undefined')) {
+    console.warn('Invalid image path:', imagePath)
+    return new URL(`../assets/tea_image/1.png`, import.meta.url).href
+  }
+  
   // Use API config to handle all image URL logic
   const processedUrl = API_CONFIG.getImageUrl(imagePath)
   
   // If it's a local static asset path, convert to proper Vite asset import
   if (imagePath && (imagePath.startsWith('/src/assets/') || imagePath.includes('tea_image'))) {
     const fileName = imagePath.split('/').pop()
+    if (!fileName || fileName === 'undefined') {
+      console.warn('Could not extract valid filename from path:', imagePath)
+      return new URL(`../assets/tea_image/1.png`, import.meta.url).href
+    }
     return new URL(`../assets/tea_image/${fileName}`, import.meta.url).href
   }
   
   // If API config returned the original path (for local assets), convert it
   if (processedUrl === imagePath && imagePath.includes('tea_image')) {
     const fileName = imagePath.split('/').pop()
+    if (!fileName || fileName === 'undefined') {
+      console.warn('Could not extract valid filename from path:', imagePath)
+      return new URL(`../assets/tea_image/1.png`, import.meta.url).href
+    }
     return new URL(`../assets/tea_image/${fileName}`, import.meta.url).href
   }
   
@@ -189,7 +247,7 @@ function nextImage(productId: number) {
 <template>
   <div class="min-h-screen bg-black" style="background-color: black !important;">
     <!-- Hero Section - Compact Layout -->
-    <div class="relative text-white flex items-center" :style="{ backgroundImage: `url(${getImageSrc('/src/assets/tea_image/background.png')})`, backgroundSize: 'cover', backgroundPosition: 'center', backgroundRepeat: 'no-repeat', aspectRatio: '16/3', width: '100%' }">
+    <div class="relative text-white flex items-center" :style="{ backgroundImage: `url(${getImageSrc(adminStore.heroConfig.backgroundImage)})`, backgroundSize: 'cover', backgroundPosition: 'center', backgroundRepeat: 'no-repeat', aspectRatio: '16/3', width: '100%' }">
       <!-- Dark overlay for text readability -->
       <div class="absolute inset-0 bg-black bg-opacity-50"></div>
       <div class="relative max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 w-full z-10">
@@ -203,31 +261,19 @@ function nextImage(productId: number) {
           </div>
 
           <h1 class="text-4xl lg:text-6xl font-normal mb-4 leading-tight" style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;">
-            Express Your Unique Style
+            {{ adminStore.heroConfig.title }}
           </h1>
           
           <h2 class="text-lg lg:text-xl font-medium mb-8 text-gray-300 tracking-wide uppercase">
-            MOST TRUSTED SOURCE FOR AUTHENTIC CHINESE PORCELAIN MASTERPIECES
+            {{ adminStore.heroConfig.subtitle }}
           </h2>
 
           <div class="space-y-3 max-w-2xl mx-auto">
-            <div class="flex items-center justify-center text-sm">
+            <div v-for="(feature, index) in adminStore.heroConfig.features" :key="index" class="flex items-center justify-center text-sm">
               <svg class="w-4 h-4 text-white mr-3" fill="currentColor" viewBox="0 0 20 20">
                 <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
               </svg>
-              <span>Hand-crafted by Master Artisans</span>
-            </div>
-            <div class="flex items-center justify-center text-sm">
-              <svg class="w-4 h-4 text-white mr-3" fill="currentColor" viewBox="0 0 20 20">
-                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
-              </svg>
-              <span>Authenticity Guaranteed</span>
-            </div>
-            <div class="flex items-center justify-center text-sm">
-              <svg class="w-4 h-4 text-white mr-3" fill="currentColor" viewBox="0 0 20 20">
-                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
-              </svg>
-              <span>Centuries of Heritage</span>
+              <span>{{ feature }}</span>
             </div>
           </div>
 
@@ -269,10 +315,17 @@ function nextImage(productId: number) {
               </div>
               
               <!-- Navigation Dots -->
-              <div class="absolute bottom-3 left-1/2 transform -translate-x-1/2 flex space-x-1">
-                <div class="w-2 h-2 bg-orange-500 rounded-full"></div>
-                <div class="w-2 h-2 bg-white border border-gray-300 rounded-full"></div>
-                <div class="w-2 h-2 bg-white border border-gray-300 rounded-full"></div>
+              <div v-if="getProductThumbnails(product).length > 1" class="absolute bottom-3 left-1/2 transform -translate-x-1/2 flex space-x-1">
+                <div 
+                  v-for="(thumb, index) in getProductThumbnails(product)" 
+                  :key="index"
+                  :class="[
+                    'w-2 h-2 rounded-full',
+                    index === getCurrentImageIndex(product.id) 
+                      ? 'bg-orange-500' 
+                      : 'bg-white border border-gray-300'
+                  ]"
+                ></div>
               </div>
               
               <!-- Arrow -->
@@ -284,7 +337,7 @@ function nextImage(productId: number) {
             </div>
             
             <!-- Thumbnail Navigation -->
-            <div class="flex justify-center items-center space-x-2 py-2">
+            <div v-if="getProductThumbnails(product).length > 1" class="flex justify-center items-center space-x-2 py-2">
               <!-- Left Arrow -->
               <button 
                 @click.stop="previousImage(product.id)"
@@ -312,6 +365,8 @@ function nextImage(productId: number) {
                     :src="getImageSrc(thumb)" 
                     :alt="`Thumbnail ${index + 1}`"
                     class="w-full h-full object-cover"
+                    @error="handleImageError"
+                    loading="lazy"
                   />
                 </div>
               </div>

@@ -58,7 +58,7 @@
       <!-- Price -->
       <div class="flex items-center justify-between">
         <p class="text-sm text-gray-300">
-          Sale price{{ product.price.toFixed(0) }} USD
+          Sale price {{ formatPrice(product.price) }} USD
         </p>
       </div>
     </div>
@@ -70,7 +70,7 @@ import { computed, ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { useI18n } from 'vue-i18n'
 import { useCartStore } from '@/stores/cart'
-import type { Product } from '@/stores/products'
+import type { Product } from '@/services/api'
 import API_CONFIG from '@/config/api'
 
 interface Props {
@@ -85,10 +85,24 @@ const cartStore = useCartStore()
 
 const currentLocale = computed(() => locale.value)
 
+// Format price function to handle different price types
+function formatPrice(price: any): string {
+  if (typeof price === 'number') {
+    return price.toFixed(0)
+  } else if (typeof price === 'string') {
+    // Remove any non-numeric characters except decimal point
+    const numericPrice = parseFloat(price.replace(/[^0-9.]/g, ''))
+    if (!isNaN(numericPrice)) {
+      return numericPrice.toFixed(0)
+    }
+  }
+  return '0'
+}
+
 // Image loading states
 const imageLoading = ref(true)
 const imageError = ref(false)
-let imageLoadTimeout: NodeJS.Timeout | null = null
+let imageLoadTimeout: number | null = null
 
 function goToProduct() {
   router.push(`/products/${props.product.id}`)

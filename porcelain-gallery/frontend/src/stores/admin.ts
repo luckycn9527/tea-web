@@ -60,6 +60,7 @@ export interface Product {
 export interface Dynasty {
   id: number
   name: string
+  name_cn: string
   period: string
   description: string
   image: string
@@ -169,7 +170,20 @@ export const useAdminStore = defineStore('admin', () => {
         '/src/assets/tea_image/5.png',
         '/src/assets/tea_image/3.png',
         '/src/assets/tea_image/4.png'
-      ]
+      ],
+      // 扩展字段
+      name_en: 'Landscape Jasper Bracelet IV (42mm)',
+      name_cn: '山水碧玉手镯 IV (42mm)',
+      description_en: 'Beautiful landscape jasper bracelet with natural patterns',
+      description_cn: '美丽的山水碧玉手镯，具有天然图案',
+      dynasty_id: 1,
+      shape_id: 1,
+      dimensions: '42mm',
+      weight: '15g',
+      age: 'Modern',
+      material: 'Premium Porcelain',
+      origin: 'China',
+      stock_quantity: 10
     },
     {
       name: 'Dragon Blood Jasper V (4mm)',
@@ -179,7 +193,20 @@ export const useAdminStore = defineStore('admin', () => {
         '/src/assets/tea_image/14.png',
         '/src/assets/tea_image/5.png',
         '/src/assets/tea_image/6.png'
-      ]
+      ],
+      // 扩展字段
+      name_en: 'Dragon Blood Jasper V (4mm)',
+      name_cn: '龙血碧玉 V (4mm)',
+      description_en: 'Exquisite dragon blood jasper bracelet with deep red patterns',
+      description_cn: '精美的龙血碧玉手镯，具有深红色图案',
+      dynasty_id: 2,
+      shape_id: 2,
+      dimensions: '4mm',
+      weight: '12g',
+      age: 'Vintage',
+      material: 'Premium Porcelain',
+      origin: 'China',
+      stock_quantity: 8
     },
     {
       name: 'Landscape Jasper Bracelet VII (6mm)',
@@ -189,7 +216,20 @@ export const useAdminStore = defineStore('admin', () => {
         '/src/assets/tea_image/22.png',
         '/src/assets/tea_image/8.png',
         '/src/assets/tea_image/9.png'
-      ]
+      ],
+      // 扩展字段
+      name_en: 'Landscape Jasper Bracelet VII (6mm)',
+      name_cn: '山水碧玉手镯 VII (6mm)',
+      description_en: 'Premium landscape jasper bracelet with natural stone patterns',
+      description_cn: '高级山水碧玉手镯，具有天然石材图案',
+      dynasty_id: 3,
+      shape_id: 3,
+      dimensions: '6mm',
+      weight: '18g',
+      age: 'Antique',
+      material: 'Premium Porcelain',
+      origin: 'China',
+      stock_quantity: 6
     },
     {
       name: 'Camel-Turquoise Hematite Bracelet V (4mm)',
@@ -199,7 +239,20 @@ export const useAdminStore = defineStore('admin', () => {
         '/src/assets/tea_image/23.png',
         '/src/assets/tea_image/11.png',
         '/src/assets/tea_image/12.png'
-      ]
+      ],
+      // 扩展字段
+      name_en: 'Camel-Turquoise Hematite Bracelet V (4mm)',
+      name_cn: '骆驼绿松石赤铁矿手镯 V (4mm)',
+      description_en: 'Unique camel-turquoise hematite bracelet with earthy tones',
+      description_cn: '独特的骆驼绿松石赤铁矿手镯，具有大地色调',
+      dynasty_id: 4,
+      shape_id: 4,
+      dimensions: '4mm',
+      weight: '14g',
+      age: 'Modern',
+      material: 'Premium Porcelain',
+      origin: 'China',
+      stock_quantity: 12
     },
     {
       name: 'Amethyst Bracelet XVII (6mm)',
@@ -209,7 +262,20 @@ export const useAdminStore = defineStore('admin', () => {
         '/src/assets/tea_image/13.png',
         '/src/assets/tea_image/14.png',
         '/src/assets/tea_image/15.png'
-      ]
+      ],
+      // 扩展字段
+      name_en: 'Amethyst Bracelet XVII (6mm)',
+      name_cn: '紫水晶手镯 XVII (6mm)',
+      description_en: 'Elegant amethyst bracelet with deep purple crystals',
+      description_cn: '优雅的紫水晶手镯，具有深紫色水晶',
+      dynasty_id: 5,
+      shape_id: 5,
+      dimensions: '6mm',
+      weight: '16g',
+      age: 'Vintage',
+      material: 'Premium Porcelain',
+      origin: 'China',
+      stock_quantity: 9
     },
     {
       name: 'Tiger Eye Bracelet I (6mm)',
@@ -219,7 +285,20 @@ export const useAdminStore = defineStore('admin', () => {
         '/src/assets/tea_image/16.png',
         '/src/assets/tea_image/17.png',
         '/src/assets/tea_image/18.png'
-      ]
+      ],
+      // 扩展字段
+      name_en: 'Tiger Eye Bracelet I (6mm)',
+      name_cn: '虎眼石手镯 I (6mm)',
+      description_en: 'Striking tiger eye bracelet with golden brown bands',
+      description_cn: '引人注目的虎眼石手镯，具有金棕色条纹',
+      dynasty_id: 1,
+      shape_id: 1,
+      dimensions: '6mm',
+      weight: '17g',
+      age: 'Modern',
+      material: 'Premium Porcelain',
+      origin: 'China',
+      stock_quantity: 7
     },
     {
       name: 'Landscape Jasper Bracelet IV (4mm)',
@@ -229,7 +308,20 @@ export const useAdminStore = defineStore('admin', () => {
         '/src/assets/tea_image/20.png',
         '/src/assets/tea_image/20.png',
         '/src/assets/tea_image/3.png'
-      ]
+      ],
+      // 扩展字段
+      name_en: 'Landscape Jasper Bracelet IV (4mm)',
+      name_cn: '山水碧玉手镯 IV (4mm)',
+      description_en: 'Refined landscape jasper bracelet with natural formations',
+      description_cn: '精致的山水碧玉手镯，具有天然形态',
+      dynasty_id: 2,
+      shape_id: 2,
+      dimensions: '4mm',
+      weight: '13g',
+      age: 'Antique',
+      material: 'Premium Porcelain',
+      origin: 'China',
+      stock_quantity: 5
     },
     {
       name: 'Dragon Blood Jasper V (4mm)',
@@ -239,7 +331,20 @@ export const useAdminStore = defineStore('admin', () => {
         '/src/assets/tea_image/21.png',
         '/src/assets/tea_image/5.png',
         '/src/assets/tea_image/6.png'
-      ]
+      ],
+      // 扩展字段
+      name_en: 'Dragon Blood Jasper V (4mm)',
+      name_cn: '龙血碧玉 V (4mm)',
+      description_en: 'Rare dragon blood jasper bracelet with crimson patterns',
+      description_cn: '稀有的龙血碧玉手镯，具有深红色图案',
+      dynasty_id: 3,
+      shape_id: 3,
+      dimensions: '4mm',
+      weight: '11g',
+      age: 'Vintage',
+      material: 'Premium Porcelain',
+      origin: 'China',
+      stock_quantity: 4
     }
   ])
 
@@ -249,6 +354,18 @@ export const useAdminStore = defineStore('admin', () => {
     description: 'Crafted in small batches with rare find stones, each piece is made to stand out, just as unique as the person who wears it.',
     buttonText: 'EXPLORE COLLECTION',
     image: '/src/assets/tea_image/best.png'
+  })
+
+  // Hero Section settings
+  const heroConfig = ref({
+    title: 'Express Your Unique Style',
+    subtitle: 'MOST TRUSTED SOURCE FOR AUTHENTIC CHINESE PORCELAIN MASTERPIECES',
+    backgroundImage: '/src/assets/tea_image/background.png',
+    features: [
+      'Hand-crafted by Master Artisans',
+      'Authenticity Guaranteed',
+      'Centuries of Heritage'
+    ]
   })
 
   // Heritage Story settings
@@ -263,146 +380,265 @@ export const useAdminStore = defineStore('admin', () => {
   const products = ref<Product[]>([
     {
       id: 1,
-      name_en: "bottle",
-      name_cn: "瓶子",
-      description_en: "A beautiful porcelain bottle",
-      description_cn: "一个美丽的瓷器瓶子",
-      craftsmanship_en: "Hand-crafted porcelain",
-      craftsmanship_cn: "手工制作的瓷器",
-      history_en: "Traditional Chinese porcelain",
-      history_cn: "中国传统瓷器",
-      price: 0,
-      dimensions: "Height: 20cm",
-      weight: "0.5kg",
-      age: "Modern",
-      dynasty_id: 1,
+      name_en: "Blue and White Porcelain Vase",
+      name_cn: "青花瓷花瓶",
+      description_en: "Classic blue and white porcelain vase from the Ming Dynasty, featuring traditional Chinese motifs and exquisite craftsmanship.",
+      description_cn: "明代经典青花瓷花瓶，采用传统中国图案，工艺精湛。",
+      craftsmanship_en: "Hand-painted with cobalt blue underglaze on white porcelain body.",
+      craftsmanship_cn: "在白瓷胎上手工绘制钴蓝釉下彩。",
+      history_en: "Blue and white porcelain originated in the Tang Dynasty and reached its peak during the Ming Dynasty.",
+      history_cn: "青花瓷起源于唐代，在明代达到鼎盛。",
+      price: 255,
+      dimensions: "Height: 25cm, Width: 15cm",
+      weight: "1.2kg",
+      age: "Antique",
+      dynasty_id: 4,
       shape_id: 1,
-      dynasty_name: "Modern",
-      shape_name: "Bottle",
+      dynasty_name: "Ming Dynasty",
+      shape_name: "Vase",
       primary_image: "/src/assets/tea_image/1.png",
-      images: [],
+      images: [
+        { id: 1, image_path: "/src/assets/tea_image/1.png", is_primary: true, sort_order: 1 },
+        { id: 2, image_path: "/src/assets/tea_image/2.png", is_primary: false, sort_order: 2 }
+      ],
       videos: [],
-      is_featured: false,
+      is_featured: true,
       is_available: true
     },
     {
       id: 2,
-      name_en: "Chinese porcelain",
-      name_cn: "中国瓷器",
-      description_en: "Authentic Chinese porcelain",
-      description_cn: "正宗的中国瓷器",
-      craftsmanship_en: "Traditional craftsmanship",
-      craftsmanship_cn: "传统工艺",
-      history_en: "Ancient Chinese art",
-      history_cn: "中国古代艺术",
-      price: 232,
-      dimensions: "Height: 25cm",
+      name_en: "Celadon Tea Set",
+      name_cn: "青瓷茶具",
+      description_en: "Elegant celadon tea set from the Song Dynasty, known for its jade-like color and delicate form.",
+      description_cn: "宋代优雅青瓷茶具，以其玉般的颜色和精致的造型而闻名。",
+      craftsmanship_en: "Fired at high temperature with iron-rich glaze creating the characteristic celadon color.",
+      craftsmanship_cn: "高温烧制，富含铁的釉料创造出特有的青瓷颜色。",
+      history_en: "Celadon ware was highly prized during the Song Dynasty for its aesthetic beauty.",
+      history_cn: "青瓷在宋代因其美学价值而备受推崇。",
+      price: 180,
+      dimensions: "Teapot: 15cm height, Cups: 6cm height",
       weight: "0.8kg",
       age: "Antique",
       dynasty_id: 2,
       shape_id: 2,
       dynasty_name: "Song Dynasty",
-      shape_name: "Vase",
-      primary_image: "/src/assets/tea_image/2.png",
-      images: [],
+      shape_name: "Tea Set",
+      primary_image: "/src/assets/tea_image/3.png",
+      images: [
+        { id: 3, image_path: "/src/assets/tea_image/3.png", is_primary: true, sort_order: 1 },
+        { id: 4, image_path: "/src/assets/tea_image/4.png", is_primary: false, sort_order: 2 }
+      ],
       videos: [],
       is_featured: true,
       is_available: true
     },
     {
       id: 3,
-      name_en: "Chinese porcelain",
-      name_cn: "中国瓷器",
-      description_en: "Classic Chinese porcelain",
-      description_cn: "经典的中国瓷器",
-      craftsmanship_en: "Master craftsmanship",
-      craftsmanship_cn: "大师工艺",
-      history_en: "Traditional Chinese heritage",
-      history_cn: "中国传统遗产",
-      price: 0,
-      dimensions: "Height: 30cm",
-      weight: "1.0kg",
+      name_en: "Tang Dynasty Horse Figurine",
+      name_cn: "唐代马俑",
+      description_en: "Exquisite Tang Dynasty horse figurine, symbolizing prosperity and power in ancient China.",
+      description_cn: "精美的唐代马俑，象征着古代中国的繁荣和权力。",
+      craftsmanship_en: "Hand-molded terracotta with detailed carving and painted decoration.",
+      craftsmanship_cn: "手工塑造的陶器，带有精细的雕刻和彩绘装饰。",
+      history_en: "Tang Dynasty horses were symbols of wealth and military power.",
+      history_cn: "唐代马匹是财富和军事实力的象征。",
+      price: 320,
+      dimensions: "Height: 20cm, Length: 25cm",
+      weight: "1.5kg",
       age: "Antique",
-      dynasty_id: 3,
+      dynasty_id: 1,
       shape_id: 3,
-      dynasty_name: "Yuan Dynasty",
-      shape_name: "Plate",
-      primary_image: "/src/assets/tea_image/3.png",
-      images: [],
+      dynasty_name: "Tang Dynasty",
+      shape_name: "Figurine",
+      primary_image: "/src/assets/tea_image/5.png",
+      images: [
+        { id: 5, image_path: "/src/assets/tea_image/5.png", is_primary: true, sort_order: 1 },
+        { id: 6, image_path: "/src/assets/tea_image/6.png", is_primary: false, sort_order: 2 }
+      ],
       videos: [],
-      is_featured: false,
+      is_featured: true,
       is_available: true
     },
     {
       id: 4,
-      name_en: "Chinese porcelain",
-      name_cn: "中国瓷器",
-      description_en: "Exquisite Chinese porcelain",
-      description_cn: "精美的中国瓷器",
-      craftsmanship_en: "Fine porcelain work",
-      craftsmanship_cn: "精细瓷器工艺",
-      history_en: "Imperial Chinese porcelain",
-      history_cn: "中国皇家瓷器",
-      price: 333,
-      dimensions: "Height: 35cm",
-      weight: "1.2kg",
+      name_en: "Yuan Dynasty Blue and White Bowl",
+      name_cn: "元代青花碗",
+      description_en: "Exquisite blue and white bowl from the Yuan Dynasty, showcasing the early development of blue and white porcelain.",
+      description_cn: "元代精美的青花碗，展示了青花瓷的早期发展。",
+      craftsmanship_en: "Hand-painted cobalt blue designs on white porcelain with traditional Chinese motifs.",
+      craftsmanship_cn: "在白瓷上手工绘制钴蓝图案，采用传统中国纹样。",
+      history_en: "The Yuan Dynasty marked the beginning of blue and white porcelain production in China.",
+      history_cn: "元代标志着中国青花瓷生产的开始。",
+      price: 180,
+      dimensions: "Diameter: 20cm, Height: 8cm",
+      weight: "0.8kg",
       age: "Antique",
-      dynasty_id: 4,
+      dynasty_id: 3,
       shape_id: 4,
-      dynasty_name: "Ming Dynasty",
+      dynasty_name: "Yuan Dynasty",
       shape_name: "Bowl",
-      primary_image: "/src/assets/tea_image/4.png",
-      images: [],
+      primary_image: "/src/assets/tea_image/7.png",
+      images: [
+        { id: 7, image_path: "/src/assets/tea_image/7.png", is_primary: true, sort_order: 1 }
+      ],
       videos: [],
       is_featured: true,
       is_available: true
     },
     {
       id: 5,
-      name_en: "Chinese porcelain",
-      name_cn: "中国瓷器",
-      description_en: "Premium Chinese porcelain",
-      description_cn: "优质的中国瓷器",
-      craftsmanship_en: "Luxury porcelain",
-      craftsmanship_cn: "奢华瓷器",
-      history_en: "Royal Chinese porcelain",
-      history_cn: "中国皇家瓷器",
-      price: 121,
-      dimensions: "Height: 28cm",
-      weight: "0.9kg",
+      name_en: "Ming Dynasty Celadon Vase",
+      name_cn: "明代青瓷花瓶",
+      description_en: "Beautiful celadon vase from the Ming Dynasty, featuring the characteristic jade-like green glaze.",
+      description_cn: "明代美丽的青瓷花瓶，具有特有的玉绿色釉面。",
+      craftsmanship_en: "High-fired celadon with iron-rich glaze creating the characteristic green color.",
+      craftsmanship_cn: "高温烧制的青瓷，富含铁的釉料创造出特有的绿色。",
+      history_en: "Celadon ware was highly prized during the Ming Dynasty for its aesthetic beauty.",
+      history_cn: "青瓷在明代因其美学价值而备受推崇。",
+      price: 320,
+      dimensions: "Height: 30cm, Width: 18cm",
+      weight: "1.5kg",
+      age: "Antique",
+      dynasty_id: 4,
+      shape_id: 1,
+      dynasty_name: "Ming Dynasty",
+      shape_name: "Vase",
+      primary_image: "/src/assets/tea_image/8.png",
+      images: [
+        { id: 8, image_path: "/src/assets/tea_image/8.png", is_primary: true, sort_order: 1 }
+      ],
+      videos: [],
+      is_featured: true,
+      is_available: true
+    },
+    {
+      id: 6,
+      name_en: "Song Dynasty White Porcelain Plate",
+      name_cn: "宋代白瓷盘",
+      description_en: "Elegant white porcelain plate from the Song Dynasty, known for its pure white color and refined craftsmanship.",
+      description_cn: "宋代优雅的白瓷盘，以其纯白色和精湛工艺而闻名。",
+      craftsmanship_en: "High-fired white porcelain with pure white glaze and delicate form.",
+      craftsmanship_cn: "高温烧制的白瓷，具有纯白釉面和精致造型。",
+      history_en: "White porcelain reached its peak during the Song Dynasty.",
+      history_cn: "白瓷在宋代达到鼎盛。",
+      price: 150,
+      dimensions: "Diameter: 25cm, Height: 3cm",
+      weight: "0.6kg",
+      age: "Antique",
+      dynasty_id: 2,
+      shape_id: 5,
+      dynasty_name: "Song Dynasty",
+      shape_name: "Plate",
+      primary_image: "/src/assets/tea_image/9.png",
+      images: [
+        { id: 9, image_path: "/src/assets/tea_image/9.png", is_primary: true, sort_order: 1 }
+      ],
+      videos: [],
+      is_featured: true,
+      is_available: true
+    },
+    {
+      id: 7,
+      name_en: "Qing Dynasty Famille Rose Vase",
+      name_cn: "清代粉彩花瓶",
+      description_en: "Exquisite famille rose vase from the Qing Dynasty, featuring vibrant colors and intricate designs.",
+      description_cn: "清代精美的粉彩花瓶，具有鲜艳的色彩和复杂的设计。",
+      craftsmanship_en: "Hand-painted with famille rose enamels over white porcelain.",
+      craftsmanship_cn: "在白瓷上手工绘制粉彩釉料。",
+      history_en: "Famille rose was a distinctive Qing Dynasty innovation in Chinese porcelain.",
+      history_cn: "粉彩是清代中国瓷器的独特创新。",
+      price: 450,
+      dimensions: "Height: 35cm, Width: 20cm",
+      weight: "2.0kg",
       age: "Antique",
       dynasty_id: 5,
-      shape_id: 5,
+      shape_id: 1,
       dynasty_name: "Qing Dynasty",
-      shape_name: "Teapot",
-      primary_image: "/src/assets/tea_image/5.png",
-      images: [],
+      shape_name: "Vase",
+      primary_image: "/src/assets/tea_image/10.png",
+      images: [
+        { id: 10, image_path: "/src/assets/tea_image/10.png", is_primary: true, sort_order: 1 }
+      ],
+      videos: [],
+      is_featured: true,
+      is_available: true
+    },
+    {
+      id: 8,
+      name_en: "Tang Dynasty Sancai Pottery",
+      name_cn: "唐代三彩陶器",
+      description_en: "Colorful sancai pottery from the Tang Dynasty, known for its three-color glaze technique.",
+      description_cn: "唐代彩色三彩陶器，以其三色釉技术而闻名。",
+      craftsmanship_en: "Three-color glaze technique with yellow, green, and white glazes.",
+      craftsmanship_cn: "三色釉技术，使用黄、绿、白三色釉料。",
+      history_en: "Sancai pottery was a hallmark of Tang Dynasty ceramic art.",
+      history_cn: "三彩陶器是唐代陶瓷艺术的标志。",
+      price: 280,
+      dimensions: "Height: 22cm, Width: 16cm",
+      weight: "1.3kg",
+      age: "Antique",
+      dynasty_id: 1,
+      shape_id: 2,
+      dynasty_name: "Tang Dynasty",
+      shape_name: "Tea Set",
+      primary_image: "/src/assets/tea_image/11.png",
+      images: [
+        { id: 11, image_path: "/src/assets/tea_image/11.png", is_primary: true, sort_order: 1 }
+      ],
       videos: [],
       is_featured: false,
       is_available: true
     },
     {
-      id: 6,
-      name_en: "Chinese porcelain",
-      name_cn: "中国瓷器",
-      description_en: "Artistic Chinese porcelain",
-      description_cn: "艺术性的中国瓷器",
-      craftsmanship_en: "Artistic porcelain",
-      craftsmanship_cn: "艺术瓷器",
-      history_en: "Cultural Chinese porcelain",
-      history_cn: "中国文化瓷器",
-      price: 211,
-      dimensions: "Height: 32cm",
-      weight: "1.1kg",
+      id: 9,
+      name_en: "Ming Dynasty Blue and White Plate",
+      name_cn: "明代青花盘",
+      description_en: "Classic blue and white plate from the Ming Dynasty, featuring traditional dragon motifs.",
+      description_cn: "明代经典青花盘，采用传统龙纹图案。",
+      craftsmanship_en: "Hand-painted cobalt blue dragon designs on white porcelain.",
+      craftsmanship_cn: "在白瓷上手工绘制钴蓝龙纹图案。",
+      history_en: "Dragon motifs were symbols of imperial power in Ming Dynasty porcelain.",
+      history_cn: "龙纹图案是明代瓷器中皇权的象征。",
+      price: 200,
+      dimensions: "Diameter: 30cm, Height: 4cm",
+      weight: "1.0kg",
       age: "Antique",
-      dynasty_id: 1,
-      shape_id: 1,
-      dynasty_name: "Tang Dynasty",
-      shape_name: "Vase",
-      primary_image: "/src/assets/tea_image/6.png",
-      images: [],
+      dynasty_id: 4,
+      shape_id: 5,
+      dynasty_name: "Ming Dynasty",
+      shape_name: "Plate",
+      primary_image: "/src/assets/tea_image/12.png",
+      images: [
+        { id: 12, image_path: "/src/assets/tea_image/12.png", is_primary: true, sort_order: 1 }
+      ],
       videos: [],
-      is_featured: true,
+      is_featured: false,
+      is_available: true
+    },
+    {
+      id: 10,
+      name_en: "Song Dynasty Ding Ware Bowl",
+      name_cn: "宋代定窑碗",
+      description_en: "Elegant Ding ware bowl from the Song Dynasty, known for its pure white color and thin walls.",
+      description_cn: "宋代优雅的定窑碗，以其纯白色和薄壁而闻名。",
+      craftsmanship_en: "High-fired white porcelain with extremely thin walls and pure white glaze.",
+      craftsmanship_cn: "高温烧制的白瓷，具有极薄的壁和纯白釉面。",
+      history_en: "Ding ware was one of the five great kilns of the Song Dynasty.",
+      history_cn: "定窑是宋代五大名窑之一。",
+      price: 220,
+      dimensions: "Diameter: 18cm, Height: 6cm",
+      weight: "0.7kg",
+      age: "Antique",
+      dynasty_id: 2,
+      shape_id: 4,
+      dynasty_name: "Song Dynasty",
+      shape_name: "Bowl",
+      primary_image: "/src/assets/tea_image/13.png",
+      images: [
+        { id: 13, image_path: "/src/assets/tea_image/13.png", is_primary: true, sort_order: 1 }
+      ],
+      videos: [],
+      is_featured: false,
       is_available: true
     }
   ])
@@ -410,45 +646,50 @@ export const useAdminStore = defineStore('admin', () => {
     {
       id: 1,
       name: 'Tang Dynasty',
+      name_cn: '唐朝',
       period: '618-907 AD',
       description: 'The golden age of Chinese civilization',
-      image: '/src/assets/tea_image/1.png',
+      image: '/src/assets/tea_image/tang.png',
       sort_order: 1,
       is_enabled: true
     },
     {
       id: 2,
       name: 'Song Dynasty',
+      name_cn: '宋朝',
       period: '960-1279 AD',
       description: 'Known for refined aesthetics and innovation',
-      image: '/src/assets/tea_image/2.png',
+      image: '/src/assets/tea_image/song.png',
       sort_order: 2,
       is_enabled: true
     },
     {
       id: 3,
       name: 'Yuan Dynasty',
+      name_cn: '元朝',
       period: '1271-1368 AD',
       description: 'Mongol rule brought new artistic influences',
-      image: '/src/assets/tea_image/3.png',
+      image: '/src/assets/tea_image/yuan.png',
       sort_order: 3,
       is_enabled: true
     },
     {
       id: 4,
       name: 'Ming Dynasty',
+      name_cn: '明朝',
       period: '1368-1644 AD',
       description: 'Peak of Chinese porcelain craftsmanship',
-      image: '/src/assets/tea_image/4.png',
+      image: '/src/assets/tea_image/ming.png',
       sort_order: 4,
       is_enabled: true
     },
     {
       id: 5,
       name: 'Qing Dynasty',
+      name_cn: '清朝',
       period: '1644-1912 AD',
       description: 'Imperial porcelain reached new heights',
-      image: '/src/assets/tea_image/5.png',
+      image: '/src/assets/tea_image/qing.png',
       sort_order: 5,
       is_enabled: true
     }
@@ -494,13 +735,22 @@ export const useAdminStore = defineStore('admin', () => {
 
   // Media Library
   const mediaLibrary = ref<Array<{
-    id: number
-    name: string
-    type: 'image' | 'video'
-    url: string
-    size: number
-    uploadDate: string
-    tags: string[]
+    id: number | string
+    filename: string
+    original_filename: string
+    file_path: string
+    file_url: string
+    mime_type: string
+    file_size: number
+    width: number
+    height: number
+    alt_text: string
+    caption: string
+    tags: string
+    is_public: boolean
+    uploaded_by: number
+    created_at: string
+    is_existing?: boolean
   }>>([])
 
   // Methods
@@ -608,6 +858,27 @@ export const useAdminStore = defineStore('admin', () => {
     localStorage.setItem('rareDynastyCollection', JSON.stringify(rareDynastyCollection.value))
   }
 
+  // Hero Section Management
+  function updateHeroTitle(newTitle: string) {
+    heroConfig.value.title = newTitle
+    localStorage.setItem('heroConfig', JSON.stringify(heroConfig.value))
+  }
+
+  function updateHeroSubtitle(newSubtitle: string) {
+    heroConfig.value.subtitle = newSubtitle
+    localStorage.setItem('heroConfig', JSON.stringify(heroConfig.value))
+  }
+
+  function updateHeroBackgroundImage(newImage: string) {
+    heroConfig.value.backgroundImage = newImage
+    localStorage.setItem('heroConfig', JSON.stringify(heroConfig.value))
+  }
+
+  function updateHeroFeatures(newFeatures: string[]) {
+    heroConfig.value.features = newFeatures
+    localStorage.setItem('heroConfig', JSON.stringify(heroConfig.value))
+  }
+
   // Heritage Story Management
   function updateHeritageStoryTitle(newTitle: string) {
     heritageStory.value.title = newTitle
@@ -642,6 +913,18 @@ export const useAdminStore = defineStore('admin', () => {
       contentSettings.value = JSON.parse(savedContentSettings)
     }
 
+    // Load products from localStorage to ensure admin and frontend sync
+    const savedProducts = localStorage.getItem('products')
+    if (savedProducts) {
+      // Use existing products from localStorage (preserves user operations)
+      products.value = JSON.parse(savedProducts)
+      console.log('Using products from localStorage in loadSettings:', products.value.length)
+    } else {
+      // Only use default products if localStorage is empty (first time load)
+      console.log('Using default products in loadSettings (first load):', products.value.length)
+      localStorage.setItem('products', JSON.stringify(products.value))
+    }
+
     // Always use default product images configuration for consistency
     const savedProductImages = localStorage.getItem('productImages')
     if (savedProductImages) {
@@ -666,7 +949,24 @@ export const useAdminStore = defineStore('admin', () => {
     // Always use default best sellers products configuration for consistency
     const savedBestSellersProducts = localStorage.getItem('bestSellersProducts')
     if (savedBestSellersProducts) {
-      bestSellersProducts.value = JSON.parse(savedBestSellersProducts)
+      const parsedProducts = JSON.parse(savedBestSellersProducts)
+      // 确保每个产品都有扩展字段，如果没有则使用默认值
+      bestSellersProducts.value = parsedProducts.map((product: any, index: number) => ({
+        ...product,
+        // 确保有扩展字段
+        name_en: product.name_en || product.name || `Product ${index + 1}`,
+        name_cn: product.name_cn || product.name || `产品 ${index + 1}`,
+        description_en: product.description_en || `Description for ${product.name}`,
+        description_cn: product.description_cn || `${product.name}的描述`,
+        dynasty_id: product.dynasty_id || 1,
+        shape_id: product.shape_id || 1,
+        dimensions: product.dimensions || 'Various',
+        weight: product.weight || 'Various',
+        age: product.age || 'Modern',
+        material: product.material || 'Premium Porcelain',
+        origin: product.origin || 'China',
+        stock_quantity: product.stock_quantity || 10
+      }))
     }
     // bestSellersProducts already has default values, so no need to override
 
@@ -676,6 +976,13 @@ export const useAdminStore = defineStore('admin', () => {
       rareDynastyCollection.value = JSON.parse(savedRareDynastyCollection)
     }
     // rareDynastyCollection already has default values, so no need to override
+
+    // Always use default hero configuration for consistency
+    const savedHeroConfig = localStorage.getItem('heroConfig')
+    if (savedHeroConfig) {
+      heroConfig.value = JSON.parse(savedHeroConfig)
+    }
+    // heroConfig already has default values, so no need to override
 
     // Always use default heritage story configuration for consistency
     const savedHeritageStory = localStorage.getItem('heritageStory')
@@ -766,9 +1073,17 @@ export const useAdminStore = defineStore('admin', () => {
     // Create a product with file paths converted to base64
     const productForStorage = { ...product, id: newId }
     
+    // 确保价格是数字类型
+    if (productForStorage.price) {
+      const priceStr = String(productForStorage.price).replace(/[^0-9.]/g, '')
+      productForStorage.price = parseFloat(priceStr) || 0
+    }
+    
     console.log('Adding product with file objects:', {
       primary_image: productForStorage.primary_image,
-      images_count: productForStorage.images?.length || 0
+      images_count: productForStorage.images?.length || 0,
+      price: productForStorage.price,
+      price_type: typeof productForStorage.price
     })
     
     // Convert primary image file to compressed base64 if it exists
@@ -1066,6 +1381,32 @@ export const useAdminStore = defineStore('admin', () => {
   }
 
   // Media Library Methods
+  async function loadMediaLibrary() {
+    try {
+      const response = await fetch('http://localhost:3000/api/media-library', {
+        method: 'GET',
+        headers: {
+          'Authorization': `Bearer ${localStorage.getItem('admin_token')}`,
+          'Content-Type': 'application/json'
+        }
+      })
+
+      if (response.ok) {
+        const data = await response.json()
+        mediaLibrary.value = data.media || []
+        console.log('媒体库数据已加载:', mediaLibrary.value.length, '个文件')
+      } else {
+        console.error('Failed to load media library:', response.statusText)
+        // 使用默认数据
+        mediaLibrary.value = []
+      }
+    } catch (error) {
+      console.error('Error loading media library:', error)
+      // 使用默认数据
+      mediaLibrary.value = []
+    }
+  }
+
   function addMediaFile(file: File, tags: string[] = []) {
     return new Promise<string>((resolve, reject) => {
       const newId = Math.max(...mediaLibrary.value.map(m => m.id), 0) + 1
@@ -1110,20 +1451,8 @@ export const useAdminStore = defineStore('admin', () => {
   async function loadAllData() {
     loadSettings()
     
-    // Always use default configurations to ensure consistency between local and public access
-    // This ensures that public access shows the same content as local access
-    
-    // Always use default products configuration for consistency
-    const savedProducts = localStorage.getItem('products')
-    if (savedProducts) {
-      products.value = JSON.parse(savedProducts)
-      console.log('Loaded products from localStorage:', products.value.length)
-    } else {
-      // Only use default products if no admin configuration exists
-      // This allows admin panel operations to take effect
-      console.log('No saved products found, using default products configuration')
-      console.log('Default products loaded:', products.value.length)
-    }
+    // loadSettings() already handles products loading, so no need to duplicate here
+    // This ensures consistency between local and public access
     
     // Always use default dynasties configuration
     const savedDynasties = localStorage.getItem('dynasties')
@@ -1162,6 +1491,7 @@ export const useAdminStore = defineStore('admin', () => {
     dynastyImages,
     thumbnailImages,
     bestSellersProducts,
+    heroConfig,
     rareDynastyCollection,
     heritageStory,
     products,
@@ -1175,11 +1505,16 @@ export const useAdminStore = defineStore('admin', () => {
     updateProductImage,
     updateDynastyImage,
     updateThumbnailImage,
+    updateHeroTitle,
+    updateHeroSubtitle,
+    updateHeroBackgroundImage,
+    updateHeroFeatures,
     updateProductImagePath,
     updateDynastyImagePath,
     updateThumbnailImagePath,
     updateBestSellerMainImage,
     updateBestSellerThumbnail,
+    loadMediaLibrary,
     updateBestSellerName,
     updateBestSellerPrice,
     updateRareDynastyTitle,
@@ -1191,6 +1526,9 @@ export const useAdminStore = defineStore('admin', () => {
     updateHeritageStoryDescription2,
     updateHeritageStoryImage,
     loadSettings,
+    
+    // Image processing utilities
+    fileToCompressedBase64,
     
     // Product CRUD
     addProduct,

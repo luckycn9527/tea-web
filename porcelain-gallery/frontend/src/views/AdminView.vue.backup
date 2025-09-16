@@ -1,0 +1,1894 @@
+<template>
+  <div class="min-h-screen bg-gray-100">
+    <!-- Sidebar -->
+    <div class="fixed inset-y-0 left-0 z-50 w-64 bg-white shadow-lg">
+      <div class="flex flex-col h-full">
+        <!-- Logo -->
+        <div class="flex items-center justify-between h-16 px-4 bg-gray-900">
+          <h1 class="text-xl font-bold text-white">{{ $t('admin.title') }}</h1>
+          <!-- Language Switch -->
+          <div class="flex items-center space-x-2">
+            <button 
+              @click="switchLanguage('en')"
+              :class="[
+                'px-2 py-1 text-xs rounded transition-colors',
+                currentLanguage === 'en' 
+                  ? 'bg-blue-600 text-white' 
+                  : 'bg-gray-600 text-gray-300 hover:bg-gray-500'
+              ]"
+            >
+              EN
+            </button>
+            <button 
+              @click="switchLanguage('zh')"
+              :class="[
+                'px-2 py-1 text-xs rounded transition-colors',
+                currentLanguage === 'zh' 
+                  ? 'bg-blue-600 text-white' 
+                  : 'bg-gray-600 text-gray-300 hover:bg-gray-500'
+              ]"
+            >
+              中文
+            </button>
+          </div>
+          </div>
+        
+        <!-- Navigation -->
+        <nav class="flex-1 px-4 py-6 space-y-2">
+          <div
+              v-for="tab in tabs"
+              :key="tab.id"
+              @click="activeTab = tab.id"
+              :class="[
+              'flex items-center space-x-3 px-3 py-2 rounded-lg cursor-pointer transition-colors',
+                activeTab === tab.id
+                ? 'bg-blue-100 text-blue-700 border-r-2 border-blue-500'
+                : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
+              ]"
+            >
+            <span class="text-lg">{{ tab.icon() }}</span>
+            <span class="font-medium">{{ $t(tab.nameKey) }}</span>
+              </div>
+          </nav>
+        
+        <!-- Footer -->
+        <div class="p-4 border-t">
+          <button 
+            @click="logout"
+            class="w-full flex items-center justify-center space-x-2 px-3 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors"
+          >
+            <span>🚪</span>
+            <span>Logout</span>
+          </button>
+        </div>
+      </div>
+        </div>
+
+        <!-- Main Content -->
+    <div class="ml-64">
+      <!-- Top Header -->
+      <div class="bg-white shadow-sm border-b h-16 flex items-center justify-between px-6">
+        <div>
+          <h2 class="text-2xl font-semibold text-gray-900">{{ getCurrentTabName() }}</h2>
+          <p class="text-sm text-gray-600">{{ getCurrentTabDescription() }}</p>
+        </div>
+        <div class="flex items-center space-x-4">
+          <div class="text-sm text-gray-500">
+            Last updated: {{ new Date().toLocaleString() }}
+          </div>
+        </div>
+      </div>
+
+      <!-- Content Area -->
+      <div class="p-6">
+        <!-- Dashboard Tab -->
+        <div v-if="activeTab === 'dashboard'" class="space-y-6">
+          <!-- Welcome Section -->
+          <div class="bg-gradient-to-r from-blue-600 to-purple-600 rounded-lg shadow-lg p-6 text-white">
+            <h2 class="text-2xl font-bold mb-2">{{ $t('admin.dashboard.welcome') }}</h2>
+            <p class="text-blue-100">{{ $t('admin.dashboard.subtitle') }}</p>
+          </div>
+          
+          <!-- Statistics Cards -->
+          <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            <div class="bg-white rounded-lg shadow-lg p-6 hover:shadow-xl transition-shadow">
+              <div class="flex items-center justify-between">
+                <div>
+                  <p class="text-sm font-medium text-gray-600">{{ $t('admin.dashboard.totalProducts') }}</p>
+                  <p class="text-3xl font-bold text-gray-900">{{ products.length }}</p>
+                  <p class="text-xs text-green-600 mt-1">+{{ products.filter(p => p.is_available).length }} {{ $t('admin.dashboard.available') }}</p>
+                </div>
+                <div class="p-3 bg-blue-100 rounded-full">
+                  <span class="text-2xl">📦</span>
+                </div>
+              </div>
+
+            <div class="bg-white rounded-lg shadow-lg p-6 hover:shadow-xl transition-shadow">
+              <div class="flex items-center justify-between">
+                <div>
+                  <p class="text-sm font-medium text-gray-600">{{ $t('admin.dashboard.bestSellers') }}</p>
+                  <p class="text-3xl font-bold text-gray-900">{{ featuredProducts.length }}</p>
+                  <p class="text-xs text-yellow-600 mt-1">{{ $t('admin.dashboard.featured') }}</p>
+                </div>
+                <div class="p-3 bg-yellow-100 rounded-full">
+                  <span class="text-2xl">⭐</span>
+                </div>
+              </div>
+
+            <div class="bg-white rounded-lg shadow-lg p-6 hover:shadow-xl transition-shadow">
+              <div class="flex items-center justify-between">
+                <div>
+                  <p class="text-sm font-medium text-gray-600">{{ $t('admin.dashboard.dynasties') }}</p>
+                  <p class="text-3xl font-bold text-gray-900">{{ dynasties.length }}</p>
+                  <p class="text-xs text-purple-600 mt-1">{{ $t('admin.dashboard.historical') }}</p>
+                </div>
+                <div class="p-3 bg-purple-100 rounded-full">
+                  <span class="text-2xl">🏛️</span>
+                </div>
+              </div>
+
+            <div class="bg-white rounded-lg shadow-lg p-6 hover:shadow-xl transition-shadow">
+              <div class="flex items-center justify-between">
+                <div>
+                  <p class="text-sm font-medium text-gray-600">{{ $t('admin.dashboard.shapes') }}</p>
+                  <p class="text-3xl font-bold text-gray-900">{{ shapes.length }}</p>
+                  <p class="text-xs text-orange-600 mt-1">{{ $t('admin.dashboard.varieties') }}</p>
+                </div>
+                <div class="p-3 bg-orange-100 rounded-full">
+                  <span class="text-2xl">🔷</span>
+                </div>
+              </div>
+            </div>
+          </div>
+          
+          <!-- Quick Actions -->
+          <div class="bg-white rounded-lg shadow-lg p-6">
+            <h3 class="text-lg font-semibold text-gray-900 mb-4">{{ $t('admin.dashboard.quickActions') }}</h3>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <button 
+                @click="activeTab = 'products'"
+                class="flex items-center p-4 bg-blue-50 rounded-lg hover:bg-blue-100 transition-colors"
+              >
+                <span class="text-2xl mr-3">📦</span>
+                <div class="text-left">
+                  <p class="font-medium text-gray-900">{{ $t('admin.dashboard.manageProducts') }}</p>
+                  <p class="text-sm text-gray-600">{{ $t('admin.dashboard.addEditProducts') }}</p>
+                  </div>
+              </button>
+              
+              <button 
+                @click="activeTab = 'best-sellers'"
+                class="flex items-center p-4 bg-yellow-50 rounded-lg hover:bg-yellow-100 transition-colors"
+              >
+                <span class="text-2xl mr-3">⭐</span>
+                <div class="text-left">
+                  <p class="font-medium text-gray-900">{{ $t('admin.dashboard.manageBestSellers') }}</p>
+                  <p class="text-sm text-gray-600">{{ $t('admin.dashboard.featuredProducts') }}</p>
+                </div>
+              </button>
+              
+              <button 
+                @click="activeTab = 'media'"
+                class="flex items-center p-4 bg-green-50 rounded-lg hover:bg-green-100 transition-colors"
+              >
+                <span class="text-2xl mr-3">🖼️</span>
+                <div class="text-left">
+                  <p class="font-medium text-gray-900">{{ $t('admin.dashboard.manageMedia') }}</p>
+                  <p class="text-sm text-gray-600">{{ $t('admin.dashboard.uploadImages') }}</p>
+                </div>
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Site Settings Tab -->
+        <div v-if="activeTab === 'site-settings'" class="space-y-6">
+          <div class="bg-white rounded-lg shadow p-6">
+            <h3 class="text-lg font-semibold text-gray-900 mb-4">{{ $t('admin.siteSettings.siteInformation') }}</h3>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">{{ $t('admin.siteSettings.siteTitle') }}</label>
+                <input v-model="siteSettings.title" type="text" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" />
+              </div>
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">{{ $t('admin.siteSettings.siteDescription') }}</label>
+                <input v-model="siteSettings.description" type="text" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" />
+              </div>
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">{{ $t('admin.siteSettings.phone') }}</label>
+                <input v-model="siteSettings.phone" type="text" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" />
+              </div>
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">{{ $t('admin.siteSettings.email') }}</label>
+                <input v-model="siteSettings.email" type="email" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" />
+              </div>
+              <div class="md:col-span-2">
+                <label class="block text-sm font-medium text-gray-700 mb-2">{{ $t('admin.siteSettings.address') }}</label>
+                <textarea v-model="siteSettings.address" rows="3" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"></textarea>
+              </div>
+            </div>
+            <div class="mt-6 flex justify-end">
+              <button @click="saveSiteSettings" class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors">
+                  {{ $t('admin.siteSettings.saveSettings') }}
+                </button>
+              </div>
+            </div>
+          </div>
+
+        <!-- Product Management Tab -->
+        <div v-if="activeTab === 'products'" class="space-y-6">
+          <ProductManagement />
+          </div>
+
+        <!-- Dynasty Management Tab -->
+        <div v-if="activeTab === 'dynasties'" class="space-y-6">
+          <div class="flex justify-between items-center">
+            <h3 class="text-lg font-semibold text-gray-900">{{ $t('admin.management.dynastyManagement') }}</h3>
+            <button @click="addDynasty" class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors">
+              {{ $t('admin.management.addDynasty') }}
+            </button>
+              </div>
+
+          <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div v-for="dynasty in dynasties" :key="dynasty.id" class="bg-white rounded-lg shadow p-6">
+              <div class="flex items-center space-x-4 mb-4">
+                <img 
+                  :src="getImageSrc(dynasty.image || '/src/assets/tea_image/1.png')" 
+                  :alt="dynasty.name" 
+                  class="w-16 h-16 rounded-lg object-cover border border-gray-200"
+                  @error="handleImageError"
+                  loading="lazy"
+                >
+                <div class="flex-1">
+                  <h4 class="font-semibold text-gray-900">{{ dynasty.name }}</h4>
+                  <p class="text-sm text-gray-600">{{ dynasty.name_cn }}</p>
+                  <p class="text-sm text-gray-500">{{ dynasty.description }}</p>
+                </div>
+              </div>
+              <div class="flex items-center justify-between">
+                <span :class="dynasty.is_enabled ? 'px-2 py-1 bg-green-100 text-green-800' : 'px-2 py-1 bg-red-100 text-red-800'" class="text-xs rounded-full">
+                  {{ dynasty.is_enabled ? 'Enabled' : 'Disabled' }}
+                </span>
+                <div class="flex space-x-2">
+                  <button @click="editDynasty(dynasty as any)" class="px-3 py-1 bg-blue-100 text-blue-800 rounded text-sm hover:bg-blue-200">
+                    Edit
+                  </button>
+                  <button @click="toggleDynasty(dynasty.id)" class="px-3 py-1 bg-yellow-100 text-yellow-800 rounded text-sm hover:bg-yellow-200">
+                    {{ dynasty.is_enabled ? 'Disable' : 'Enable' }}
+                  </button>
+              </div>
+              </div>
+              </div>
+            </div>
+          </div>
+
+        <!-- Shape Management Tab -->
+        <div v-if="activeTab === 'shapes'" class="space-y-6">
+          <div class="flex justify-between items-center">
+            <h3 class="text-lg font-semibold text-gray-900">{{ $t('admin.management.shapeManagement') }}</h3>
+            <button @click="addShape" class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors">
+              {{ $t('admin.management.addShape') }}
+                      </button>
+                    </div>
+          
+          <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div v-for="shape in shapes" :key="shape.id" class="bg-white rounded-lg shadow p-6">
+              <div class="flex items-center space-x-4 mb-4">
+                <div class="w-16 h-16 bg-gray-200 rounded-lg flex items-center justify-center">
+                  <span class="text-2xl">🔷</span>
+                </div>
+                <div class="flex-1">
+                  <h4 class="font-semibold text-gray-900">{{ shape.name }}</h4>
+                  <p class="text-sm text-gray-600">{{ shape.name }}</p>
+                  <p class="text-sm text-gray-500">{{ shape.description }}</p>
+                </div>
+              </div>
+              <div class="flex items-center justify-between">
+                <span :class="shape.is_enabled ? 'px-2 py-1 bg-green-100 text-green-800' : 'px-2 py-1 bg-red-100 text-red-800'" class="text-xs rounded-full">
+                  {{ shape.is_enabled ? 'Enabled' : 'Disabled' }}
+                </span>
+                <div class="flex space-x-2">
+                  <button @click="editShape(shape as any)" class="px-3 py-1 bg-blue-100 text-blue-800 rounded text-sm hover:bg-blue-200">
+                    Edit
+                  </button>
+                  <button @click="toggleShape(shape.id)" class="px-3 py-1 bg-yellow-100 text-yellow-800 rounded text-sm hover:bg-yellow-200">
+                    {{ shape.is_enabled ? 'Disable' : 'Enable' }}
+                  </button>
+                  </div>
+                </div>
+                  </div>
+                </div>
+              </div>
+
+        <!-- Media Library Tab -->
+        <div v-if="activeTab === 'media'" class="space-y-6">
+          <div class="flex justify-between items-center">
+            <h3 class="text-lg font-semibold text-gray-900">Media Library</h3>
+            <button @click="openImageUpload" class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors">
+              Upload Image
+                      </button>
+                    </div>
+          
+          <!-- Search and Filter -->
+          <div class="bg-white rounded-lg shadow p-6">
+            <div class="flex flex-wrap gap-4">
+              <div class="flex-1 min-w-64">
+                <input v-model="mediaSearchQuery" type="text" placeholder="Search media files..." class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" />
+              </div>
+              <div>
+                <select v-model="mediaFilterType" class="px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                  <option value="all">All Types</option>
+                  <option value="image">Images</option>
+                  <option value="video">Videos</option>
+                  <option value="document">Documents</option>
+                </select>
+              </div>
+              <div>
+                <select v-model="mediaSortBy" class="px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                  <option value="name">Name</option>
+                  <option value="date">Date</option>
+                  <option value="size">Size</option>
+                </select>
+              </div>
+                  </div>
+                </div>
+
+          <!-- Media Grid -->
+          <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+            <div v-for="media in filteredMediaLibrary" :key="media.id" class="bg-white rounded-lg shadow overflow-hidden">
+              <div class="aspect-w-16 aspect-h-9">
+                <img 
+                  v-if="media.type === 'image'" 
+                  :src="getImageSrc(media.url)" 
+                  :alt="media.name" 
+                  class="w-full h-48 object-cover border border-gray-200"
+                  @error="handleImageError"
+                  loading="lazy"
+                >
+                <div v-else class="w-full h-48 bg-gray-200 flex items-center justify-center">
+                  <span class="text-4xl">📄</span>
+                </div>
+              </div>
+              <div class="p-4">
+                <h4 class="font-medium text-gray-900 truncate">{{ media.name }}</h4>
+                <p class="text-sm text-gray-500">{{ media.type }} • {{ formatFileSize(media.size) }}</p>
+              </div>
+                <div class="mt-3 flex justify-end">
+                <button @click="deleteMedia(media.id)" class="px-3 py-1 bg-red-100 text-red-800 rounded text-sm hover:bg-red-200">
+                  Delete
+                </button>
+              </div>
+                  </div>
+                </div>
+              </div>
+
+        <!-- Best Sellers Tab -->
+        <div v-if="activeTab === 'best-sellers'" class="space-y-6">
+          <div class="flex justify-between items-center">
+            <h3 class="text-lg font-semibold text-gray-900">Best Sellers Configuration</h3>
+            <p class="text-sm text-gray-600">Best Sellers现在使用统一的产品数据源。推荐产品会自动显示在Best Sellers中。</p>
+                </div>
+          <!-- 推荐产品列表 -->
+          <div class="bg-white rounded-lg shadow p-6">
+            <h4 class="text-md font-medium text-gray-900 mb-4">当前推荐产品 ({{ featuredProducts.length }} 个)</h4>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              <div v-for="(product, index) in featuredProducts" :key="index" class="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow">
+                <div class="aspect-w-16 aspect-h-12">
+                  <img 
+                    :src="getImageSrc(product.mainImage || '/src/assets/tea_image/1.png')" 
+                    :alt="product.name" 
+                    class="w-full h-48 object-cover border border-gray-200"
+                    @error="handleImageError"
+                    loading="lazy"
+                  >
+              </div>
+                <div class="p-4">
+                  <h5 class="font-semibold text-gray-900 mb-1">{{ product.name }}</h5>
+                  <p class="text-sm text-gray-600 mb-2">{{ product.name }}</p>
+                  <p class="text-lg font-bold text-green-600 mb-3">{{ product.price }}</p>
+                  <div class="flex space-x-2">
+                    <button @click="toggleBestSeller(index)" class="flex-1 px-3 py-2 bg-yellow-100 text-yellow-800 rounded text-sm hover:bg-yellow-200 transition-colors">
+                      取消推荐
+                    </button>
+                    <button @click="editBestSeller(product, index)" class="flex-1 px-3 py-2 bg-blue-100 text-blue-800 rounded text-sm hover:bg-blue-200 transition-colors">
+                      编辑
+                      </button>
+                    </div>
+                  </div>
+                </div>
+            </div>
+            <div v-if="featuredProducts.length === 0" class="text-center py-8 text-gray-500">
+              <p>暂无推荐产品</p>
+              <p class="text-sm">在产品管理中添加产品并标记为"推荐产品"</p>
+            </div>
+          </div>
+          <!-- 非推荐产品列表 -->
+          <div class="bg-white rounded-lg shadow p-6">
+            <h4 class="text-md font-medium text-gray-900 mb-4">其他产品 ({{ nonFeaturedProducts.length }} 个)</h4>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              <div v-for="product in nonFeaturedProducts.slice(0, 6)" :key="product.id" class="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow">
+                <div class="aspect-w-16 aspect-h-12">
+                  <img 
+                    :src="getImageSrc(getPrimaryImage(product) || '/src/assets/tea_image/1.png')" 
+                    :alt="product.name_en" 
+                    class="w-full h-48 object-cover border border-gray-200"
+                    @error="handleImageError"
+                    loading="lazy"
+                  >
+                </div>
+                <div class="p-4">
+                  <h5 class="font-semibold text-gray-900 mb-1">{{ product.name_en }}</h5>
+                  <p class="text-sm text-gray-600 mb-2">{{ product.name_cn }}</p>
+                  <p class="text-lg font-bold text-green-600 mb-3">${{ product.price }}</p>
+                <div class="flex space-x-2">
+                    <button @click="toggleFeatured(product.id)" class="flex-1 px-3 py-2 bg-green-100 text-green-800 rounded text-sm hover:bg-green-200 transition-colors">
+                      设为推荐
+                  </button>
+                    <button @click="editProduct(product as any)" class="flex-1 px-3 py-2 bg-blue-100 text-blue-800 rounded text-sm hover:bg-blue-200 transition-colors">
+                      编辑
+                  </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div v-if="nonFeaturedProducts.length > 6" class="text-center mt-4">
+              <p class="text-sm text-gray-500">还有 {{ nonFeaturedProducts.length - 6 }} 个产品未显示</p>
+              </div>
+            </div>
+          </div>
+
+        <!-- Collections Tab -->
+        <div v-if="activeTab === 'collections'" class="space-y-6">
+          <!-- Rare Dynasty Collection -->
+          <div class="bg-white rounded-lg shadow p-6">
+            <h3 class="text-lg font-semibold text-gray-900 mb-4">Rare Dynasty Collection</h3>
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              <div class="space-y-4">
+                <div>
+                  <label class="block text-sm font-medium text-gray-700 mb-2">Title</label>
+                  <input v-model="rareDynastyCollection.title" type="text" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" />
+              </div>
+                <div>
+                  <label class="block text-sm font-medium text-gray-700 mb-2">Description</label>
+                  <textarea v-model="rareDynastyCollection.description" rows="4" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"></textarea>
+            </div>
+                <div>
+                  <label class="block text-sm font-medium text-gray-700 mb-2">Button Text</label>
+                  <input v-model="rareDynastyCollection.buttonText" type="text" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" />
+                </div>
+              </div>
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">Image</label>
+                <div class="aspect-w-16 aspect-h-9 mb-4">
+                  <img 
+                    :src="getImageSrc(rareDynastyCollection.image)" 
+                    :alt="rareDynastyCollection.title" 
+                    class="w-full h-64 object-cover rounded-lg border border-gray-200"
+                    @error="handleImageError"
+                    loading="lazy"
+                  >
+            </div>
+                <button @click="openImageUpload" class="w-full px-4 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition-colors">
+                  Change Image
+                </button>
+                </div>
+                    </div>
+            <div class="mt-6 flex justify-end">
+              <button @click="saveRareDynastyCollection" class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors">
+                Save Collection
+              </button>
+                  </div>
+                </div>
+
+          <!-- Heritage Story -->
+          <div class="bg-white rounded-lg shadow p-6">
+            <h3 class="text-lg font-semibold text-gray-900 mb-4">Heritage Story</h3>
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              <div class="space-y-4">
+                  <div>
+                  <label class="block text-sm font-medium text-gray-700 mb-2">Title</label>
+                  <input v-model="heritageStory.title" type="text" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" />
+                  </div>
+                  <div>
+                  <label class="block text-sm font-medium text-gray-700 mb-2">Description 1</label>
+                  <textarea v-model="heritageStory.description1" rows="3" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"></textarea>
+                  </div>
+                <div>
+                  <label class="block text-sm font-medium text-gray-700 mb-2">Description 2</label>
+                  <textarea v-model="heritageStory.description2" rows="3" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"></textarea>
+                </div>
+              </div>
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">Image</label>
+                <div class="aspect-w-16 aspect-h-9 mb-4">
+                  <img 
+                    :src="getImageSrc(heritageStory.image)" 
+                    :alt="heritageStory.title" 
+                    class="w-full h-64 object-cover rounded-lg border border-gray-200"
+                    @error="handleImageError"
+                    loading="lazy"
+                  >
+            </div>
+                <button @click="openImageUpload" class="w-full px-4 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition-colors">
+                  Change Image
+                </button>
+          </div>
+            </div>
+            <div class="mt-6 flex justify-end">
+              <button @click="saveHeritageStory" class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors">
+                Save Story
+                </button>
+            </div>
+              </div>
+            </div>
+
+        <!-- Content Management Tab -->
+        <div v-if="activeTab === 'content'" class="space-y-6">
+          <div class="bg-white rounded-lg shadow p-6">
+            <h3 class="text-lg font-semibold text-gray-900 mb-4">Content Settings</h3>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">Best Sellers Title</label>
+                <input v-model="contentSettings.bestSellersTitle" type="text" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" />
+                  </div>
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">Rare Dynasty Title</label>
+                <input v-model="contentSettings.rareDynastyTitle" type="text" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" />
+              </div>
+              <div class="md:col-span-2">
+                <label class="block text-sm font-medium text-gray-700 mb-2">Rare Dynasty Description</label>
+                <textarea v-model="contentSettings.rareDynastyDescription" rows="3" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"></textarea>
+              </div>
+            </div>
+            <div class="mt-6 flex justify-end">
+              <button @click="saveContentSettings" class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors">
+                Save Content
+                    </button>
+            </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+    <!-- Dynasty Edit Modal -->
+    <div v-if="showDynastyEditModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+      <div class="bg-white rounded-lg p-6 w-full max-w-md">
+        <h3 class="text-lg font-semibold text-gray-900 mb-4">
+          {{ editingDynasty?.id ? $t('admin.dynastyEdit.editDynasty') : $t('admin.dynastyEdit.addNewDynasty') }}
+        </h3>
+        <div class="space-y-4">
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-2">{{ $t('admin.dynastyEdit.nameEnglish') }}</label>
+            <input v-model="editingDynasty.name" type="text" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" />
+        </div>
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-2">{{ $t('admin.dynastyEdit.nameChinese') }}</label>
+            <input v-model="editingDynasty.name_cn" type="text" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" />
+      </div>
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-2">{{ $t('admin.dynastyEdit.description') }}</label>
+            <textarea v-model="editingDynasty.description" rows="3" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"></textarea>
+    </div>
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-2">{{ $t('admin.dynastyEdit.sortOrder') }}</label>
+            <input v-model="editingDynasty.sort_order" type="number" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" />
+          </div>
+          <div class="flex items-center">
+            <input v-model="editingDynasty.is_enabled" type="checkbox" class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded" />
+            <label class="ml-2 block text-sm text-gray-900">{{ $t('admin.dynastyEdit.enabled') }}</label>
+          </div>
+        </div>
+        <div class="mt-6 flex justify-end space-x-3">
+          <button @click="closeDynastyEditModal" class="px-4 py-2 bg-gray-300 text-gray-700 rounded-lg hover:bg-gray-400 transition-colors">
+            {{ $t('admin.dynastyEdit.cancel') }}
+          </button>
+          <button @click="saveDynasty" class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors">
+            {{ $t('admin.dynastyEdit.save') }}
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Shape Edit Modal -->
+    <div v-if="showShapeEditModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+      <div class="bg-white rounded-lg p-6 w-full max-w-md">
+        <h3 class="text-lg font-semibold text-gray-900 mb-4">
+          {{ editingShape?.id ? $t('admin.shapeEdit.editShape') : $t('admin.shapeEdit.addNewShape') }}
+        </h3>
+        <div class="space-y-4">
+              <div>
+            <label class="block text-sm font-medium text-gray-700 mb-2">{{ $t('admin.shapeEdit.nameEnglish') }}</label>
+            <input v-model="editingShape.name" type="text" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" />
+              </div>
+              <div>
+            <label class="block text-sm font-medium text-gray-700 mb-2">{{ $t('admin.shapeEdit.nameChinese') }}</label>
+            <input v-model="editingShape.name_cn" type="text" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" />
+              </div>
+              <div>
+            <label class="block text-sm font-medium text-gray-700 mb-2">{{ $t('admin.shapeEdit.description') }}</label>
+            <textarea v-model="editingShape.description" rows="3" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"></textarea>
+                </div>
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-2">{{ $t('admin.shapeEdit.sortOrder') }}</label>
+            <input v-model="editingShape.sort_order" type="number" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" />
+              </div>
+          <div class="flex items-center">
+            <input v-model="editingShape.is_enabled" type="checkbox" class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded" />
+            <label class="ml-2 block text-sm text-gray-900">{{ $t('admin.shapeEdit.enabled') }}</label>
+            </div>
+              </div>
+        <div class="mt-6 flex justify-end space-x-3">
+          <button @click="closeShapeEditModal" class="px-4 py-2 bg-gray-300 text-gray-700 rounded-lg hover:bg-gray-400 transition-colors">
+            {{ $t('admin.shapeEdit.cancel') }}
+                </button>
+          <button @click="saveShape" class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors">
+            {{ $t('admin.shapeEdit.save') }}
+          </button>
+              </div>
+            </div>
+          </div>
+
+    <!-- Media Upload Modal -->
+    <div v-if="showImageUploadModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+      <div class="bg-white rounded-lg p-6 w-full max-w-md">
+        <h3 class="text-lg font-semibold text-gray-900 mb-4">Upload Media File</h3>
+        <div class="space-y-4">
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-2">File</label>
+                  <input 
+              ref="fileInputRef"
+                    type="file" 
+              accept="image/*,video/*,.pdf,.doc,.docx" 
+              @change="handleFileSelect"
+              class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" 
+            />
+                </div>
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-2">Name</label>
+            <input v-model="uploadingMedia.name" type="text" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" />
+              </div>
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-2">Description</label>
+            <textarea v-model="uploadingMedia.description" rows="3" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"></textarea>
+            </div>
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-2">Alt Text</label>
+            <input v-model="uploadingMedia.alt_text" type="text" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" />
+          </div>
+        </div>
+        <div class="mt-6 flex justify-end space-x-3">
+          <button @click="closeImageUploadModal" class="px-4 py-2 bg-gray-300 text-gray-700 rounded-lg hover:bg-gray-400 transition-colors">
+            Cancel
+          </button>
+          <button @click="uploadMedia" class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors">
+            Upload
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Product Edit Modal -->
+    <div v-if="showProductEditModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+      <div class="bg-white rounded-lg w-full max-w-4xl my-8 max-h-screen flex flex-col">
+        <!-- Modal Header -->
+        <div class="flex items-center justify-between p-6 border-b border-gray-200">
+          <h3 class="text-lg font-semibold text-gray-900">{{ $t('admin.productEdit.editProduct') }}</h3>
+          <button @click="closeProductEditModal" class="text-gray-400 hover:text-gray-600 transition-colors">
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+            </svg>
+          </button>
+        </div>
+        
+        <!-- Modal Content -->
+        <div class="flex-1 overflow-y-auto p-6">
+          <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          <!-- Left Column -->
+        <div class="space-y-4">
+          <div>
+              <label class="block text-sm font-medium text-gray-700 mb-2">{{ $t('admin.productEdit.nameEnglish') }}</label>
+              <input v-model="editingProduct.name_en" type="text" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" />
+          </div>
+          <div>
+              <label class="block text-sm font-medium text-gray-700 mb-2">{{ $t('admin.productEdit.nameChinese') }}</label>
+              <input v-model="editingProduct.name_cn" type="text" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" />
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-2">{{ $t('admin.productEdit.description') }}</label>
+              <textarea v-model="editingProduct.description_en" rows="4" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"></textarea>
+          </div>
+            <div class="grid grid-cols-2 gap-4">
+          <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">{{ $t('admin.productEdit.price') }}</label>
+                <input v-model="editingProduct.price" type="text" placeholder="e.g., $211 or 211" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" />
+          </div>
+          <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">{{ $t('admin.productEdit.stockQuantity') }}</label>
+                <input v-model="editingProduct.stock_quantity" type="number" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" />
+          </div>
+        </div>
+            <div class="grid grid-cols-2 gap-4">
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">{{ $t('admin.productEdit.dynasty') }}</label>
+                <select v-model="editingProduct.dynasty_id" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                  <option value="">{{ $t('admin.productEdit.selectDynasty') }}</option>
+                  <option v-for="dynasty in dynasties" :key="dynasty.id" :value="dynasty.id">
+                    {{ dynasty.name }}
+                  </option>
+                </select>
+              </div>
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">{{ $t('admin.productEdit.shape') }}</label>
+                <select v-model="editingProduct.shape_id" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                  <option value="">{{ $t('admin.productEdit.selectShape') }}</option>
+                  <option v-for="shape in shapes" :key="shape.id" :value="shape.id">
+                    {{ shape.name }}
+                  </option>
+                </select>
+              </div>
+            </div>
+            <div class="grid grid-cols-2 gap-4">
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">{{ $t('admin.productEdit.dimensions') }}</label>
+                <input v-model="editingProduct.dimensions" type="text" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" />
+              </div>
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">{{ $t('admin.productEdit.weight') }}</label>
+                <input v-model="editingProduct.weight" type="text" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" />
+              </div>
+            </div>
+            <div class="flex items-center space-x-4">
+              <div class="flex items-center">
+                <input v-model="editingProduct.is_featured" type="checkbox" class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded" />
+                <label class="ml-2 block text-sm text-gray-900">{{ $t('admin.productEdit.featured') }}</label>
+              </div>
+              <div class="flex items-center">
+                <input v-model="editingProduct.is_available" type="checkbox" class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded" />
+                <label class="ml-2 block text-sm text-gray-900">{{ $t('admin.productEdit.available') }}</label>
+        </div>
+          </div>
+        </div>
+        
+          <!-- Right Column -->
+        <div class="space-y-4">
+          <div>
+              <label class="block text-sm font-medium text-gray-700 mb-2">{{ $t('admin.productEdit.primaryImage') }}</label>
+              <div class="border-2 border-dashed border-gray-300 rounded-lg p-4 text-center">
+                <img 
+                  v-if="getPrimaryImage(editingProduct)" 
+                  :src="getImageSrc(getPrimaryImage(editingProduct))" 
+                  alt="Primary image" 
+                  class="w-full h-48 object-cover rounded-lg mb-2 border border-gray-200"
+                  @error="handleImageError"
+                  loading="lazy"
+                >
+                <div v-else class="w-full h-48 bg-gray-100 rounded-lg flex items-center justify-center mb-2">
+                  <span class="text-gray-500">{{ $t('admin.productEdit.noImage') }}</span>
+          </div>
+                <button @click="openPrimaryImageUpload" class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors">
+                  {{ $t('admin.productEdit.changePrimaryImage') }}
+                </button>
+          </div>
+            </div>
+            
+          <div>
+              <label class="block text-sm font-medium text-gray-700 mb-2">{{ $t('admin.productEdit.additionalImages') }}</label>
+              <div class="space-y-2">
+                <div v-for="(image, index) in editingProduct.images" :key="index" class="flex items-center space-x-2 p-2 border border-gray-200 rounded-lg">
+                  <img 
+                    :src="getImageSrc(image.image_url || image.image_path || '')" 
+                    alt="Additional image" 
+                    class="w-16 h-16 object-cover rounded border border-gray-200 flex-shrink-0"
+                    @error="handleImageError"
+                    loading="lazy"
+                  >
+                  <div class="flex-1 min-w-0">
+                    <p class="text-sm text-gray-600 truncate" :title="image.image_url || image.image_path">
+                      {{ getImageDisplayName(image.image_url || image.image_path || '') }}
+                    </p>
+                    <p class="text-xs text-gray-400 truncate" :title="image.image_url || image.image_path">
+                      {{ getImageDisplayPath(image.image_url || image.image_path) }}
+                    </p>
+          </div>
+                  <button @click="removeAdditionalImage(index)" class="px-3 py-1 bg-red-100 text-red-800 rounded text-sm hover:bg-red-200 flex-shrink-0 whitespace-nowrap">
+                    {{ $t('admin.productEdit.remove') }}
+                  </button>
+        </div>
+                <button @click="openAdditionalImageUpload" class="w-full px-4 py-2 border-2 border-dashed border-gray-300 rounded-lg hover:border-gray-400 transition-colors">
+                  {{ $t('admin.productEdit.addImage') }}
+          </button>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <!-- Modal Footer -->
+        <div class="flex justify-end space-x-3 p-6 border-t border-gray-200 bg-gray-50 rounded-b-lg">
+          <button @click="closeProductEditModal" class="px-4 py-2 bg-gray-300 text-gray-700 rounded-lg hover:bg-gray-400 transition-colors">
+            {{ $t('admin.productEdit.cancel') }}
+          </button>
+          <button @click="saveProduct" class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors flex items-center space-x-2">
+            <svg v-if="isSaving" class="animate-spin h-4 w-4" fill="none" viewBox="0 0 24 24">
+              <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+              <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+            </svg>
+            <span>{{ isSaving ? '保存中...' : $t('admin.productEdit.save') }}</span>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <!-- Save Success Toast -->
+  <div v-if="showSaveSuccess" class="fixed top-4 right-4 z-50 bg-green-500 text-white px-6 py-3 rounded-lg shadow-lg flex items-center space-x-3 animate-slide-in">
+    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+    </svg>
+    <span>{{ saveSuccessMessage }}</span>
+    <button @click="showSaveSuccess = false" class="text-white hover:text-gray-200 transition-colors">
+      <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+      </svg>
+    </button>
+  </div>
+  
+  <!-- Image Selector Modal -->
+  <div v-if="showImageSelector" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+    <div class="bg-white rounded-lg w-full max-w-4xl my-8 max-h-screen flex flex-col">
+      <!-- Modal Header -->
+      <div class="flex items-center justify-between p-6 border-b border-gray-200">
+        <h3 class="text-lg font-semibold text-gray-900">{{ $t('admin.imageSelector.selectImage') }}</h3>
+        <button @click="showImageSelector = false" class="text-gray-400 hover:text-gray-600 transition-colors">
+          <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+          </svg>
+        </button>
+      </div>
+      
+      <!-- Modal Content -->
+      <div class="flex-1 overflow-y-auto p-6">
+        <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4">
+          <div 
+            v-for="imageName in availableImages" 
+            :key="imageName"
+            @click="selectImage(imageName)"
+            class="cursor-pointer border border-gray-200 rounded-lg p-2 hover:border-blue-500 hover:shadow-md transition-all"
+          >
+            <img 
+              :src="getImageSrc(`/src/assets/tea_image/${imageName}`)"
+              :alt="imageName"
+              class="w-full h-20 object-cover rounded"
+              @error="handleImageError"
+            />
+            <p class="text-xs text-gray-600 mt-1 text-center truncate">{{ imageName }}</p>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Modal Footer -->
+      <div class="flex items-center justify-end gap-3 p-6 border-t border-gray-200">
+        <button 
+          @click="showImageSelector = false"
+          class="px-4 py-2 text-gray-600 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
+        >
+          {{ $t('admin.imageSelector.cancel') }}
+        </button>
+      </div>
+    </div>
+  </div>
+</template>
+
+<script setup lang="ts">
+import { ref, computed, onMounted } from 'vue'
+import { useRouter } from 'vue-router'
+import { useI18n } from 'vue-i18n'
+import { useAdminStore } from '@/stores/admin'
+import { useProductsStore } from '@/stores/products'
+import type { Product, Dynasty, Shape } from '@/services/api'
+import API_CONFIG from '@/config/api'
+import ProductManagement from '@/components/ProductManagement.vue'
+
+const router = useRouter()
+const { t, locale } = useI18n()
+const adminStore = useAdminStore()
+const productsStore = useProductsStore()
+
+// Language management
+const currentLanguage = ref(locale.value)
+
+// Save state management
+const isSaving = ref(false)
+const saveSuccessMessage = ref('')
+const showSaveSuccess = ref(false)
+
+// Tab management
+const activeTab = ref<'dashboard' | 'site-settings' | 'products' | 'dynasties' | 'shapes' | 'media' | 'best-sellers' | 'collections' | 'content'>('dashboard')
+
+const tabs = [
+  { id: 'dashboard' as const, nameKey: 'admin.nav.dashboard', icon: () => '📊' },
+  { id: 'site-settings' as const, nameKey: 'admin.nav.siteSettings', icon: () => '⚙️' },
+  { id: 'products' as const, nameKey: 'admin.nav.products', icon: () => '📦' },
+  { id: 'dynasties' as const, nameKey: 'admin.nav.dynasties', icon: () => '🏛️' },
+  { id: 'shapes' as const, nameKey: 'admin.nav.shapes', icon: () => '🔷' },
+  { id: 'media' as const, nameKey: 'admin.nav.media', icon: () => '🖼️' },
+  { id: 'best-sellers' as const, nameKey: 'admin.nav.bestSellers', icon: () => '⭐' },
+  { id: 'collections' as const, nameKey: 'admin.nav.collections', icon: () => '🎨' },
+  { id: 'content' as const, nameKey: 'admin.nav.content', icon: () => '📝' }
+]
+
+// State management
+const showAddDynastyModal = ref(false)
+const showAddShapeModal = ref(false)
+const showImageUploadModal = ref(false)
+const showImageSelector = ref(false)
+const showDynastyEditModal = ref(false)
+const showShapeEditModal = ref(false)
+const showProductEditModal = ref(false)
+
+// Editing states
+const editingDynasty = ref<Partial<Dynasty>>({})
+const editingShape = ref<Partial<Shape>>({})
+const editingProduct = ref<any>({})
+const uploadingMedia = ref({
+  name: '',
+  description: '',
+  alt_text: '',
+  file: null as File | null
+})
+
+// File input refs
+const fileInputRef = ref<HTMLInputElement>()
+
+// Site settings
+const siteSettings = ref({
+  title: 'Porcelain Gallery',
+  description: 'Discover the beauty of Chinese porcelain',
+  phone: '+86 123 456 7890',
+  email: 'info@porcelaingallery.com',
+  address: 'Beijing, China'
+})
+
+// Collections settings
+const rareDynastyCollection = ref({
+  title: 'Rare Dynasty Collection',
+  description: 'Explore our exclusive collection of rare dynasty porcelain pieces',
+  buttonText: 'Explore Collection',
+  image: '/src/assets/tea_image/1.png'
+})
+
+const heritageStory = ref({
+  title: 'Heritage Story',
+  description1: 'Our porcelain collection represents centuries of Chinese craftsmanship',
+  description2: 'Each piece tells a story of tradition, artistry, and cultural heritage',
+  image: '/src/assets/tea_image/2.png'
+})
+
+// Content settings
+const contentSettings = ref({
+  bestSellersTitle: 'Best Sellers',
+  rareDynastyTitle: 'Rare Dynasty Collection',
+  rareDynastyDescription: 'Discover our curated selection of rare dynasty porcelain pieces'
+})
+
+// Media library filters
+const mediaSearchQuery = ref('')
+const mediaFilterType = ref('all')
+const mediaSortBy = ref('name')
+
+// 可用的图片文件名列表
+const availableImages = ref([
+  '1.png', '2.png', '3.png', '4.png', '5.png', '6.png', '7.png', '8.png', '9.png', '10.png',
+  '11.png', '12.png', '13.png', '14.png', '15.png', '16.png', '17.png', '18.png', '19.png', '20.png',
+  '21.png', '22.png', '23.png', 'background.png', 'best.png', 'ming.png', 'qing.png', 
+  'song.png', 'tang.png', 'yuan.png', 'zhizuo.png'
+])
+
+// Computed properties
+const products = computed(() => adminStore.products)
+const dynasties = computed(() => adminStore.dynasties)
+const shapes = computed(() => adminStore.shapes)
+const bestSellers = computed(() => adminStore.bestSellersProducts)
+const mediaLibrary = computed(() => adminStore.mediaLibrary)
+
+// 使用与前端相同的数据源
+const featuredProducts = computed(() => adminStore.bestSellersProducts)
+const nonFeaturedProducts = computed(() => adminStore.products.filter((p: any) => !p.is_featured))
+
+const filteredMediaLibrary = computed(() => {
+  let filtered = mediaLibrary.value
+
+  // Filter by search query
+  if (mediaSearchQuery.value) {
+    filtered = filtered.filter((media: any) => 
+      media.name.toLowerCase().includes(mediaSearchQuery.value.toLowerCase())
+    )
+  }
+
+  // Filter by type
+  if (mediaFilterType.value !== 'all') {
+    filtered = filtered.filter((media: any) => media.type === mediaFilterType.value)
+  }
+
+  // Sort
+  filtered.sort((a: any, b: any) => {
+    switch (mediaSortBy.value) {
+      case 'name':
+        return a.name.localeCompare(b.name)
+      case 'date':
+        return new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
+      case 'size':
+        return (b.size || 0) - (a.size || 0)
+      default:
+        return 0
+    }
+  })
+
+  return filtered
+})
+
+// Methods
+function getCurrentTabName() {
+  const tab = tabs.find(t => t.id === activeTab.value)
+  return tab ? t(tab.nameKey) : t('admin.nav.dashboard')
+}
+
+function getCurrentTabDescription() {
+  const descriptions: Record<string, string> = {
+    'dashboard': 'Overview of your site management',
+    'site-settings': 'Configure site information and settings',
+    'products': 'Manage products and inventory',
+    'dynasties': 'Manage dynasty categories',
+    'shapes': 'Manage shape categories',
+    'media': 'Manage media files and images',
+    'best-sellers': 'Configure best selling products',
+    'collections': 'Manage collection displays',
+    'content': 'Manage site content and text'
+  }
+  return descriptions[activeTab.value] || 'Manage your site'
+}
+
+function logout() {
+  localStorage.removeItem('adminToken')
+  router.push('/')
+}
+
+// Language switching
+function switchLanguage(lang: string) {
+  currentLanguage.value = lang
+  locale.value = lang
+  localStorage.setItem('admin-language', lang)
+}
+
+// Helper function to get dynasty name by ID
+function getDynastyName(dynastyId: number) {
+  const dynasty = dynasties.value.find(d => d.id === dynastyId)
+  return dynasty ? dynasty.name : 'Various'
+}
+
+// Helper function to get shape name by ID
+function getShapeName(shapeId: number) {
+  const shape = shapes.value.find(s => s.id === shapeId)
+  return shape ? shape.name : 'Various'
+}
+
+// Helper function to get primary image (fallback to first additional image)
+function getPrimaryImage(product: any) {
+  // First try primary_image
+  if (product.primary_image) {
+    return product.primary_image
+  }
+  
+  // Then try primary_image_url
+  if (product.primary_image_url) {
+    return product.primary_image_url
+  }
+  
+  // Finally, try first image from images array
+  if (product.images && product.images.length > 0) {
+    const firstImage = product.images[0]
+    return firstImage.image_url || firstImage.image_path
+  }
+  
+  return null
+}
+
+function getImageSrc(imagePath: string) {
+  if (!imagePath) return '/src/assets/tea_image/1.png'
+  
+  // Use the API config helper for better URL handling
+  return API_CONFIG.getImageUrl(imagePath)
+}
+
+// Helper function to get display name for image
+function getImageDisplayName(imagePath: string) {
+  if (!imagePath) return 'Image'
+  
+  // If it's Base64 data, show a simplified name
+  if (imagePath.startsWith('data:')) {
+    return 'Base64 Image'
+  }
+  
+  // If it's a blob URL, show a simplified name
+  if (imagePath.startsWith('blob:')) {
+    return 'Uploaded Image'
+  }
+  
+  // If it's a local path, extract filename
+  if (imagePath.includes('/')) {
+    const fileName = imagePath.split('/').pop() || 'Image'
+    return fileName
+  }
+  
+  return imagePath
+}
+
+// Helper function to get display path for image
+function getImageDisplayPath(imagePath: string) {
+  if (!imagePath) return ''
+  
+  // If it's Base64 data, show a truncated version
+  if (imagePath.startsWith('data:')) {
+    const truncated = imagePath.substring(0, 50) + '...'
+    return truncated
+  }
+  
+  // If it's a blob URL, show a simplified version
+  if (imagePath.startsWith('blob:')) {
+    return 'blob:uploaded-image'
+  }
+  
+  // For local paths, show the full path
+  return imagePath
+}
+
+// Helper function to compress image data for storage
+function compressImageData(imageData: string): Promise<string> {
+  if (!imageData || !imageData.startsWith('data:')) {
+    return Promise.resolve(imageData)
+  }
+  
+  // For Base64 data, we'll use a more aggressive compression
+  // by reducing quality and size
+  try {
+    // Create a canvas to compress the image
+    const canvas = document.createElement('canvas')
+    const ctx = canvas.getContext('2d')
+    const img = new Image()
+    
+    return new Promise<string>((resolve) => {
+      img.onload = () => {
+        // Set canvas size to a smaller dimension for compression
+        const maxSize = 200 // Maximum width or height
+        let { width, height } = img
+        
+        if (width > height) {
+          if (width > maxSize) {
+            height = (height * maxSize) / width
+            width = maxSize
+          }
+        } else {
+          if (height > maxSize) {
+            width = (width * maxSize) / height
+            height = maxSize
+          }
+        }
+        
+        canvas.width = width
+        canvas.height = height
+        
+        // Draw and compress
+        ctx?.drawImage(img, 0, 0, width, height)
+        const compressedDataUrl = canvas.toDataURL('image/jpeg', 0.6) // 60% quality
+        resolve(compressedDataUrl)
+      }
+      
+      img.onerror = () => {
+        // If compression fails, return original data
+        resolve(imageData)
+      }
+      
+      img.src = imageData
+    })
+  } catch (error) {
+    console.warn('Image compression failed:', error)
+    return Promise.resolve(imageData)
+  }
+}
+
+// Synchronous version for immediate use
+function compressImageDataSync(imageData: string): string {
+  if (!imageData || !imageData.startsWith('data:')) {
+    return imageData
+  }
+  
+  // Check if Base64 data is too large (more than 100KB)
+  const base64Size = imageData.length * 0.75 // Approximate size in bytes
+  if (base64Size > 100000) { // 100KB limit
+    console.warn('Image data too large, using default image')
+    return '/src/assets/tea_image/1.png'
+  }
+  
+  return imageData
+}
+
+// Helper function to get storage-optimized data
+function getStorageOptimizedData(products: any[]) {
+  return products.map((product: any) => ({
+    name: product.name,
+    price: product.price,
+    mainImage: product.mainImage.startsWith('blob:') ? '/src/assets/tea_image/1.png' : product.mainImage,
+    thumbnails: product.thumbnails.map((thumb: string) => {
+      if (!thumb || thumb === 'undefined') {
+        return '/src/assets/tea_image/1.png'
+      }
+      // For blob URLs, use default image since they can't be stored in localStorage
+      if (thumb.startsWith('blob:')) {
+        return '/src/assets/tea_image/1.png'
+      }
+      // For local paths, keep them as is
+      return thumb
+    }),
+    // 保存扩展字段
+    name_en: product.name_en || '',
+    name_cn: product.name_cn || '',
+    description_en: product.description_en || '',
+    description_cn: product.description_cn || '',
+    dynasty_id: product.dynasty_id || 1,
+    shape_id: product.shape_id || 1,
+    dimensions: product.dimensions || '',
+    weight: product.weight || '',
+    age: product.age || '',
+    stock_quantity: product.stock_quantity || 0
+  }))
+}
+
+// Image error handling
+function handleImageError(event: Event) {
+  const img = event.target as HTMLImageElement
+  img.src = '/src/assets/tea_image/1.png'
+  img.alt = 'Default image'
+}
+
+// Site settings methods
+function saveSiteSettings() {
+  localStorage.setItem('siteSettings', JSON.stringify(siteSettings.value))
+  alert('Site settings saved!')
+}
+
+// Dynasty management methods
+function editDynasty(dynasty: Dynasty) {
+  editingDynasty.value = { ...dynasty }
+  showDynastyEditModal.value = true
+}
+
+function addDynasty() {
+  editingDynasty.value = {
+    name: '',
+    name_cn: '',
+    description: '',
+    sort_order: 0,
+    is_enabled: true
+  }
+  showDynastyEditModal.value = true
+}
+
+function closeDynastyEditModal() {
+  showDynastyEditModal.value = false
+  editingDynasty.value = {}
+}
+
+function saveDynasty() {
+  if (!editingDynasty.value.name || !editingDynasty.value.name_cn) {
+    alert('Please fill in required fields')
+    return
+  }
+  
+  try {
+    if (editingDynasty.value.id) {
+      // Update existing dynasty
+      adminStore.updateDynasty(editingDynasty.value.id, editingDynasty.value)
+      alert('Dynasty updated successfully!')
+    } else {
+      // Create new dynasty
+      const dynastyData = {
+        name: editingDynasty.value.name,
+        name_cn: editingDynasty.value.name_cn,
+        period: editingDynasty.value.period || '',
+        description: editingDynasty.value.description || '',
+        image: editingDynasty.value.image || '/src/assets/tea_image/1.png',
+        sort_order: editingDynasty.value.sort_order || 0,
+        is_enabled: editingDynasty.value.is_enabled !== false
+      }
+      adminStore.addDynasty(dynastyData)
+      alert('Dynasty created successfully!')
+    }
+    closeDynastyEditModal()
+  } catch (error) {
+    console.error('Error saving dynasty:', error)
+    alert('Error saving dynasty')
+  }
+}
+
+function toggleDynasty(dynastyId: number) {
+  const dynasty = dynasties.value.find(d => d.id === dynastyId)
+  if (dynasty) {
+    dynasty.is_enabled = !dynasty.is_enabled
+    console.log('Toggled dynasty:', dynastyId, dynasty.is_enabled)
+    alert(`Dynasty ${dynasty.is_enabled ? 'enabled' : 'disabled'}`)
+  }
+}
+
+// Shape management methods
+function editShape(shape: Shape) {
+  editingShape.value = { ...shape }
+  showShapeEditModal.value = true
+}
+
+function addShape() {
+  editingShape.value = {
+    name: '',
+    name_cn: '',
+    description: '',
+    sort_order: 0,
+    is_enabled: true
+  }
+  showShapeEditModal.value = true
+}
+
+function closeShapeEditModal() {
+  showShapeEditModal.value = false
+  editingShape.value = {}
+}
+
+function saveShape() {
+  if (!editingShape.value.name || !editingShape.value.name_cn) {
+    alert('Please fill in required fields')
+    return
+  }
+  
+  try {
+    if (editingShape.value.id) {
+      // Update existing shape
+      console.log('Updating shape:', editingShape.value)
+      alert('Shape updated successfully!')
+  } else {
+      // Create new shape
+      console.log('Creating shape:', editingShape.value)
+      alert('Shape created successfully!')
+    }
+    closeShapeEditModal()
+  } catch (error) {
+    console.error('Error saving shape:', error)
+    alert('Error saving shape')
+  }
+}
+
+function toggleShape(shapeId: number) {
+  const shape = shapes.value.find(s => s.id === shapeId)
+  if (shape) {
+    shape.is_enabled = !shape.is_enabled
+    console.log('Toggled shape:', shapeId, shape.is_enabled)
+    alert(`Shape ${shape.is_enabled ? 'enabled' : 'disabled'}`)
+  }
+}
+
+// Media library methods
+function openImageUpload() {
+  showImageUploadModal.value = true
+}
+
+function closeImageUploadModal() {
+  showImageUploadModal.value = false
+  uploadingMedia.value = {
+    name: '',
+    description: '',
+    alt_text: '',
+    file: null
+  }
+}
+
+function handleFileSelect(event: Event) {
+  const target = event.target as HTMLInputElement
+  if (target.files && target.files[0]) {
+    uploadingMedia.value.file = target.files[0]
+    if (!uploadingMedia.value.name) {
+      uploadingMedia.value.name = target.files[0].name
+    }
+  }
+}
+
+function uploadMedia() {
+  if (!uploadingMedia.value.file) {
+    alert('Please select a file to upload')
+    return
+  }
+  
+  if (!uploadingMedia.value.name) {
+    alert('Please enter a name for the media file')
+    return
+  }
+  
+  try {
+    console.log('Uploading media:', uploadingMedia.value)
+    alert('Media uploaded successfully!')
+    closeImageUploadModal()
+  } catch (error) {
+    console.error('Error uploading media:', error)
+    alert('Error uploading media')
+  }
+}
+
+function deleteMedia(mediaId: number) {
+  if (confirm('Are you sure you want to delete this media file?')) {
+    try {
+      console.log('Deleting media:', mediaId)
+      alert('Media deleted successfully!')
+    } catch (error) {
+      console.error('Error deleting media:', error)
+      alert('Error deleting media')
+    }
+  }
+}
+
+function formatFileSize(bytes: number) {
+  if (!bytes) return '0 B'
+  const k = 1024
+  const sizes = ['B', 'KB', 'MB', 'GB']
+  const i = Math.floor(Math.log(bytes) / Math.log(k))
+  return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i]
+}
+
+// Product management methods
+async function toggleBestSeller(index: number) {
+  try {
+    // Remove from best sellers
+    adminStore.bestSellersProducts.splice(index, 1)
+    alert('产品已从推荐列表中移除！')
+  } catch (error) {
+    console.error('更新产品推荐状态失败:', error)
+    alert('更新失败，请重试')
+  }
+}
+
+function editBestSeller(product: any, index: number) {
+  editingProduct.value = { 
+    ...product,
+    index: index,
+    // 确保有所有必要的字段
+    name_en: product.name_en || product.name || '',
+    name_cn: product.name_cn || product.name || '',
+    description_en: product.description_en || '',
+    description_cn: product.description_cn || '',
+    price: product.price || '$0',
+    dynasty_id: product.dynasty_id || 1,
+    shape_id: product.shape_id || 1,
+    dimensions: product.dimensions || '',
+    weight: product.weight || '',
+    age: product.age || '',
+    stock_quantity: product.stock_quantity || 0,
+    primary_image: product.mainImage || product.primary_image || '/src/assets/tea_image/1.png',
+    images: product.thumbnails ? product.thumbnails.map((thumb: string, imgIndex: number) => ({
+      id: imgIndex + 1,
+      product_id: index,
+      image_url: thumb,
+      image_path: thumb,
+      alt_text: product.name,
+      is_primary: imgIndex === 0,
+      sort_order: imgIndex + 1,
+      file_size: 0,
+      mime_type: 'image/png',
+      created_at: new Date().toISOString()
+    })) : []
+  }
+  showProductEditModal.value = true
+}
+
+async function toggleFeatured(productId: number) {
+  try {
+    const product = adminStore.products.find((p: any) => p.id === productId)
+    if (product) {
+      await adminStore.updateProduct(productId, { is_featured: !product.is_featured })
+      alert('产品推荐状态已更新！')
+    }
+  } catch (error) {
+    console.error('更新产品推荐状态失败:', error)
+    alert('更新失败，请重试')
+  }
+}
+
+function editProduct(product: Product) {
+  editingProduct.value = { 
+    ...product,
+    images: product.images || []
+  }
+  showProductEditModal.value = true
+}
+
+function closeProductEditModal() {
+  showProductEditModal.value = false
+  editingProduct.value = {}
+}
+
+function saveProduct() {
+  if (!editingProduct.value.name_en && !editingProduct.value.name) {
+    alert('Please fill in required fields')
+    return
+  }
+  
+  // 设置保存状态
+  isSaving.value = true
+  
+  try {
+    console.log('Saving product:', editingProduct.value)
+    
+    // 检查是否是Best Sellers产品（有index字段）
+    if (editingProduct.value.index !== undefined) {
+      // 这是Best Sellers产品，更新bestSellersProducts数组
+      const bestSellerData = {
+        name: editingProduct.value.name || editingProduct.value.name_en || '',
+        price: editingProduct.value.price || '$0',
+        mainImage: (() => {
+          const mainImg = editingProduct.value.primary_image || editingProduct.value.mainImage || '/src/assets/tea_image/1.png'
+          // 如果是blob URL，使用默认图片，因为blob URL无法持久化
+          if (mainImg.startsWith('blob:')) {
+            console.warn('Blob URL detected in mainImage, using default image')
+            return '/src/assets/tea_image/1.png'
+          }
+          return mainImg
+        })(),
+        thumbnails: (editingProduct.value.images || []).map((img: any) => {
+          const imageUrl = img.image_url || img.image_path || img
+          if (!imageUrl || imageUrl === 'undefined') {
+            console.warn('Invalid image URL in thumbnails:', img)
+            return '/src/assets/tea_image/1.png' // 默认图片
+          }
+          // 如果是blob URL，使用默认图片，因为blob URL无法持久化
+          if (imageUrl.startsWith('blob:')) {
+            console.warn('Blob URL detected in thumbnails, using default image')
+            return '/src/assets/tea_image/1.png'
+          }
+          return imageUrl
+        }),
+        // 扩展字段
+        name_en: editingProduct.value.name_en || '',
+        name_cn: editingProduct.value.name_cn || '',
+        description_en: editingProduct.value.description_en || '',
+        description_cn: editingProduct.value.description_cn || '',
+        dynasty_id: editingProduct.value.dynasty_id || 1,
+        shape_id: editingProduct.value.shape_id || 1,
+        dimensions: editingProduct.value.dimensions || '',
+        weight: editingProduct.value.weight || '',
+        age: editingProduct.value.age || '',
+        stock_quantity: editingProduct.value.stock_quantity || 0
+      }
+      
+      // 更新bestSellersProducts数组（使用Vue的响应式更新）
+      console.log('Before update - bestSellersProducts length:', adminStore.bestSellersProducts.length)
+      console.log('Updating product at index:', editingProduct.value.index)
+      console.log('New product data:', bestSellerData)
+      
+      adminStore.bestSellersProducts.splice(editingProduct.value.index, 1, bestSellerData)
+      
+      console.log('After update - bestSellersProducts length:', adminStore.bestSellersProducts.length)
+      console.log('Updated product:', adminStore.bestSellersProducts[editingProduct.value.index])
+      
+      // 保存到localStorage（使用存储优化策略）
+      try {
+        const dataToSave = getStorageOptimizedData(adminStore.bestSellersProducts)
+        localStorage.setItem('bestSellersProducts', JSON.stringify(dataToSave))
+      } catch (error) {
+        console.warn('Failed to save to localStorage, but product updated in memory:', error)
+        // 即使localStorage失败，产品仍然在内存中更新
+        // 尝试清理localStorage并重试
+        try {
+          localStorage.removeItem('bestSellersProducts')
+          const dataToSave = getStorageOptimizedData(adminStore.bestSellersProducts)
+          localStorage.setItem('bestSellersProducts', JSON.stringify(dataToSave))
+          console.log('Successfully saved after cleanup')
+        } catch (retryError) {
+          console.error('Failed to save even after cleanup:', retryError)
+        }
+      }
+      
+      // 显示成功提示
+      saveSuccessMessage.value = '推荐产品更新成功！'
+      showSaveSuccess.value = true
+      setTimeout(() => {
+        showSaveSuccess.value = false
+      }, 3000)
+      
+      // 关闭模态框
+      closeProductEditModal()
+    } else if (editingProduct.value.id) {
+      // 这是普通产品，使用现有的逻辑
+      const productData = {
+        name_en: editingProduct.value.name_en || '',
+        name_cn: editingProduct.value.name_cn || '',
+        description_en: editingProduct.value.description_en || '',
+        description_cn: editingProduct.value.description_cn || '',
+        craftsmanship_en: editingProduct.value.craftsmanship_en || '',
+        craftsmanship_cn: editingProduct.value.craftsmanship_cn || '',
+        history_en: editingProduct.value.history_en || '',
+        history_cn: editingProduct.value.history_cn || '',
+        price: parseFloat(String(editingProduct.value.price || 0).replace(/[$,]/g, '')) || 0,
+        dimensions: editingProduct.value.dimensions || '',
+        weight: editingProduct.value.weight || '',
+        age: editingProduct.value.age || '',
+        dynasty_id: editingProduct.value.dynasty_id || 1,
+        shape_id: editingProduct.value.shape_id || 1,
+        dynasty_name: getDynastyName(editingProduct.value.dynasty_id || 1),
+        shape_name: getShapeName(editingProduct.value.shape_id || 1),
+        primary_image: editingProduct.value.primary_image || '/src/assets/tea_image/1.png',
+        images: (editingProduct.value.images || []).map((img: any) => ({
+          id: img.id || 0,
+          image_path: img.image_path || img.image_url || '',
+          is_primary: img.is_primary || false,
+          sort_order: img.sort_order || 0
+        })),
+        videos: (editingProduct.value.videos || []).map((video: any) => ({
+          id: video.id || 0,
+          video_path: video.video_path || video.video_url || '',
+          thumbnail_path: video.thumbnail_path || video.thumbnail_url || '',
+          sort_order: video.sort_order || 0
+        })),
+        is_featured: editingProduct.value.is_featured || false,
+        is_available: editingProduct.value.is_available || true
+      }
+      
+      adminStore.updateProduct(editingProduct.value.id, productData)
+      
+      // 显示成功提示
+      saveSuccessMessage.value = '产品更新成功！'
+      showSaveSuccess.value = true
+      setTimeout(() => {
+        showSaveSuccess.value = false
+      }, 3000)
+      
+      // 关闭模态框
+      closeProductEditModal()
+  } else {
+      // 新产品
+      const productData = {
+        name_en: editingProduct.value.name_en || '',
+        name_cn: editingProduct.value.name_cn || '',
+        description_en: editingProduct.value.description_en || '',
+        description_cn: editingProduct.value.description_cn || '',
+        craftsmanship_en: editingProduct.value.craftsmanship_en || '',
+        craftsmanship_cn: editingProduct.value.craftsmanship_cn || '',
+        history_en: editingProduct.value.history_en || '',
+        history_cn: editingProduct.value.history_cn || '',
+        price: parseFloat(String(editingProduct.value.price || 0).replace(/[$,]/g, '')) || 0,
+        dimensions: editingProduct.value.dimensions || '',
+        weight: editingProduct.value.weight || '',
+        age: editingProduct.value.age || '',
+        dynasty_id: editingProduct.value.dynasty_id || 1,
+        shape_id: editingProduct.value.shape_id || 1,
+        dynasty_name: getDynastyName(editingProduct.value.dynasty_id || 1),
+        shape_name: getShapeName(editingProduct.value.shape_id || 1),
+        primary_image: editingProduct.value.primary_image || '/src/assets/tea_image/1.png',
+        images: (editingProduct.value.images || []).map((img: any) => ({
+          id: img.id || 0,
+          image_path: img.image_path || img.image_url || '',
+          is_primary: img.is_primary || false,
+          sort_order: img.sort_order || 0
+        })),
+        videos: (editingProduct.value.videos || []).map((video: any) => ({
+          id: video.id || 0,
+          video_path: video.video_path || video.video_url || '',
+          thumbnail_path: video.thumbnail_path || video.thumbnail_url || '',
+          sort_order: video.sort_order || 0
+        })),
+        is_featured: editingProduct.value.is_featured || false,
+        is_available: editingProduct.value.is_available || true
+      }
+      
+      adminStore.addProduct(productData)
+      
+      // 显示成功提示
+      saveSuccessMessage.value = '产品添加成功！'
+      showSaveSuccess.value = true
+      setTimeout(() => {
+        showSaveSuccess.value = false
+      }, 3000)
+      
+      // 关闭模态框
+      closeProductEditModal()
+    }
+    
+    // 移除原来的closeProductEditModal()调用，因为已经在各个分支中调用了
+  } catch (error) {
+    console.error('Error saving product:', error)
+    console.error('Error details:', {
+      message: (error as Error).message,
+      stack: (error as Error).stack,
+      editingProduct: editingProduct.value
+    })
+    alert(`Error saving product: ${(error as Error).message || 'Unknown error'}`)
+  } finally {
+    // 重置保存状态
+    isSaving.value = false
+  }
+}
+
+function openPrimaryImageUpload() {
+  openImageSelector('primary')
+}
+
+function openAdditionalImageUpload() {
+  openImageSelector('additional')
+}
+
+function removeAdditionalImage(index: number) {
+  if (editingProduct.value.images) {
+    editingProduct.value.images.splice(index, 1)
+  }
+}
+
+// Image selection state
+const currentImageSelectionType = ref<'primary' | 'additional'>('primary')
+
+// Image selection functions
+function selectImage(imageName: string) {
+  if (currentImageSelectionType.value === 'primary') {
+    handlePrimaryImageSelect(imageName)
+  } else {
+    handleAdditionalImageSelect(imageName)
+  }
+}
+
+function openImageSelector(type: 'primary' | 'additional') {
+  currentImageSelectionType.value = type
+  showImageSelector.value = true
+}
+
+function handlePrimaryImageSelect(imageFileName: string) {
+  const imagePath = `/src/assets/tea_image/${imageFileName}`
+  
+  // 检查是否是Best Sellers产品
+  if (editingProduct.value.index !== undefined) {
+    // Best Sellers产品：直接使用文件名路径
+    editingProduct.value.primary_image = imagePath
+    editingProduct.value.mainImage = imagePath
+  } else {
+    // 普通产品：直接使用文件名路径
+    editingProduct.value.primary_image = imagePath
+    editingProduct.value.primary_image_url = imagePath
+  }
+  
+  // 关闭图片选择器
+  showImageSelector.value = false
+}
+
+function handleAdditionalImageSelect(imageFileName: string) {
+  const imagePath = `/src/assets/tea_image/${imageFileName}`
+  
+  // 检查是否是Best Sellers产品
+  if (editingProduct.value.index !== undefined) {
+    // Best Sellers产品：直接使用文件名路径
+    if (!editingProduct.value.images) {
+      editingProduct.value.images = []
+    }
+    
+    editingProduct.value.images.push({
+      id: Date.now(),
+      product_id: editingProduct.value.id || 0,
+      image_url: imagePath, // 直接使用文件名路径
+      image_path: imagePath, // 直接使用文件名路径
+      alt_text: imageFileName,
+      is_primary: false,
+      sort_order: editingProduct.value.images.length,
+      file_size: 0,
+      mime_type: 'image/png',
+      created_at: new Date().toISOString()
+    })
+  } else {
+    // 普通产品：直接使用文件名路径
+    if (!editingProduct.value.images) {
+      editingProduct.value.images = []
+    }
+    
+    editingProduct.value.images.push({
+      id: Date.now(),
+      product_id: editingProduct.value.id || 0,
+      image_url: imagePath, // 直接使用文件名路径
+      image_path: imagePath, // 直接使用文件名路径
+      alt_text: imageFileName,
+      is_primary: false,
+      sort_order: editingProduct.value.images.length,
+      file_size: 0,
+      mime_type: 'image/png',
+      created_at: new Date().toISOString()
+    })
+  }
+  
+  // 关闭图片选择器
+  showImageSelector.value = false
+}
+
+// Collections methods
+function saveRareDynastyCollection() {
+  localStorage.setItem('rareDynastyCollection', JSON.stringify(rareDynastyCollection.value))
+  alert('Rare Dynasty Collection saved!')
+}
+
+function saveHeritageStory() {
+  localStorage.setItem('heritageStory', JSON.stringify(heritageStory.value))
+  alert('Heritage Story saved!')
+}
+
+// Content management methods
+function saveContentSettings() {
+  localStorage.setItem('contentSettings', JSON.stringify(contentSettings.value))
+  alert('Content settings saved!')
+}
+
+// Load saved settings on mount
+onMounted(() => {
+  const savedSiteSettings = localStorage.getItem('siteSettings')
+  if (savedSiteSettings) {
+    siteSettings.value = JSON.parse(savedSiteSettings)
+  }
+  
+  const savedRareDynastyCollection = localStorage.getItem('rareDynastyCollection')
+  if (savedRareDynastyCollection) {
+    rareDynastyCollection.value = JSON.parse(savedRareDynastyCollection)
+  }
+  
+  const savedHeritageStory = localStorage.getItem('heritageStory')
+  if (savedHeritageStory) {
+    heritageStory.value = JSON.parse(savedHeritageStory)
+  }
+  
+  const savedContentSettings = localStorage.getItem('contentSettings')
+  if (savedContentSettings) {
+    contentSettings.value = JSON.parse(savedContentSettings)
+  }
+})
+</script>
+
+<style scoped>
+@keyframes slide-in {
+  from {
+    transform: translateX(100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+.animate-slide-in {
+  animation: slide-in 0.3s ease-out;
+}
+
+/* 确保模态框内容可以滚动，但按钮固定在底部 */
+.max-h-screen {
+  max-height: 100vh;
+}
+
+/* 优化模态框滚动体验 */
+.overflow-y-auto {
+  scrollbar-width: thin;
+  scrollbar-color: #cbd5e0 #f7fafc;
+}
+
+.overflow-y-auto::-webkit-scrollbar {
+  width: 6px;
+}
+
+.overflow-y-auto::-webkit-scrollbar-track {
+  background: #f7fafc;
+}
+
+.overflow-y-auto::-webkit-scrollbar-thumb {
+  background: #cbd5e0;
+  border-radius: 3px;
+}
+
+.overflow-y-auto::-webkit-scrollbar-thumb:hover {
+  background: #a0aec0;
+}
+</style>
+
+

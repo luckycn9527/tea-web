@@ -1,3 +1,5 @@
+require('dotenv').config();
+
 const express = require('express');
 const cors = require('cors');
 const mysql = require('mysql2/promise');
@@ -71,15 +73,29 @@ app.get('/', (req, res) => {
 // Import routes
 const productsRouter = require('./routes/products');
 const adminRouter = require('./routes/admin');
+const authRouter = require('./routes/auth');
+const mediaLibraryRouter = require('./routes/media-library');
+const usersRouter = require('./routes/users');
+const database = require('./config/database');
 
 // Use routes
 app.use('/api/products', productsRouter);
 app.use('/api/admin', adminRouter);
+app.use('/api/auth', authRouter);
+app.use('/api/media-library', mediaLibraryRouter);
+app.use('/api/users', usersRouter);
 
 // Start server
-app.listen(PORT, () => {
+app.listen(PORT, async () => {
   console.log(`Server running on port ${PORT}`);
-  testConnection();
+  await testConnection();
+  // Initialize database connection
+  try {
+    await database.connect();
+    console.log('Database initialized successfully');
+  } catch (error) {
+    console.error('Failed to initialize database:', error);
+  }
 });
 
 module.exports = { app, pool, upload };

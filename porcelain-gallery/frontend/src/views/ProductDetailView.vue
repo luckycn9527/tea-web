@@ -195,12 +195,12 @@
               
               <div class="flex justify-between items-center py-2 border-b border-gray-700">
                 <span class="font-medium text-white">Material:</span>
-                <span class="text-gray-300">Premium Porcelain</span>
+                <span class="text-gray-300">{{ product.material || 'Premium Porcelain' }}</span>
               </div>
               
               <div class="flex justify-between items-center py-2 border-b border-gray-700">
                 <span class="font-medium text-white">Origin:</span>
-                <span class="text-gray-300">China</span>
+                <span class="text-gray-300">{{ product.origin || 'China' }}</span>
               </div>
             </div>
           </div>
@@ -284,8 +284,8 @@
             <!-- Product Image -->
             <div class="aspect-square bg-gray-100 relative overflow-hidden">
               <img 
-                v-if="relatedProduct.primary_image" 
-                :src="getImageSrc(relatedProduct.primary_image)"
+                v-if="relatedProduct.primary_image || (relatedProduct as any).primary_image_url"
+                :src="getImageSrc(relatedProduct.primary_image || (relatedProduct as any).primary_image_url || '/src/assets/tea_image/1.png')"
                 :alt="currentLocale === 'en' ? relatedProduct.name_en : relatedProduct.name_cn"
                 class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
               />
@@ -430,7 +430,7 @@ const productThumbnails = computed(() => {
   }
   
   // For Best Seller products, use the thumbnails as last resort
-  const bestSellerIndex = Math.floor((product.value.id - 1) / 1001)
+  const bestSellerIndex = product.value.id - 10000
   if (bestSellerIndex >= 0 && bestSellerIndex < adminStore.bestSellersProducts.length) {
     console.log(`Using Best Seller thumbnails for product ${product.value.id}`)
     return adminStore.bestSellersProducts[bestSellerIndex].thumbnails
@@ -500,36 +500,38 @@ async function loadProduct() {
     const initialImageIndex = imageIndexParam ? parseInt(imageIndexParam) : 0
     
     // Check if this is a best seller product first
-    // Best Seller IDs are generated as index + 1 + (index * 1000)
-    // So we can extract the original index: (productId - 1) / 1001
-    // But only if the result is a whole number (no remainder)
-    const bestSellerIndex = (productId - 1) / 1001
-    const isBestSeller = Number.isInteger(bestSellerIndex) && bestSellerIndex >= 0 && bestSellerIndex < adminStore.bestSellersProducts.length
+    // Best Seller IDs are generated as index + 10000
+    // So we can extract the original index: productId - 10000
+    // But only if the result is >= 0 and < bestSellersProducts.length
+    const bestSellerIndex = productId - 10000
+    const isBestSeller = bestSellerIndex >= 0 && bestSellerIndex < adminStore.bestSellersProducts.length
     console.log(`ProductDetailView: productId=${productId}, bestSellerIndex=${bestSellerIndex}, isBestSeller=${isBestSeller}`)
     
     if (isBestSeller) {
       // This is a best seller product, create a mock product from best seller data
-      const bestSellerProduct = adminStore.bestSellersProducts[bestSellerIndex]
+      const bestSellerProduct = adminStore.bestSellersProducts[bestSellerIndex] as any
       const mockProduct = {
         id: productId,
-        name_en: bestSellerProduct.name,
-        name_cn: bestSellerProduct.name,
-        description_en: `Description for ${bestSellerProduct.name}`,
-        description_cn: `${bestSellerProduct.name}的描述`,
+        name_en: bestSellerProduct.name_en || bestSellerProduct.name,
+        name_cn: bestSellerProduct.name_cn || bestSellerProduct.name,
+        description_en: bestSellerProduct.description_en || `Description for ${bestSellerProduct.name}`,
+        description_cn: bestSellerProduct.description_cn || `${bestSellerProduct.name}的描述`,
         craftsmanship_en: `Craftsmanship details for ${bestSellerProduct.name}`,
         craftsmanship_cn: `${bestSellerProduct.name}的工艺细节`,
         history_en: `History of ${bestSellerProduct.name}`,
         history_cn: `${bestSellerProduct.name}的历史`,
         price: parseFloat(bestSellerProduct.price.replace(/[$,]/g, '')),
-        dimensions: 'Various',
-        weight: 'Various',
-        age: 'Various',
-        dynasty_id: 1,
-        shape_id: 1,
-        dynasty_name: 'Various',
-        shape_name: 'Various',
+        dimensions: bestSellerProduct.dimensions || 'Various',
+        weight: bestSellerProduct.weight || 'Various',
+        age: bestSellerProduct.age || 'Various',
+        material: bestSellerProduct.material || 'Premium Porcelain',
+        origin: bestSellerProduct.origin || 'China',
+        dynasty_id: bestSellerProduct.dynasty_id || 1,
+        shape_id: bestSellerProduct.shape_id || 1,
+        dynasty_name: getDynastyName(bestSellerProduct.dynasty_id || 1),
+        shape_name: getShapeName(bestSellerProduct.shape_id || 1),
         primary_image: bestSellerProduct.mainImage,
-        images: bestSellerProduct.thumbnails.map((thumb, index) => ({
+        images: bestSellerProduct.thumbnails.map((thumb: string, index: number) => ({
           id: index + 1,
           image_path: thumb,
           is_primary: index === 0,
@@ -570,9 +572,9 @@ async function loadProduct() {
           console.log(`Regular product loaded from productsStore:`, productsStore.currentProduct)
           console.log(`Product images:`, productsStore.currentProduct.images)
           // Completely replace the product object to ensure reactivity
-          product.value = { ...productsStore.currentProduct }
+          product.value = { ...productsStore.currentProduct, primary_image: (productsStore.currentProduct as any).primary_image_url || '/src/assets/tea_image/1.png' } as any
           console.log(`Product value updated from productsStore:`, product.value)
-          console.log(`Updated product images:`, product.value.images)
+          console.log(`Updated product images:`, product.value?.images)
           currentImageIndex.value = initialImageIndex
         } else {
           throw new Error('Product not found')
@@ -595,6 +597,18 @@ function setCurrentImage(imagePath: string) {
 
 function setCurrentImageByIndex(index: number) {
   currentImageIndex.value = index
+}
+
+// Helper function to get dynasty name by ID
+function getDynastyName(dynastyId: number) {
+  const dynasty = adminStore.dynasties.find(d => d.id === dynastyId)
+  return dynasty ? dynasty.name : 'Various'
+}
+
+// Helper function to get shape name by ID
+function getShapeName(shapeId: number) {
+  const shape = adminStore.shapes.find(s => s.id === shapeId)
+  return shape ? shape.name : 'Various'
 }
 
 function openImageModal() {
