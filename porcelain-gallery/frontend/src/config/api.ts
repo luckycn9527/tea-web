@@ -1,7 +1,7 @@
 // API Configuration
 export const API_CONFIG = {
   // Use environment variable if available, otherwise fallback to localhost
-  BASE_URL: import.meta.env.VITE_API_BASE_URL || 'http://localhost:3000',
+  BASE_URL: import.meta.env.VITE_API_BASE_URL || '/api',
   
   // Helper function to get full API URL
   getApiUrl: (path: string) => {

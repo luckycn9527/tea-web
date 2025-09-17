@@ -5,6 +5,7 @@ import { useProductsStore } from '@/stores/products'
 import { useAdminStore } from '@/stores/admin'
 import ProductCard from '@/components/ProductCard.vue'
 import API_CONFIG from '@/config/api'
+import { getImageSrc, handleImageError } from '@/utils/image-utils'
 
 const router = useRouter()
 const productsStore = useProductsStore()
@@ -165,48 +166,9 @@ function goToProduct(productId: number) {
   router.push(`/products/${productId}?imageIndex=${currentImageIndex}`)
 }
 
-function handleImageError(event: Event) {
-  const target = event.target as HTMLImageElement
-  target.src = '/src/assets/tea_image/1.png'
-}
-
-function getImageSrc(imagePath: string) {
-  // 检查输入参数
-  if (!imagePath || imagePath === 'undefined' || imagePath.includes('undefined')) {
-    console.warn('Invalid image path:', imagePath)
-    return new URL(`../assets/tea_image/1.png`, import.meta.url).href
-  }
-  
-  // Use API config to handle all image URL logic
-  const processedUrl = API_CONFIG.getImageUrl(imagePath)
-  
-  // If it's a local static asset path, convert to proper Vite asset import
-  if (imagePath && (imagePath.startsWith('/src/assets/') || imagePath.includes('tea_image'))) {
-    const fileName = imagePath.split('/').pop()
-    if (!fileName || fileName === 'undefined') {
-      console.warn('Could not extract valid filename from path:', imagePath)
-      return new URL(`../assets/tea_image/1.png`, import.meta.url).href
-    }
-    return new URL(`../assets/tea_image/${fileName}`, import.meta.url).href
-  }
-  
-  // If API config returned the original path (for local assets), convert it
-  if (processedUrl === imagePath && imagePath.includes('tea_image')) {
-    const fileName = imagePath.split('/').pop()
-    if (!fileName || fileName === 'undefined') {
-      console.warn('Could not extract valid filename from path:', imagePath)
-      return new URL(`../assets/tea_image/1.png`, import.meta.url).href
-    }
-    return new URL(`../assets/tea_image/${fileName}`, import.meta.url).href
-  }
-  
-  // Use the processed URL from API config
-  return processedUrl
-}
-
 // Helper function to get asset URL for template use
 function getAssetUrl(fileName: string) {
-  return new URL(`../assets/tea_image/${fileName}`, import.meta.url).href
+  return getImageSrc(`/src/assets/tea_image/${fileName}`)
 }
 
 // Get thumbnails for a product (now uses reactive computed property)

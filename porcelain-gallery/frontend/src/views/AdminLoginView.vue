@@ -108,7 +108,7 @@ async function handleLogin() {
   error.value = ''
 
   try {
-    const response = await fetch('http://localhost:3000/api/auth/login', {
+    const response = await fetch('https://zaopic.cn/api/admin-auth/login', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',

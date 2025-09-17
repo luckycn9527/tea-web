@@ -1,0 +1,157 @@
+[
+  {
+    "fileName": "1.png",
+    "ossUrl": "http://tea-web.oss-cn-hangzhou.aliyuncs.com/tea_image/1.png",
+    "localPath": "/src/assets/tea_image/1.png"
+  },
+  {
+    "fileName": "10.png",
+    "ossUrl": "http://tea-web.oss-cn-hangzhou.aliyuncs.com/tea_image/10.png",
+    "localPath": "/src/assets/tea_image/10.png"
+  },
+  {
+    "fileName": "11.png",
+    "ossUrl": "http://tea-web.oss-cn-hangzhou.aliyuncs.com/tea_image/11.png",
+    "localPath": "/src/assets/tea_image/11.png"
+  },
+  {
+    "fileName": "12.png",
+    "ossUrl": "http://tea-web.oss-cn-hangzhou.aliyuncs.com/tea_image/12.png",
+    "localPath": "/src/assets/tea_image/12.png"
+  },
+  {
+    "fileName": "13.png",
+    "ossUrl": "http://tea-web.oss-cn-hangzhou.aliyuncs.com/tea_image/13.png",
+    "localPath": "/src/assets/tea_image/13.png"
+  },
+  {
+    "fileName": "14.png",
+    "ossUrl": "http://tea-web.oss-cn-hangzhou.aliyuncs.com/tea_image/14.png",
+    "localPath": "/src/assets/tea_image/14.png"
+  },
+  {
+    "fileName": "15.png",
+    "ossUrl": "http://tea-web.oss-cn-hangzhou.aliyuncs.com/tea_image/15.png",
+    "localPath": "/src/assets/tea_image/15.png"
+  },
+  {
+    "fileName": "16.png",
+    "ossUrl": "http://tea-web.oss-cn-hangzhou.aliyuncs.com/tea_image/16.png",
+    "localPath": "/src/assets/tea_image/16.png"
+  },
+  {
+    "fileName": "17.png",
+    "ossUrl": "http://tea-web.oss-cn-hangzhou.aliyuncs.com/tea_image/17.png",
+    "localPath": "/src/assets/tea_image/17.png"
+  },
+  {
+    "fileName": "18.png",
+    "ossUrl": "http://tea-web.oss-cn-hangzhou.aliyuncs.com/tea_image/18.png",
+    "localPath": "/src/assets/tea_image/18.png"
+  },
+  {
+    "fileName": "19.png",
+    "ossUrl": "http://tea-web.oss-cn-hangzhou.aliyuncs.com/tea_image/19.png",
+    "localPath": "/src/assets/tea_image/19.png"
+  },
+  {
+    "fileName": "2.png",
+    "ossUrl": "http://tea-web.oss-cn-hangzhou.aliyuncs.com/tea_image/2.png",
+    "localPath": "/src/assets/tea_image/2.png"
+  },
+  {
+    "fileName": "20.png",
+    "ossUrl": "http://tea-web.oss-cn-hangzhou.aliyuncs.com/tea_image/20.png",
+    "localPath": "/src/assets/tea_image/20.png"
+  },
+  {
+    "fileName": "21.png",
+    "ossUrl": "http://tea-web.oss-cn-hangzhou.aliyuncs.com/tea_image/21.png",
+    "localPath": "/src/assets/tea_image/21.png"
+  },
+  {
+    "fileName": "22.png",
+    "ossUrl": "http://tea-web.oss-cn-hangzhou.aliyuncs.com/tea_image/22.png",
+    "localPath": "/src/assets/tea_image/22.png"
+  },
+  {
+    "fileName": "23.png",
+    "ossUrl": "http://tea-web.oss-cn-hangzhou.aliyuncs.com/tea_image/23.png",
+    "localPath": "/src/assets/tea_image/23.png"
+  },
+  {
+    "fileName": "3.png",
+    "ossUrl": "http://tea-web.oss-cn-hangzhou.aliyuncs.com/tea_image/3.png",
+    "localPath": "/src/assets/tea_image/3.png"
+  },
+  {
+    "fileName": "4.png",
+    "ossUrl": "http://tea-web.oss-cn-hangzhou.aliyuncs.com/tea_image/4.png",
+    "localPath": "/src/assets/tea_image/4.png"
+  },
+  {
+    "fileName": "5.png",
+    "ossUrl": "http://tea-web.oss-cn-hangzhou.aliyuncs.com/tea_image/5.png",
+    "localPath": "/src/assets/tea_image/5.png"
+  },
+  {
+    "fileName": "6.png",
+    "ossUrl": "http://tea-web.oss-cn-hangzhou.aliyuncs.com/tea_image/6.png",
+    "localPath": "/src/assets/tea_image/6.png"
+  },
+  {
+    "fileName": "7.png",
+    "ossUrl": "http://tea-web.oss-cn-hangzhou.aliyuncs.com/tea_image/7.png",
+    "localPath": "/src/assets/tea_image/7.png"
+  },
+  {
+    "fileName": "8.png",
+    "ossUrl": "http://tea-web.oss-cn-hangzhou.aliyuncs.com/tea_image/8.png",
+    "localPath": "/src/assets/tea_image/8.png"
+  },
+  {
+    "fileName": "9.png",
+    "ossUrl": "http://tea-web.oss-cn-hangzhou.aliyuncs.com/tea_image/9.png",
+    "localPath": "/src/assets/tea_image/9.png"
+  },
+  {
+    "fileName": "background.png",
+    "ossUrl": "http://tea-web.oss-cn-hangzhou.aliyuncs.com/tea_image/background.png",
+    "localPath": "/src/assets/tea_image/background.png"
+  },
+  {
+    "fileName": "best.png",
+    "ossUrl": "http://tea-web.oss-cn-hangzhou.aliyuncs.com/tea_image/best.png",
+    "localPath": "/src/assets/tea_image/best.png"
+  },
+  {
+    "fileName": "ming.png",
+    "ossUrl": "http://tea-web.oss-cn-hangzhou.aliyuncs.com/tea_image/ming.png",
+    "localPath": "/src/assets/tea_image/ming.png"
+  },
+  {
+    "fileName": "qing.png",
+    "ossUrl": "http://tea-web.oss-cn-hangzhou.aliyuncs.com/tea_image/qing.png",
+    "localPath": "/src/assets/tea_image/qing.png"
+  },
+  {
+    "fileName": "song.png",
+    "ossUrl": "http://tea-web.oss-cn-hangzhou.aliyuncs.com/tea_image/song.png",
+    "localPath": "/src/assets/tea_image/song.png"
+  },
+  {
+    "fileName": "tang.png",
+    "ossUrl": "http://tea-web.oss-cn-hangzhou.aliyuncs.com/tea_image/tang.png",
+    "localPath": "/src/assets/tea_image/tang.png"
+  },
+  {
+    "fileName": "yuan.png",
+    "ossUrl": "http://tea-web.oss-cn-hangzhou.aliyuncs.com/tea_image/yuan.png",
+    "localPath": "/src/assets/tea_image/yuan.png"
+  },
+  {
+    "fileName": "zhizuo.png",
+    "ossUrl": "http://tea-web.oss-cn-hangzhou.aliyuncs.com/tea_image/zhizuo.png",
+    "localPath": "/src/assets/tea_image/zhizuo.png"
+  }
+]

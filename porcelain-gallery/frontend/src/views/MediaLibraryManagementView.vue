@@ -57,9 +57,45 @@
       </div>
     </div>
 
+    <!-- 分类筛选 -->
+    <div class="bg-white rounded-lg shadow-lg p-6 mb-6">
+      <h3 class="text-xl font-semibold text-gray-900 mb-4">图片分类</h3>
+      <div class="flex flex-wrap gap-2">
+        <button
+          v-for="(label, key) in categories"
+          :key="key"
+          @click="selectedCategory = key; loadMediaLibrary()"
+          :class="[
+            'px-4 py-2 rounded-full text-sm font-medium transition-colors',
+            selectedCategory === key
+              ? 'bg-blue-600 text-white'
+              : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+          ]"
+        >
+          {{ label }}
+        </button>
+      </div>
+    </div>
+
     <!-- 上传区域 -->
     <div class="bg-white rounded-lg shadow-lg p-6 mb-6">
       <h3 class="text-xl font-semibold text-gray-900 mb-4">上传新图片</h3>
+      
+      <!-- 上传选项 -->
+      <div class="mb-4 space-y-4">
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-2">图片分类</label>
+          <select v-model="uploadCategory" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+            <option v-for="(label, key) in categories" :key="key" :value="key">{{ label }}</option>
+          </select>
+        </div>
+        <div class="flex items-center space-x-4">
+          <label class="flex items-center">
+            <input v-model="isPublic" type="checkbox" class="rounded border-gray-300 text-blue-600 focus:ring-blue-500">
+            <span class="ml-2 text-sm text-gray-700">设为公开</span>
+          </label>
+        </div>
+      </div>
       
       <div class="border-2 border-dashed border-gray-300 rounded-lg p-8 text-center hover:border-gray-400 transition-colors">
         <div v-if="!isUploading" class="space-y-4">
@@ -97,6 +133,16 @@
             <div class="bg-blue-600 h-2 rounded-full transition-all duration-300" :style="{ width: uploadProgress + '%' }"></div>
           </div>
           <p class="text-xs text-gray-500">{{ uploadProgress }}% 完成</p>
+        </div>
+
+        <!-- 压缩状态显示 -->
+        <div v-if="isCompressing" class="space-y-4">
+          <div class="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-green-600"></div>
+          <p class="text-sm text-gray-600">{{ compressionStatus }}</p>
+          <div class="w-full bg-gray-200 rounded-full h-2">
+            <div class="bg-green-600 h-2 rounded-full transition-all duration-300" :style="{ width: compressionProgress + '%' }"></div>
+          </div>
+          <p class="text-xs text-gray-500">{{ compressionProgress }}% 完成</p>
         </div>
       </div>
 
@@ -421,6 +467,26 @@ const showMediaModal = ref(false)
 const selectedMedia = ref<any>(null)
 const selectedMediaId = ref<number | null>(null)
 
+// 压缩相关状态
+const isCompressing = ref(false)
+const compressionProgress = ref(0)
+const compressionStatus = ref('')
+
+// 分类相关
+const selectedCategory = ref('all')
+const uploadCategory = ref('other')
+const isPublic = ref(true)
+const categories = ref<Record<string, string>>({
+  'all': '全部',
+  'product': '产品图片',
+  'dynasty': '朝代图片', 
+  'shape': '器型图片',
+  'category': '分类图片',
+  'banner': '横幅图片',
+  'gallery': '画廊图片',
+  'other': '其他图片'
+})
+
 // 媒体库数据
 const mediaLibrary = ref<Array<{
   id: number | string
@@ -428,6 +494,7 @@ const mediaLibrary = ref<Array<{
   original_filename: string
   file_path: string
   file_url: string
+  oss_url?: string
   mime_type: string
   file_size: number
   width: number
@@ -435,6 +502,7 @@ const mediaLibrary = ref<Array<{
   alt_text: string
   caption: string
   tags: string
+  category: string
   is_public: boolean
   uploaded_by: number
   created_at: string
@@ -481,6 +549,11 @@ const filteredMedia = computed(() => {
 
 // 方法
 function getImageUrl(media: any) {
+  // 优先使用OSS URL
+  if (media.oss_url) {
+    return media.oss_url
+  }
+  
   // 如果是现有图片，直接使用file_url
   if (media.is_existing) {
     return media.file_url
@@ -524,31 +597,270 @@ function toggleVisibility(media: any) {
   console.log('Toggle visibility for media:', media.id, 'to', media.is_public)
 }
 
-function deleteMedia(media: any) {
+async function deleteMedia(media: any) {
   if (media.is_existing) {
     alert('现有图片无法删除，这些是系统预设的图片资源')
     return
   }
   
   if (confirm(`确定要删除图片 "${media.filename}" 吗？`)) {
-    // TODO: 调用API删除图片
-    console.log('Delete media:', media.id)
+    try {
+      const token = localStorage.getItem('admin_token')
+      if (!token) {
+        throw new Error('No admin token found')
+      }
+
+      const response = await fetch(`/api/media-library-oss/${media.id}`, {
+        method: 'DELETE',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        }
+      })
+
+      if (!response.ok) {
+        throw new Error('Delete failed')
+      }
+
+      const data = await response.json()
+      if (data.success) {
+        alert('图片删除成功！')
+        // 重新加载媒体库
+        await loadMediaLibrary()
+      } else {
+        throw new Error(data.message || 'Delete failed')
+      }
+    } catch (error) {
+      console.error('Delete error:', error)
+      alert('删除失败，请重试')
+    }
   }
 }
 
-function saveMediaDetails() {
-  // TODO: 调用API保存图片详情
-  console.log('Save media details:', selectedMedia.value)
-  showMediaModal.value = false
+async function saveMediaDetails() {
+  try {
+    const token = localStorage.getItem('admin_token')
+    if (!token) {
+      throw new Error('No admin token found')
+    }
+
+    const response = await fetch(`/api/media-library-oss/${selectedMedia.value.id}`, {
+      method: 'PATCH',
+      headers: {
+        'Authorization': `Bearer ${token}`,
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        alt_text: selectedMedia.value.alt_text,
+        caption: selectedMedia.value.caption,
+        tags: selectedMedia.value.tags,
+        category: selectedMedia.value.category,
+        is_public: selectedMedia.value.is_public
+      })
+    })
+
+    if (!response.ok) {
+      throw new Error('Update failed')
+    }
+
+    const data = await response.json()
+    if (data.success) {
+      alert('图片信息更新成功！')
+      showMediaModal.value = false
+      // 重新加载媒体库
+      await loadMediaLibrary()
+    } else {
+      throw new Error(data.message || 'Update failed')
+    }
+  } catch (error) {
+    console.error('Update error:', error)
+    alert('更新失败，请重试')
+  }
 }
 
-// 文件上传相关方法
+// 智能压缩工具函数 - 确保文件小于1MB
+function compressImageToTargetSize(file: File, targetSizeKB: number = 1000): Promise<File> {
+  return new Promise((resolve, reject) => {
+    const canvas = document.createElement('canvas')
+    const ctx = canvas.getContext('2d')
+    const img = new Image()
+    
+    img.onload = () => {
+      // 计算压缩后的尺寸
+      const maxWidth = 1920
+      const maxHeight = 1080
+      let { width, height } = img
+      
+      if (width > maxWidth || height > maxHeight) {
+        const ratio = Math.min(maxWidth / width, maxHeight / height)
+        width *= ratio
+        height *= ratio
+      }
+      
+      canvas.width = width
+      canvas.height = height
+      
+      // 绘制压缩后的图片
+      ctx?.drawImage(img, 0, 0, width, height)
+      
+      // 动态调整质量直到文件大小符合要求
+      const tryCompress = (quality: number): void => {
+        canvas.toBlob((blob) => {
+          if (blob) {
+            const sizeKB = blob.size / 1024
+            if (sizeKB <= targetSizeKB || quality <= 0.1) {
+              const compressedFile = new File([blob], file.name, {
+                type: file.type,
+                lastModified: Date.now()
+              })
+              resolve(compressedFile)
+            } else {
+              // 继续降低质量
+              tryCompress(quality - 0.1)
+            }
+          } else {
+            reject(new Error('图片压缩失败'))
+          }
+        }, file.type, quality)
+      }
+      
+      // 从0.8质量开始尝试
+      tryCompress(0.8)
+    }
+    
+    img.onerror = () => reject(new Error('图片加载失败'))
+    img.src = URL.createObjectURL(file)
+  })
+}
+
+// 图片压缩工具函数
+
+// 分片上传功能
+function createFileChunks(file: File, chunkSize: number = 500 * 1024): Blob[] {
+  const chunks: Blob[] = []
+  let start = 0
+  
+  while (start < file.size) {
+    const end = Math.min(start + chunkSize, file.size)
+    chunks.push(file.slice(start, end))
+    start = end
+  }
+  
+  return chunks
+}
+
+async function uploadFileInChunks(file: File): Promise<void> {
+  const chunks = createFileChunks(file)
+  const token = localStorage.getItem('admin_token')
+  
+  if (!token) {
+    throw new Error('No admin token found')
+  }
+  
+  // 创建上传会话
+  const sessionResponse = await fetch('/api/media-library-oss/upload-session', {
+    method: 'POST',
+    headers: {
+      'Authorization': `Bearer ${token}`,
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify({
+      filename: file.name,
+      totalChunks: chunks.length,
+      totalSize: file.size
+    })
+  })
+  
+  if (!sessionResponse.ok) {
+    throw new Error('创建上传会话失败')
+  }
+  
+  const session = await sessionResponse.json()
+  
+  // 上传每个分片
+  for (let i = 0; i < chunks.length; i++) {
+    const formData = new FormData()
+    formData.append('chunk', chunks[i])
+    formData.append('chunkIndex', i.toString())
+    formData.append('sessionId', session.sessionId)
+    
+    const response = await fetch('/api/media-library-oss/upload-chunk', {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${token}`
+      },
+      body: formData
+    })
+    
+    if (!response.ok) {
+      throw new Error(`上传分片 ${i + 1}/${chunks.length} 失败`)
+    }
+    
+    uploadProgress.value = ((i + 1) / chunks.length) * 100
+  }
+  
+  // 完成上传
+  const completeResponse = await fetch('/api/media-library-oss/upload-complete', {
+    method: 'POST',
+    headers: {
+      'Authorization': `Bearer ${token}`,
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify({
+      sessionId: session.sessionId
+    })
+  })
+  
+  if (!completeResponse.ok) {
+    throw new Error('完成上传失败')
+  }
+}
 function handleFileSelect(event: Event) {
   const target = event.target as HTMLInputElement
   const files = Array.from(target.files || [])
   
-  files.forEach(file => {
+  const MAX_FILE_SIZE = 1024 * 1024 // 1MB - 适配nginx限制
+  
+  files.forEach(async (file) => {
     if (file.type.startsWith('image/')) {
+      // 检查文件大小
+      if (file.size > MAX_FILE_SIZE) {
+        const shouldCompress = confirm(`文件 "${file.name}" 超过1MB限制。是否自动压缩后上传？\n\n注意：压缩可能会影响图片质量，但可以确保上传成功。`)
+        if (shouldCompress) {
+          try {
+            isCompressing.value = true
+            compressionStatus.value = '正在压缩图片...'
+            compressionProgress.value = 0
+            
+            const compressedFile = await compressImageToTargetSize(file, 900) // 压缩到900KB
+            
+            compressionStatus.value = '压缩完成！'
+            compressionProgress.value = 100
+            
+            const reader = new FileReader()
+            reader.onload = (e) => {
+              selectedFiles.value.push({
+                file: compressedFile,
+                name: compressedFile.name,
+                size: compressedFile.size,
+                type: compressedFile.type,
+                preview: e.target?.result
+              })
+              isCompressing.value = false
+              compressionStatus.value = ''
+              compressionProgress.value = 0
+            }
+            reader.readAsDataURL(compressedFile)
+          } catch (error) {
+            alert(`压缩失败: ${error}`)
+            isCompressing.value = false
+            compressionStatus.value = ''
+            compressionProgress.value = 0
+          }
+        }
+        return
+      }
+      
       const reader = new FileReader()
       reader.onload = (e) => {
         selectedFiles.value.push({
@@ -560,6 +872,8 @@ function handleFileSelect(event: Event) {
         })
       }
       reader.readAsDataURL(file)
+    } else {
+      alert(`文件 "${file.name}" 不是图片格式，请选择图片文件`)
     }
   })
 }
@@ -578,41 +892,62 @@ function clearSelectedFiles() {
 async function uploadFiles() {
   if (selectedFiles.value.length === 0) return
 
+  // 检查总文件大小
+  const totalSize = selectedFiles.value.reduce((sum, fileData) => sum + fileData.size, 0)
+  const MAX_TOTAL_SIZE = 5 * 1024 * 1024 // 5MB总限制 - 适配nginx
+  
+  if (totalSize > MAX_TOTAL_SIZE) {
+    alert(`所有文件总大小超过5MB限制，请分批上传`)
+    return
+  }
+
   isUploading.value = true
   uploadProgress.value = 0
 
   try {
-    for (let i = 0; i < selectedFiles.value.length; i++) {
-      const fileData = selectedFiles.value[i]
-      const formData = new FormData()
-      formData.append('file', fileData.file)
-      formData.append('alt_text', fileData.name)
-      formData.append('is_public', 'true')
-
-      const response = await fetch('http://localhost:3000/api/media-library/upload', {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${localStorage.getItem('admin_token')}`
-        },
-        body: formData
-      })
-
-      if (response.ok) {
-        console.log(`File ${fileData.name} uploaded successfully`)
-      } else {
-        console.error(`Failed to upload ${fileData.name}`)
-      }
-
-      uploadProgress.value = Math.round(((i + 1) / selectedFiles.value.length) * 100)
+    const token = localStorage.getItem('admin_token')
+    if (!token) {
+      throw new Error('No admin token found')
     }
 
-    // 重新加载媒体库
-    await loadMediaLibrary()
+    const formData = new FormData()
     
-    // 清空选择
-    clearSelectedFiles()
+    // 添加所有文件
+    selectedFiles.value.forEach(fileData => {
+      formData.append('file', fileData.file)
+    })
     
-    alert('图片上传完成！')
+    // 添加上传选项
+    formData.append('category', uploadCategory.value)
+    formData.append('is_public', isPublic.value.toString())
+
+    const response = await fetch('/api/media-library-oss/upload', {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${token}`
+      },
+      body: formData
+    })
+
+    if (!response.ok) {
+      throw new Error('Upload failed')
+    }
+
+    const data = await response.json()
+    if (data.success) {
+      console.log('Files uploaded successfully:', data.files)
+      uploadProgress.value = 100
+      
+      // 重新加载媒体库
+      await loadMediaLibrary()
+      
+      // 清空选择
+      clearSelectedFiles()
+      
+      alert(`成功上传 ${data.files.length} 个文件！`)
+    } else {
+      throw new Error(data.message || 'Upload failed')
+    }
   } catch (error) {
     console.error('Upload error:', error)
     alert('上传失败，请重试')
@@ -625,22 +960,38 @@ async function uploadFiles() {
 async function loadMediaLibrary() {
   loading.value = true
   try {
-    const response = await fetch('http://localhost:3000/api/media-library', {
-      method: 'GET',
+    const token = localStorage.getItem('admin_token')
+    if (!token) {
+      console.error('No admin token found')
+      return
+    }
+
+    const params = new URLSearchParams({
+      page: currentPage.value.toString(),
+      limit: pageSize.value.toString()
+    })
+    
+    if (selectedCategory.value !== 'all') {
+      params.append('category', selectedCategory.value)
+    }
+
+    const response = await fetch(`/api/media-library-oss?${params}`, {
       headers: {
-        'Authorization': `Bearer ${localStorage.getItem('admin_token')}`,
+        'Authorization': `Bearer ${token}`,
         'Content-Type': 'application/json'
       }
     })
 
-    if (response.ok) {
-      const data = await response.json()
-      mediaLibrary.value = data.media || []
+    if (!response.ok) {
+      throw new Error('Failed to fetch media library')
+    }
+
+    const data = await response.json()
+    if (data.success) {
+      mediaLibrary.value = data.media
       console.log('媒体库数据已加载:', mediaLibrary.value.length, '个文件')
     } else {
-      console.error('Failed to load media library:', response.statusText)
-      // 使用默认数据
-      mediaLibrary.value = []
+      console.error('Error loading media library:', data.message)
     }
   } catch (error) {
     console.error('Error loading media library:', error)

@@ -520,7 +520,7 @@ async function loadProduct() {
         craftsmanship_cn: `${bestSellerProduct.name}的工艺细节`,
         history_en: `History of ${bestSellerProduct.name}`,
         history_cn: `${bestSellerProduct.name}的历史`,
-        price: parseFloat(bestSellerProduct.price.replace(/[$,]/g, '')),
+        price: parseFloat(String(bestSellerProduct.price || '0').replace(/[$,]/g, '')),
         dimensions: bestSellerProduct.dimensions || 'Various',
         weight: bestSellerProduct.weight || 'Various',
         age: bestSellerProduct.age || 'Various',

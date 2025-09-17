@@ -74,15 +74,24 @@ app.get('/', (req, res) => {
 const productsRouter = require('./routes/products');
 const adminRouter = require('./routes/admin');
 const authRouter = require('./routes/auth');
+const adminAuthRouter = require('./routes/admin-auth');
 const mediaLibraryRouter = require('./routes/media-library');
+const mediaLibraryOssRouter = require('./routes/media-library-oss');
 const usersRouter = require('./routes/users');
 const database = require('./config/database');
+
+// Test route
+app.get('/api/test', (req, res) => {
+  res.json({ message: 'Test route working' });
+});
 
 // Use routes
 app.use('/api/products', productsRouter);
 app.use('/api/admin', adminRouter);
 app.use('/api/auth', authRouter);
+app.use('/api/admin-auth', adminAuthRouter);
 app.use('/api/media-library', mediaLibraryRouter);
+app.use('/api/media-library-oss', mediaLibraryOssRouter);
 app.use('/api/users', usersRouter);
 
 // Start server

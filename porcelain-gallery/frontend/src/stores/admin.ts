@@ -1454,6 +1454,16 @@ export const useAdminStore = defineStore('admin', () => {
     // loadSettings() already handles products loading, so no need to duplicate here
     // This ensures consistency between local and public access
     
+    // Load Best Sellers data from localStorage
+    const savedBestSellers = localStorage.getItem('bestSellersProducts')
+    if (savedBestSellers) {
+      bestSellersProducts.value = JSON.parse(savedBestSellers)
+      console.log('Loaded Best Sellers from localStorage:', bestSellersProducts.value.length, 'products')
+    } else {
+      console.log('No Best Sellers data in localStorage, using default')
+      // Keep default bestSellersProducts values
+    }
+    
     // Always use default dynasties configuration
     const savedDynasties = localStorage.getItem('dynasties')
     if (savedDynasties) {

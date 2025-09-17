@@ -1,6 +1,7 @@
 import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
 import { useRouter } from 'vue-router'
+import API_CONFIG from '@/config/api'
 
 export interface User {
   id: number
@@ -82,7 +83,7 @@ export const useAuthStore = defineStore('auth', () => {
     error.value = null
 
     try {
-      const response = await fetch('http://localhost:3000/api/auth/login', {
+      const response = await fetch(API_CONFIG.getApiUrl('/auth/login'), {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -119,7 +120,7 @@ export const useAuthStore = defineStore('auth', () => {
     error.value = null
 
     try {
-      const response = await fetch('http://localhost:3000/api/auth/register', {
+      const response = await fetch(API_CONFIG.getApiUrl('/auth/register'), {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -163,7 +164,7 @@ export const useAuthStore = defineStore('auth', () => {
     }
 
     try {
-      const response = await fetch('http://localhost:3000/api/auth/verify', {
+      const response = await fetch(API_CONFIG.getApiUrl('/auth/verify'), {
         method: 'GET',
         headers: {
           'Authorization': `Bearer ${token.value}`,
@@ -194,7 +195,7 @@ export const useAuthStore = defineStore('auth', () => {
     }
 
     try {
-      const response = await fetch('http://localhost:3000/api/auth/refresh', {
+      const response = await fetch(API_CONFIG.getApiUrl('/auth/refresh'), {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${token.value}`,

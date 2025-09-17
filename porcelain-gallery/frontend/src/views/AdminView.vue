@@ -585,44 +585,93 @@
           </div>
         </div>
         
-    <!-- Image Selector Modal -->
+    <!-- Media Library Selector Modal -->
     <div v-if="showImageSelector" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-      <div class="bg-white rounded-lg w-full max-w-4xl my-8 max-h-screen flex flex-col">
+      <div class="bg-white rounded-lg w-full max-w-6xl my-8 max-h-screen flex flex-col">
         <!-- Modal Header -->
         <div class="flex items-center justify-between p-6 border-b border-gray-200">
-          <h3 class="text-lg font-semibold text-gray-900">{{ $t('admin.imageSelector.selectImage') }}</h3>
+          <h3 class="text-lg font-semibold text-gray-900">从媒体库选择图片</h3>
           <button @click="showImageSelector = false" class="text-gray-400 hover:text-gray-600 transition-colors">
             <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
             </svg>
           </button>
-          </div>
+        </div>
+        
         <!-- Modal Content -->
         <div class="flex-1 overflow-y-auto p-6">
-          <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4">
-            <div
-              v-for="imageName in availableImages"
-              :key="imageName"
-              @click="selectImage(imageName)"
-              class="cursor-pointer border border-gray-200 rounded-lg p-2 hover:border-blue-500 hover:shadow-md transition-all"
-            >
-              <img
-                :src="getImageSrc(`/src/assets/tea_image/${imageName}`)"
-                :alt="imageName"
-                class="w-full h-20 object-cover rounded"
-                @error="handleImageError"
+          <!-- 搜索和筛选 -->
+          <div class="mb-6">
+            <div class="flex gap-4">
+              <input
+                v-model="mediaSearchQuery"
+                type="text"
+                placeholder="搜索图片..."
+                class="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
               />
-              <p class="text-xs text-gray-600 mt-1 text-center truncate">{{ imageName }}</p>
+              <select
+                v-model="mediaFilterType"
+                class="px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+              >
+                <option value="">所有类型</option>
+                <option value="image">图片</option>
+                <option value="video">视频</option>
+              </select>
+            </div>
           </div>
+          
+          <!-- 媒体库网格 -->
+          <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 xl:grid-cols-8 gap-4">
+            <div
+              v-for="media in filteredMediaLibrary"
+              :key="media.id"
+              @click="selectMediaImage(media)"
+              class="cursor-pointer border-2 rounded-lg overflow-hidden hover:opacity-80 transition-opacity"
+              :class="selectedMediaId === media.id ? 'border-blue-500' : 'border-gray-200'"
+            >
+              <div class="aspect-square relative">
+                <img
+                  :src="getMediaImageUrl(media)"
+                  :alt="media.alt_text || media.filename"
+                  class="w-full h-full object-cover"
+                  @error="handleImageError"
+                />
+                
+                <!-- 选中状态 -->
+                <div v-if="selectedMediaId === media.id" class="absolute inset-0 bg-blue-500 bg-opacity-30 flex items-center justify-center">
+                  <svg class="w-8 h-8 text-white" fill="currentColor" viewBox="0 0 20 20">
+                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+                  </svg>
+                </div>
+              </div>
+              <div class="p-2 text-xs text-center truncate">{{ media.filename || media.original_filename }}</div>
+            </div>
+          </div>
+          
+          <!-- 空状态 -->
+          <div v-if="filteredMediaLibrary.length === 0" class="text-center py-12">
+            <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+            </svg>
+            <h3 class="mt-2 text-sm font-medium text-gray-900">没有找到图片</h3>
+            <p class="mt-1 text-sm text-gray-500">请先上传图片到媒体库</p>
           </div>
         </div>
+        
         <!-- Modal Footer -->
         <div class="flex items-center justify-end gap-3 p-6 border-t border-gray-200">
           <button
             @click="showImageSelector = false"
             class="px-4 py-2 text-gray-600 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
           >
-            {{ $t('admin.imageSelector.cancel') }}
+            取消
+          </button>
+          <button
+            @click="confirmMediaSelection"
+            :disabled="!selectedMediaId"
+            class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+          >
+            确认选择
           </button>
         </div>
       </div>
@@ -641,6 +690,7 @@ import { useRouter } from 'vue-router'
 import { useI18n } from 'vue-i18n'
 import { useAdminStore } from '@/stores/admin'
 import API_CONFIG from '@/config/api'
+import { getImageUrl } from '@/utils/oss-image-manager'
 import UserManagementView from './UserManagementView.vue'
 import HomepageContentManagementView from './HomepageContentManagementView.vue'
 import MediaLibraryManagementView from './MediaLibraryManagementView.vue'
@@ -663,7 +713,14 @@ const isLoading = ref(false)
 const showToast = ref(false)
 const toastMessage = ref('')
 
-// Available images from assets
+// Media library state
+const mediaLibrary = ref<any[]>([])
+const mediaSearchQuery = ref('')
+const mediaFilterType = ref('')
+const selectedMediaId = ref<number | null>(null)
+const selectedMedia = ref<any>(null)
+
+// Available images from assets (fallback)
 const availableImages = ref([
   '1.png', '2.png', '3.png', '4.png', '5.png', '6.png', '7.png', '8.png', '9.png', '10.png',
   '11.png', '12.png', '13.png', '14.png', '15.png', '16.png', '17.png', '18.png', '19.png', '20.png',
@@ -726,6 +783,36 @@ const shapes = computed(() => adminStore.shapes)
 const featuredProducts = computed(() => adminStore.bestSellersProducts)
 const siteSettings = computed(() => adminStore.siteSettings)
 
+// Media library computed
+const filteredMediaLibrary = computed(() => {
+  let filtered = mediaLibrary.value
+  
+  // Filter by type
+  if (mediaFilterType.value) {
+    filtered = filtered.filter(media => {
+      if (mediaFilterType.value === 'image') {
+        return media.mime_type?.startsWith('image/') || media.type === 'image'
+      } else if (mediaFilterType.value === 'video') {
+        return media.mime_type?.startsWith('video/') || media.type === 'video'
+      }
+      return true
+    })
+  }
+  
+  // Filter by search query
+  if (mediaSearchQuery.value) {
+    const query = mediaSearchQuery.value.toLowerCase()
+    filtered = filtered.filter(media => 
+      media.filename?.toLowerCase().includes(query) ||
+      media.original_filename?.toLowerCase().includes(query) ||
+      media.alt_text?.toLowerCase().includes(query) ||
+      media.caption?.toLowerCase().includes(query)
+    )
+  }
+  
+  return filtered
+})
+
 // Helper functions
 function getCurrentTabName() {
   const tab = tabs.value.find(t => t.id === activeTab.value)
@@ -750,11 +837,32 @@ function logout() {
   router.push('/admin/login')
 }
 
+function getMediaImageUrl(media: any) {
+  // 优先使用OSS URL
+  if (media.oss_url) {
+    return media.oss_url
+  }
+  
+  // 使用file_url
+  if (media.file_url) {
+    return media.file_url
+  }
+  
+  // 使用image_url
+  if (media.image_url) {
+    return media.image_url
+  }
+  
+  // 回退到默认图片
+  return new URL(`../assets/tea_image/1.png`, import.meta.url).href
+}
+
 function getImageSrc(imagePath: string) {
   if (!imagePath || imagePath === 'undefined' || imagePath.includes('undefined')) {
     return new URL(`../assets/tea_image/1.png`, import.meta.url).href
   }
-  return API_CONFIG.getImageUrl(imagePath)
+  // 使用统一的图片处理逻辑
+  return getImageUrl(imagePath)
 }
 
 function handleImageError(event: Event) {
@@ -999,6 +1107,79 @@ function toggleShape(shapeId: number) {
 function openImageSelector(type: 'primary' | 'additional') {
   currentImageSelectionType.value = type
   showImageSelector.value = true
+  // Load media library when opening selector
+  loadMediaLibrary()
+}
+
+// Media library functions
+async function loadMediaLibrary() {
+  try {
+    const token = localStorage.getItem('admin_token')
+    if (!token) {
+      console.error('No admin token found')
+      return
+    }
+
+    const response = await fetch('/api/media-library-oss', {
+      headers: {
+        'Authorization': `Bearer ${token}`,
+        'Content-Type': 'application/json'
+      }
+    })
+
+    if (!response.ok) {
+      throw new Error('Failed to fetch media library')
+    }
+
+    const data = await response.json()
+    if (data.success) {
+      mediaLibrary.value = data.media || []
+      console.log('媒体库数据已加载:', mediaLibrary.value.length, '个文件')
+    } else {
+      console.error('Error loading media library:', data.message)
+      mediaLibrary.value = []
+    }
+  } catch (error) {
+    console.error('Failed to load media library:', error)
+    mediaLibrary.value = []
+  }
+}
+
+function selectMediaImage(media: any) {
+  selectedMediaId.value = media.id
+  selectedMedia.value = media
+}
+
+function confirmMediaSelection() {
+  if (!selectedMedia.value || !editingProduct.value) return
+  
+  // 优先使用OSS URL
+  const imageUrl = selectedMedia.value.oss_url || selectedMedia.value.file_url || selectedMedia.value.image_url
+  
+  if (currentImageSelectionType.value === 'primary') {
+    editingProduct.value.primary_image = imageUrl
+    editingProduct.value.mainImage = imageUrl
+  } else {
+    if (!editingProduct.value.images) {
+      editingProduct.value.images = []
+    }
+    if (!editingProduct.value.thumbnails) {
+      editingProduct.value.thumbnails = []
+    }
+    
+    editingProduct.value.images.push({
+      id: Date.now(),
+      image_url: imageUrl,
+      image_path: imageUrl,
+      alt_text: selectedMedia.value.alt_text || selectedMedia.value.filename
+    })
+    editingProduct.value.thumbnails.push(imageUrl)
+  }
+  
+  // Reset selection
+  selectedMediaId.value = null
+  selectedMedia.value = null
+  showImageSelector.value = false
 }
 
 function selectImage(imageName: string) {
