@@ -15,7 +15,7 @@ class Dynasty {
   }
 
   static async findAll(db, options = {}) {
-    const { is_enabled = true, sort_by = 'sort_order', sort_order = 'ASC' } = options;
+    const { is_enabled, sort_by = 'sort_order', sort_order = 'ASC' } = options;
     
     let sql = 'SELECT * FROM dynasties WHERE 1=1';
     const params = [];
@@ -115,12 +115,17 @@ class Shape {
 
     if (is_enabled !== undefined) {
       sql += ' AND is_enabled = ?';
-      params.push(is_enabled);
+      params.push(is_enabled ? 1 : 0);
     }
 
     sql += ` ORDER BY ${sort_by} ${sort_order}`;
 
+    console.log('Shape.findAll SQL:', sql);
+    console.log('Shape.findAll params:', params);
+    
     const shapes = await db.query(sql, params);
+    console.log('Shape.findAll result:', shapes.length, 'rows');
+    
     return shapes.map(s => new Shape(s));
   }
 

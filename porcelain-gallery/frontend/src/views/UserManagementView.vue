@@ -328,7 +328,7 @@ const filteredUsers = computed(() => {
 async function loadUsers() {
   loading.value = true
   try {
-    const response = await fetch('http://localhost:3000/api/users', {
+    const response = await fetch('http://106.75.68.99:3000/api/users', {
       method: 'GET',
       headers: {
         'Authorization': `Bearer ${localStorage.getItem('admin_token')}`,
@@ -351,7 +351,7 @@ async function loadUsers() {
     }
   } catch (error) {
     console.error('Error loading users:', error)
-    alert(`网络错误: ${error.message}`)
+    alert(`网络错误: ${(error as Error).message}`)
     users.value = []
   } finally {
     loading.value = false
@@ -374,7 +374,7 @@ function editUser(user: any) {
 
 async function toggleUserStatus(user: any) {
   try {
-    const response = await fetch(`http://localhost:3000/api/users/${user.id}/toggle-status`, {
+    const response = await fetch(`http://106.75.68.99:3000/api/users/${user.id}/toggle-status`, {
       method: 'PATCH',
       headers: {
         'Authorization': `Bearer ${localStorage.getItem('admin_token')}`,
@@ -393,7 +393,7 @@ async function toggleUserStatus(user: any) {
     }
   } catch (error) {
     console.error('Error toggling user status:', error)
-    alert(`网络错误: ${error.message}`)
+    alert(`网络错误: ${(error as Error).message}`)
   }
 }
 

@@ -108,7 +108,12 @@ async function handleLogin() {
   error.value = ''
 
   try {
-    const response = await fetch('https://zaopic.cn/api/admin-auth/login', {
+    // 强制使用正确的 API URL
+    const apiUrl = 'http://106.75.68.99:3000/api/admin-auth/login'
+    console.log('Attempting login to:', apiUrl)
+    console.log('Environment VITE_API_BASE_URL:', import.meta.env.VITE_API_BASE_URL)
+    
+    const response = await fetch(apiUrl, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',

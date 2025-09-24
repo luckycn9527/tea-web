@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Environment Test</title>
+</head>
+<body>
+    <h1>Environment Variables Test</h1>
+    <div id="env-info"></div>
+    <button onclick="testAPI()">Test API Call</button>
+    <div id="api-result"></div>
+
+    <script type="module">
+        // 显示环境变量信息
+        const envDiv = document.getElementById('env-info');
+        envDiv.innerHTML = `
+            <h3>Environment Variables:</h3>
+            <p>VITE_API_BASE_URL: ${import.meta.env.VITE_API_BASE_URL || 'undefined'}</p>
+            <p>Mode: ${import.meta.env.MODE}</p>
+            <p>Dev: ${import.meta.env.DEV}</p>
+        `;
+
+        // 测试 API 调用
+        window.testAPI = async function() {
+            const resultDiv = document.getElementById('api-result');
+            resultDiv.innerHTML = 'Testing API...';
+            
+            try {
+                const apiUrl = import.meta.env.VITE_API_BASE_URL || 'http://106.75.68.99:3000/api';
+                console.log('Using API URL:', apiUrl);
+                
+                const response = await fetch(`${apiUrl}/settings?is_public=true`);
+                const data = await response.json();
+                
+                resultDiv.innerHTML = `
+                    <h3>API Test Result:</h3>
+                    <p>Status: ${response.status}</p>
+                    <p>Success: ${data.success}</p>
+                    <p>Data count: ${data.data ? data.data.length : 0}</p>
+                `;
+            } catch (error) {
+                resultDiv.innerHTML = `
+                    <h3>API Test Error:</h3>
+                    <p>Error: ${error.message}</p>
+                `;
+            }
+        };
+    </script>
+</body>
+</html>
+
+

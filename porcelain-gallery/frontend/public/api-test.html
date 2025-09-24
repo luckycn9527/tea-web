@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>API URL Test</title>
+</head>
+<body>
+    <h1>API URL Test</h1>
+    <div id="result"></div>
+    <button onclick="testAPI()">Test API Call</button>
+
+    <script>
+        async function testAPI() {
+            const resultDiv = document.getElementById('result');
+            resultDiv.innerHTML = 'Testing API...';
+            
+            try {
+                // 测试 API 调用
+                const response = await fetch('http://106.75.68.99:3000/api/settings?is_public=true');
+                const data = await response.json();
+                
+                resultDiv.innerHTML = `
+                    <h3>API Test Result:</h3>
+                    <p>Status: ${response.status}</p>
+                    <p>Success: ${data.success}</p>
+                    <p>Data count: ${data.data ? data.data.length : 0}</p>
+                    <p>URL used: http://106.75.68.99:3000/api/settings?is_public=true</p>
+                `;
+            } catch (error) {
+                resultDiv.innerHTML = `
+                    <h3>API Test Error:</h3>
+                    <p>Error: ${error.message}</p>
+                `;
+            }
+        }
+    </script>
+</body>
+</html>
+
+

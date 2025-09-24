@@ -286,7 +286,7 @@
 
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
-import { useAdminStore } from '@/stores/admin'
+import { useAdminStore } from '@/stores/admin-api'
 
 const adminStore = useAdminStore()
 
@@ -374,55 +374,118 @@ function removeFeature(index: number) {
   heroConfig.value.features.splice(index, 1)
 }
 
-function saveHeroConfig() {
-  // 保存到adminStore和localStorage
-  adminStore.updateHeroTitle(heroConfig.value.mainTitle)
-  adminStore.updateHeroSubtitle(heroConfig.value.subtitle)
-  adminStore.updateHeroBackgroundImage(heroConfig.value.backgroundImage)
-  adminStore.updateHeroFeatures(heroConfig.value.features)
-  
-  alert('Hero Section 配置已保存')
+async function saveHeroConfig() {
+  try {
+    // 构建site settings数据
+    const settings = [
+      { key: 'hero_main_title', value: heroConfig.value.mainTitle },
+      { key: 'hero_subtitle', value: heroConfig.value.subtitle },
+      { key: 'hero_background_image', value: heroConfig.value.backgroundImage },
+      { key: 'hero_features', value: JSON.stringify(heroConfig.value.features) }
+    ]
+    
+    // 调用API保存
+    const success = await adminStore.updateSiteSettings(settings)
+    if (success) {
+      alert('Hero Section 配置已保存到数据库')
+    } else {
+      alert('保存失败，请重试')
+    }
+  } catch (error) {
+    console.error('保存Hero配置失败:', error)
+    alert('保存失败，请重试')
+  }
 }
 
-function saveRareDynastyConfig() {
-  // 保存到adminStore和localStorage
-  adminStore.updateRareDynastyTitle(rareDynastyConfig.value.title)
-  adminStore.updateRareDynastyDescription(rareDynastyConfig.value.description)
-  adminStore.updateRareDynastyButtonText(rareDynastyConfig.value.buttonText)
-  adminStore.updateRareDynastyImage(rareDynastyConfig.value.image)
-  
-  alert('Rare Dynasty Collection 配置已保存')
+async function saveRareDynastyConfig() {
+  try {
+    // 构建content sections数据
+    const sections = [
+      {
+        key: 'rare_dynasty',
+        title: rareDynastyConfig.value.title,
+        title_cn: rareDynastyConfig.value.title,
+        content: rareDynastyConfig.value.description,
+        content_cn: rareDynastyConfig.value.description,
+        image_url: rareDynastyConfig.value.image,
+        button_text: rareDynastyConfig.value.buttonText,
+        button_text_cn: rareDynastyConfig.value.buttonText,
+        is_enabled: true
+      }
+    ]
+    
+    // 调用API保存
+    const success = await adminStore.updateContentSections(sections)
+    if (success) {
+      alert('Rare Dynasty Collection 配置已保存到数据库')
+    } else {
+      alert('保存失败，请重试')
+    }
+  } catch (error) {
+    console.error('保存Rare Dynasty配置失败:', error)
+    alert('保存失败，请重试')
+  }
 }
 
-function saveHeritageStoryConfig() {
-  // 保存到adminStore和localStorage
-  adminStore.updateHeritageStoryTitle(heritageStoryConfig.value.title)
-  adminStore.updateHeritageStoryDescription1(heritageStoryConfig.value.description1)
-  adminStore.updateHeritageStoryDescription2(heritageStoryConfig.value.description2)
-  adminStore.updateHeritageStoryButtonText(heritageStoryConfig.value.buttonText)
-  adminStore.updateHeritageStoryImage(heritageStoryConfig.value.image)
-  
-  alert('Heritage Story 配置已保存')
+async function saveHeritageStoryConfig() {
+  try {
+    // 构建content sections数据
+    const sections = [
+      {
+        key: 'heritage_story',
+        title: heritageStoryConfig.value.title,
+        title_cn: heritageStoryConfig.value.title,
+        content: `${heritageStoryConfig.value.description1}\n\n${heritageStoryConfig.value.description2}`,
+        content_cn: `${heritageStoryConfig.value.description1}\n\n${heritageStoryConfig.value.description2}`,
+        image_url: heritageStoryConfig.value.image,
+        button_text: heritageStoryConfig.value.buttonText,
+        button_text_cn: heritageStoryConfig.value.buttonText,
+        is_enabled: true
+      }
+    ]
+    
+    // 调用API保存
+    const success = await adminStore.updateContentSections(sections)
+    if (success) {
+      alert('Heritage Story 配置已保存到数据库')
+    } else {
+      alert('保存失败，请重试')
+    }
+  } catch (error) {
+    console.error('保存Heritage Story配置失败:', error)
+    alert('保存失败，请重试')
+  }
 }
 
 // 生命周期
-onMounted(() => {
-  // 从adminStore加载当前配置
-  heroConfig.value.mainTitle = adminStore.heroConfig.title
-  heroConfig.value.subtitle = adminStore.heroConfig.subtitle
-  heroConfig.value.backgroundImage = adminStore.heroConfig.backgroundImage
-  heroConfig.value.features = [...adminStore.heroConfig.features]
-  
-  rareDynastyConfig.value.title = adminStore.rareDynastyCollection.title
-  rareDynastyConfig.value.description = adminStore.rareDynastyCollection.description
-  rareDynastyConfig.value.buttonText = adminStore.rareDynastyCollection.buttonText
-  rareDynastyConfig.value.image = adminStore.rareDynastyCollection.image
-  
-  heritageStoryConfig.value.title = adminStore.heritageStory.title
-  heritageStoryConfig.value.description1 = adminStore.heritageStory.description1
-  heritageStoryConfig.value.description2 = adminStore.heritageStory.description2
-  heritageStoryConfig.value.buttonText = adminStore.heritageStory.buttonText
-  heritageStoryConfig.value.image = adminStore.heritageStory.image
+onMounted(async () => {
+  try {
+    // 从API加载所有数据
+    await adminStore.loadAllData()
+    
+    // 从adminStore加载当前配置
+    heroConfig.value.mainTitle = adminStore.heroConfig?.title || 'Welcome to Chinese Porcelain Gallery'
+    heroConfig.value.subtitle = adminStore.heroConfig?.subtitle || 'Discover the beauty of ancient Chinese ceramics'
+    heroConfig.value.backgroundImage = adminStore.heroConfig?.backgroundImage || '/src/assets/hero-bg.jpg'
+    heroConfig.value.features = adminStore.heroConfig?.features || [
+      'Hand-crafted by Master Artisans',
+      'Authenticity Guaranteed',
+      'Centuries of Heritage'
+    ]
+    
+    rareDynastyConfig.value.title = adminStore.rareDynastyCollection?.title_en || 'One-of-a-kind Collection'
+    rareDynastyConfig.value.description = adminStore.rareDynastyCollection?.content_en || 'Each piece tells a unique story'
+    rareDynastyConfig.value.buttonText = adminStore.rareDynastyCollection?.button_text_en || 'Explore Collection'
+    rareDynastyConfig.value.image = adminStore.rareDynastyCollection?.image_url || '/src/assets/tea_image/rare-dynasty.png'
+    
+    heritageStoryConfig.value.title = adminStore.heritageStory?.title_en || 'Forget mass-produced'
+    heritageStoryConfig.value.description1 = adminStore.heritageStory?.content_en?.split('\n\n')[0] || 'Our collection features unique pieces'
+    heritageStoryConfig.value.description2 = adminStore.heritageStory?.content_en?.split('\n\n')[1] || 'Each item has its own character and history'
+    heritageStoryConfig.value.buttonText = adminStore.heritageStory?.button_text_en || 'Learn More'
+    heritageStoryConfig.value.image = adminStore.heritageStory?.image_url || '/src/assets/tea_image/heritage.png'
+  } catch (error) {
+    console.error('加载配置数据失败:', error)
+  }
 })
 </script>
 

@@ -193,13 +193,19 @@ class ApiService {
     this.baseURL = API_CONFIG.BASE_URL
   }
 
+  // 动态获取 baseURL，确保使用最新的环境变量
+  private getBaseURL(): string {
+    return API_CONFIG.BASE_URL
+  }
+
   // Generic HTTP methods
   private async request<T>(
     endpoint: string,
     options: RequestInit = {}
   ): Promise<ApiResponse<T>> {
     try {
-      const url = `${this.baseURL}${endpoint}`
+      const url = `${this.getBaseURL()}${endpoint}`
+      console.log('API Request URL:', url) // 添加调试日志
       const response = await fetch(url, {
         headers: {
           'Content-Type': 'application/json',
@@ -245,89 +251,62 @@ class ApiService {
       }
     })
 
-    return this.request<Product[]>(`/api/products?${searchParams.toString()}`)
+    return this.request<Product[]>(`/products?${searchParams.toString()}`)
   }
 
   async getProduct(id: number): Promise<ApiResponse<Product>> {
-    return this.request<Product>(`/api/products/${id}`)
+    return this.request<Product>(`/products/${id}`)
   }
 
   async getProductBySlug(slug: string): Promise<ApiResponse<Product>> {
-    return this.request<Product>(`/api/products/slug/${slug}`)
+    return this.request<Product>(`/products/slug/${slug}`)
   }
 
   async getFeaturedProducts(limit: number = 6): Promise<ApiResponse<Product[]>> {
-    return this.request<Product[]>(`/api/products/featured/list?limit=${limit}`)
+    return this.request<Product[]>(`/products/featured/list?limit=${limit}`)
   }
 
   async getRelatedProducts(id: number, limit: number = 4): Promise<ApiResponse<Product[]>> {
-    return this.request<Product[]>(`/api/products/${id}/related?limit=${limit}`)
-  }
-
-  // Product CRUD operations
-  async createProduct(product: Omit<Product, 'id' | 'created_at' | 'updated_at'>): Promise<ApiResponse<Product>> {
-    return this.request<Product>('/api/products', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(product)
-    })
-  }
-
-  async updateProduct(id: number, updates: Partial<Product>): Promise<ApiResponse<Product>> {
-    return this.request<Product>(`/api/products/${id}`, {
-      method: 'PUT',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(updates)
-    })
-  }
-
-  async deleteProduct(id: number): Promise<ApiResponse<void>> {
-    return this.request<void>(`/api/products/${id}`, {
-      method: 'DELETE'
-    })
+    return this.request<Product[]>(`/products/${id}/related?limit=${limit}`)
   }
 
   async getProductImages(id: number): Promise<ApiResponse<ProductImage[]>> {
-    return this.request<ProductImage[]>(`/api/products/${id}/images`)
+    return this.request<ProductImage[]>(`/products/${id}/images`)
   }
 
   async getProductVideos(id: number): Promise<ApiResponse<ProductVideo[]>> {
-    return this.request<ProductVideo[]>(`/api/products/${id}/videos`)
+    return this.request<ProductVideo[]>(`/products/${id}/videos`)
   }
 
   async getProductAttributes(id: number): Promise<ApiResponse<ProductAttribute[]>> {
-    return this.request<ProductAttribute[]>(`/api/products/${id}/attributes`)
+    return this.request<ProductAttribute[]>(`/products/${id}/attributes`)
   }
 
   async getProductTags(id: number): Promise<ApiResponse<ProductTag[]>> {
-    return this.request<ProductTag[]>(`/api/products/${id}/tags`)
+    return this.request<ProductTag[]>(`/products/${id}/tags`)
   }
 
   // Dynasties API
   async getDynasties(is_enabled: boolean = true): Promise<ApiResponse<Dynasty[]>> {
-    return this.request<Dynasty[]>(`/api/dynasties?is_enabled=${is_enabled}`)
+    return this.request<Dynasty[]>(`/dynasties?is_enabled=${is_enabled}`)
   }
 
   async getDynasty(id: number): Promise<ApiResponse<Dynasty>> {
-    return this.request<Dynasty>(`/api/dynasties/${id}`)
+    return this.request<Dynasty>(`/dynasties/${id}`)
   }
 
   // Shapes API
   async getShapes(is_enabled: boolean = true): Promise<ApiResponse<Shape[]>> {
-    return this.request<Shape[]>(`/api/shapes?is_enabled=${is_enabled}`)
+    return this.request<Shape[]>(`/shapes?is_enabled=${is_enabled}`)
   }
 
   async getShape(id: number): Promise<ApiResponse<Shape>> {
-    return this.request<Shape>(`/api/shapes/${id}`)
+    return this.request<Shape>(`/shapes/${id}`)
   }
 
   // Categories API
   async getCategories(is_enabled: boolean = true, parent_id?: number): Promise<ApiResponse<Category[]>> {
-    let url = `/api/categories?is_enabled=${is_enabled}`
+    let url = `/categories?is_enabled=${is_enabled}`
     if (parent_id !== undefined) {
       url += `&parent_id=${parent_id}`
     }
@@ -335,12 +314,12 @@ class ApiService {
   }
 
   async getCategory(id: number): Promise<ApiResponse<Category>> {
-    return this.request<Category>(`/api/categories/${id}`)
+    return this.request<Category>(`/categories/${id}`)
   }
 
   // Site Settings API
   async getSiteSettings(is_public?: boolean): Promise<ApiResponse<SiteSetting[]>> {
-    let url = '/api/settings'
+    let url = '/settings'
     if (is_public !== undefined) {
       url += `?is_public=${is_public}`
     }
@@ -348,16 +327,16 @@ class ApiService {
   }
 
   async getSiteSetting(key: string): Promise<ApiResponse<SiteSetting>> {
-    return this.request<SiteSetting>(`/api/settings/${key}`)
+    return this.request<SiteSetting>(`/settings/${key}`)
   }
 
   // Content Sections API
   async getContentSections(is_active: boolean = true): Promise<ApiResponse<ContentSection[]>> {
-    return this.request<ContentSection[]>(`/api/content-sections?is_active=${is_active}`)
+    return this.request<ContentSection[]>(`/content-sections?is_active=${is_active}`)
   }
 
   async getContentSection(key: string): Promise<ApiResponse<ContentSection>> {
-    return this.request<ContentSection>(`/api/content-sections/${key}`)
+    return this.request<ContentSection>(`/content-sections/${key}`)
   }
 
   // Media API
@@ -378,7 +357,7 @@ class ApiService {
     }
 
     try {
-      const response = await fetch(`${this.baseURL}/api/media/upload`, {
+      const response = await fetch(`${this.baseURL}/media/upload`, {
         method: 'POST',
         body: formData,
       })
@@ -418,7 +397,7 @@ class ApiService {
     }
 
     try {
-      const response = await fetch(`${this.baseURL}/api/media/upload-multiple`, {
+      const response = await fetch(`${this.baseURL}/media/upload-multiple`, {
         method: 'POST',
         body: formData,
       })
@@ -452,12 +431,126 @@ class ApiService {
       }
     })
 
-    return this.request<any[]>(`/api/media/media?${searchParams.toString()}`)
+    return this.request<any[]>(`/media/media?${searchParams.toString()}`)
+  }
+
+  // Admin Configuration API
+  async getAdminConfig(token: string): Promise<ApiResponse<any>> {
+    return this.request<any>('/admin-config/config', {
+      headers: {
+        'Authorization': `Bearer ${token}`
+      }
+    })
+  }
+
+  async updateSiteSettings(token: string, settings: any[]): Promise<ApiResponse<any>> {
+    return this.request<any>('/admin-config/site-settings', {
+      method: 'PUT',
+      headers: {
+        'Authorization': `Bearer ${token}`,
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({ settings })
+    })
+  }
+
+  async updateContentSections(token: string, sections: any[]): Promise<ApiResponse<any>> {
+    return this.request<any>('/admin-config/content-sections', {
+      method: 'PUT',
+      headers: {
+        'Authorization': `Bearer ${token}`,
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({ sections })
+    })
+  }
+
+  async updateBestSellers(token: string, bestSellers: any[]): Promise<ApiResponse<any>> {
+    return this.request<any>('/admin-config/best-sellers', {
+      method: 'PUT',
+      headers: {
+        'Authorization': `Bearer ${token}`,
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({ bestSellers })
+    })
+  }
+
+  async updateDynasties(token: string, dynasties: any[]): Promise<ApiResponse<any>> {
+    return this.request<any>('/admin-config/dynasties', {
+      method: 'PUT',
+      headers: {
+        'Authorization': `Bearer ${token}`,
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({ dynasties })
+    })
+  }
+
+  async updateShapes(token: string, shapes: any[]): Promise<ApiResponse<any>> {
+    return this.request<any>('/admin-config/shapes', {
+      method: 'PUT',
+      headers: {
+        'Authorization': `Bearer ${token}`,
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({ shapes })
+    })
+  }
+
+  // Admin authentication
+  async adminLogin(username: string, password: string): Promise<ApiResponse<any>> {
+    return this.request<any>('/admin-auth/login', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({ username, password })
+    })
   }
 
   // Health check
   async healthCheck(): Promise<ApiResponse<any>> {
-    return this.request<any>('/api/health')
+    return this.request<any>('/health')
+  }
+
+  // Product management API
+  async createProduct(productData: Partial<Product>): Promise<ApiResponse<Product>> {
+    return this.request<Product>('/products', {
+      method: 'POST',
+      body: JSON.stringify(productData)
+    })
+  }
+
+  async updateProduct(id: number, productData: Partial<Product>): Promise<ApiResponse<Product>> {
+    return this.request<Product>(`/products/${id}`, {
+      method: 'PUT',
+      body: JSON.stringify(productData)
+    })
+  }
+
+  async deleteProduct(id: number): Promise<ApiResponse<any>> {
+    return this.request<any>(`/products/${id}`, {
+      method: 'DELETE'
+    })
+  }
+
+  async uploadProductImages(productId: number, images: File[], isPrimary?: boolean): Promise<ApiResponse<any>> {
+    const formData = new FormData()
+    images.forEach(image => {
+      formData.append('images', image)
+    })
+    if (isPrimary !== undefined) {
+      formData.append('is_primary', isPrimary.toString())
+    }
+
+    return this.request<any>(`/products/${productId}/images`, {
+      method: 'POST',
+      headers: {
+        // Don't set Content-Type, let browser set it with boundary for FormData
+      },
+      body: formData
+    })
   }
 }
 
@@ -476,8 +569,8 @@ export {
   type Shape,
   type Category,
   type SiteSetting,
-  type ContentSection,
-  apiService
+  type ContentSection
 }
 
 export default apiService
+

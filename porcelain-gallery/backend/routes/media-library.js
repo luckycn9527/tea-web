@@ -25,7 +25,7 @@ const requireAdmin = async (req, res, next) => {
     }
 
     const jwt = require('jsonwebtoken');
-    const decoded = jwt.verify(token, process.env.JWT_SECRET || 'your-secret-key');
+    const decoded = jwt.verify(token, process.env.JWT_SECRET || 'your-super-secret-jwt-key-change-this-in-production');
     
     // 检查用户是否为管理员
     const [users] = await pool.execute(
@@ -90,6 +90,7 @@ router.get('/', requireAdmin, async (req, res) => {
         original_filename,
         file_path,
         file_url,
+        oss_url,
         mime_type,
         file_size,
         width,
@@ -101,18 +102,14 @@ router.get('/', requireAdmin, async (req, res) => {
         uploaded_by,
         created_at
       FROM media_library 
+      WHERE oss_url IS NOT NULL AND oss_url != ''
       ORDER BY created_at DESC
     `);
 
-    // 扫描现有图片目录
-    const existingImages = await scanExistingImages();
-    
-    // 合并数据库中的媒体文件和现有图片
-    const allMedia = [...media, ...existingImages];
-
+    // 只返回数据库中的OSS文件，不扫描本地图片
     res.json({
       success: true,
-      media: allMedia
+      media: media
     });
   } catch (error) {
     console.error('Error fetching media:', error);

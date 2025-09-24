@@ -15,8 +15,25 @@ const messages = {
     home: {
       title: 'Chinese Porcelain Gallery',
       subtitle: 'Exquisite Collection of Traditional Chinese Ceramics',
-      featured: 'Featured Products',
-      viewAll: 'View All Products'
+      viewAll: 'View All Products',
+      hero: {
+        title: 'Express Your Unique Style',
+        subtitle: 'MOST TRUSTED SOURCE FOR AUTHENTIC CHINESE PORCELAIN MASTERPIECES',
+        cta: 'EXPLORE COLLECTION'
+      },
+      bestSellers: {
+        title: 'Shop Best Sellers',
+        subtitle: 'Discover our most popular porcelain masterpieces',
+        topRated: 'Top Rated'
+      },
+      dynasties: {
+        title: 'Explore by Dynasty',
+        subtitle: 'Discover porcelain from different historical periods'
+      },
+      featured: {
+        title: 'Featured Products',
+        subtitle: 'Handpicked masterpieces from our collection'
+      }
     },
     products: {
       title: 'Our Collection',
@@ -49,7 +66,10 @@ const messages = {
       retry: 'Retry',
       close: 'Close',
       previous: 'Previous',
-      next: 'Next'
+      next: 'Next',
+      home: 'Home',
+      products: 'Products',
+      backToHome: 'Back to Home'
     },
     auth: {
       login: {
@@ -82,6 +102,13 @@ const messages = {
         loginLink: 'Sign in here'
       },
       languageToggle: '中文 / English'
+    },
+    product: {
+      description: 'Description',
+      craftsmanship: 'Craftsmanship',
+      history: 'History',
+      addToCart: 'Add to Cart',
+      relatedProducts: 'Related Products'
     },
     admin: {
       title: 'Admin Panel',
@@ -140,7 +167,14 @@ const messages = {
         weight: 'Weight',
         age: 'Age',
         material: 'Material',
-        origin: 'Origin'
+        origin: 'Origin',
+        addToBestSellers: 'Add to Best Sellers',
+        inBestSellers: 'In Best Sellers',
+        addToBestSellersSuccess: 'Product added to Best Sellers successfully!',
+        addToBestSellersError: 'Failed to add product to Best Sellers',
+        removeFromBestSellersSuccess: 'Product removed from Best Sellers successfully!',
+        removeFromBestSellersError: 'Failed to remove product from Best Sellers',
+        maxBestSellersReached: 'Maximum 8 Best Sellers allowed'
       },
       dynasties: {
         title: 'Dynasty Management',
@@ -151,6 +185,8 @@ const messages = {
         nameCn: 'Name (Chinese)',
         period: 'Period',
         description: 'Description',
+        image: 'Image',
+        selectImage: 'Select Image',
         enabled: 'Enabled',
         disabled: 'Disabled',
         enable: 'Enable',
@@ -184,6 +220,7 @@ const messages = {
         subtitle: 'Configure best selling products',
         featured: 'Featured',
         edit: 'Edit',
+        remove: 'Remove',
         manageProducts: 'Manage Products'
       },
       settings: {
@@ -313,8 +350,25 @@ const messages = {
     home: {
       title: '中国瓷器艺术馆',
       subtitle: '精美传统中国陶瓷收藏',
-      featured: '特色产品',
-      viewAll: '查看所有产品'
+      viewAll: '查看所有产品',
+      hero: {
+        title: '展现您的独特风格',
+        subtitle: '最值得信赖的中国瓷器杰作来源',
+        cta: '探索收藏'
+      },
+      bestSellers: {
+        title: '热销产品',
+        subtitle: '发现我们最受欢迎的瓷器杰作',
+        topRated: '顶级推荐'
+      },
+      dynasties: {
+        title: '按朝代探索',
+        subtitle: '发现不同历史时期的瓷器'
+      },
+      featured: {
+        title: '特色产品',
+        subtitle: '从我们的收藏中精心挑选的杰作'
+      }
     },
     products: {
       title: '我们的收藏',
@@ -347,7 +401,10 @@ const messages = {
       retry: '重试',
       close: '关闭',
       previous: '上一个',
-      next: '下一个'
+      next: '下一个',
+      home: '首页',
+      products: '产品',
+      backToHome: '返回首页'
     },
     auth: {
       login: {
@@ -380,6 +437,13 @@ const messages = {
         loginLink: '立即登录'
       },
       languageToggle: 'English / 中文'
+    },
+    product: {
+      description: '描述',
+      craftsmanship: '工艺',
+      history: '历史',
+      addToCart: '加入购物车',
+      relatedProducts: '相关产品'
     },
     admin: {
       title: '管理面板',
@@ -438,7 +502,14 @@ const messages = {
         weight: '重量',
         age: '年代',
         material: '材质',
-        origin: '产地'
+        origin: '产地',
+        addToBestSellers: '添加到热销产品',
+        inBestSellers: '已在热销产品中',
+        addToBestSellersSuccess: '产品已成功添加到热销产品！',
+        addToBestSellersError: '添加产品到热销产品失败',
+        removeFromBestSellersSuccess: '产品已成功从热销产品中移除！',
+        removeFromBestSellersError: '从热销产品中移除产品失败',
+        maxBestSellersReached: '最多允许8个热销产品'
       },
       dynasties: {
         title: '朝代管理',
@@ -449,6 +520,8 @@ const messages = {
         nameCn: '名称 (中文)',
         period: '时期',
         description: '描述',
+        image: '图片',
+        selectImage: '选择图片',
         enabled: '已启用',
         disabled: '已禁用',
         enable: '启用',
@@ -482,6 +555,7 @@ const messages = {
         subtitle: '配置热销产品',
         featured: '推荐',
         edit: '编辑',
+        remove: '移除',
         manageProducts: '管理产品'
       },
       settings: {

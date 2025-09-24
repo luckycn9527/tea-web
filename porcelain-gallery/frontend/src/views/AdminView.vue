@@ -193,6 +193,20 @@
                       <div class="flex space-x-2">
                         <button @click="editProduct(product)" class="text-blue-600 hover:text-blue-900">{{ $t('admin.products.edit') }}</button>
                         <button @click="deleteProduct(product.id)" class="text-red-600 hover:text-red-900">{{ $t('admin.products.delete') }}</button>
+                        <button 
+                          v-if="!isProductInBestSellers(product.id)" 
+                          @click="addProductToBestSellers(product)" 
+                          class="text-green-600 hover:text-green-900"
+                          :disabled="adminStore.bestSellersProducts.length >= 8"
+                        >
+                          {{ $t('admin.products.addToBestSellers') }}
+                        </button>
+                        <span 
+                          v-else 
+                          class="text-gray-500 text-xs"
+                        >
+                          {{ $t('admin.products.inBestSellers') }}
+                        </span>
                       </div>
                     </td>
                   </tr>
@@ -312,7 +326,10 @@
                   <button @click="editProduct(product)" class="px-3 py-1 bg-blue-100 text-blue-800 rounded text-sm hover:bg-blue-200">
                     {{ $t('admin.bestSellers.edit') }}
                   </button>
-              </div>
+                  <button @click="removeProductFromBestSellers(product.id)" class="px-3 py-1 bg-red-100 text-red-800 rounded text-sm hover:bg-red-200">
+                    {{ $t('admin.bestSellers.remove') }}
+                  </button>
+                </div>
                   </div>
                 </div>
                 </div>
@@ -566,6 +583,32 @@
             <label class="block text-sm font-medium text-gray-700 mb-2">{{ $t('admin.dynasties.description') }}</label>
             <textarea v-model="editingDynasty.description" rows="3" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"></textarea>
           </div>
+          
+          <!-- Dynasty Image Selection -->
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-2">{{ $t('admin.dynasties.image') }}</label>
+            <div class="flex items-center space-x-4">
+              <div class="w-24 h-24 border border-gray-300 rounded-lg overflow-hidden">
+                <img 
+                  v-if="editingDynasty.image" 
+                  :src="getImageSrc(editingDynasty.image)" 
+                  :alt="editingDynasty.name"
+                  class="w-full h-full object-cover"
+                >
+                <div v-else class="w-full h-full flex items-center justify-center bg-gray-100 text-gray-400">
+                  <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+                  </svg>
+                </div>
+              </div>
+              <button 
+                @click="openDynastyImageSelector" 
+                class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+              >
+                {{ $t('admin.dynasties.selectImage') }}
+              </button>
+            </div>
+          </div>
         </div>
 
         <div class="flex items-center justify-end gap-3 p-6 border-t border-gray-200">
@@ -688,7 +731,7 @@
 import { ref, computed, onMounted, watchEffect } from 'vue'
 import { useRouter } from 'vue-router'
 import { useI18n } from 'vue-i18n'
-import { useAdminStore } from '@/stores/admin'
+import { useAdminStore } from '@/stores/admin-api'
 import API_CONFIG from '@/config/api'
 import { getImageUrl } from '@/utils/oss-image-manager'
 import UserManagementView from './UserManagementView.vue'
@@ -708,7 +751,8 @@ const showImageSelector = ref(false)
 const editingProduct = ref<any>(null)
 const editingDynasty = ref<any>(null)
 const editingShape = ref<any>(null)
-const currentImageSelectionType = ref<'primary' | 'additional'>('primary')
+const currentImageSelectionType = ref<'primary' | 'additional' | 'dynasty'>('primary')
+const currentDynastyImageSelection = ref<'image'>('image')
 const isLoading = ref(false)
 const showToast = ref(false)
 const toastMessage = ref('')
@@ -924,7 +968,7 @@ function editProduct(product: any) {
   showProductModal.value = true
 }
 
-function saveProduct() {
+async function saveProduct() {
   if (!editingProduct.value) return
   
   isLoading.value = true
@@ -943,43 +987,60 @@ function saveProduct() {
       )
     }
     
-    // 检查是否是Best Sellers产品
-    const isBestSeller = featuredProducts.value.some((product: any) => 
-      product.name === editingProduct.value.name || 
-      (product.name_en && product.name_en === editingProduct.value.name_en)
-    )
+    let success = false
     
-    if (isBestSeller) {
-      // 如果是Best Sellers产品，直接更新bestSellersProducts数组
-      const bestSellerIndex = featuredProducts.value.findIndex((product: any) => 
-        product.name === editingProduct.value.name || 
-        (product.name_en && product.name_en === editingProduct.value.name_en)
-      )
-      
-      if (bestSellerIndex !== -1) {
+    // 检查是否是Best Sellers产品
+    const isBestSeller = adminStore.bestSellersProducts.some(p => p.id === editingProduct.value.id)
+    
+    if (editingProduct.value.id) {
+      if (isBestSeller) {
         // 更新Best Sellers产品
-        adminStore.bestSellersProducts[bestSellerIndex] = { ...editingProduct.value }
-        
-        // 保存到localStorage
         try {
-          localStorage.setItem('bestSellersProducts', JSON.stringify(adminStore.bestSellersProducts))
-          console.log('Best Sellers产品已保存到localStorage:', adminStore.bestSellersProducts[bestSellerIndex])
+          const response = await fetch(`http://106.75.68.99:3000/api/admin/best-sellers/${editingProduct.value.id}`, {
+            method: 'PUT',
+            headers: {
+              'Authorization': `Bearer ${localStorage.getItem('admin_token')}`,
+              'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+              name: editingProduct.value.name,
+              name_cn: editingProduct.value.name_cn,
+              price: editingProduct.value.price,
+              mainImage: editingProduct.value.images?.[0]?.image_url || editingProduct.value.primary_image,
+              additionalImages: editingProduct.value.images?.slice(1) || [],
+              description: editingProduct.value.description,
+              description_cn: editingProduct.value.description_cn
+            })
+          });
+          
+          if (response.ok) {
+            success = true
+            // 更新本地状态
+            await adminStore.loadBestSellers()
+          } else {
+            console.error('Failed to update Best Seller via API');
+            success = false
+          }
         } catch (error) {
-          console.error('Failed to save best sellers products:', error)
+          console.error('Error updating Best Seller:', error);
+          success = false
         }
+      } else {
+        // 更新普通产品
+        success = await adminStore.updateProduct(editingProduct.value.id, editingProduct.value)
       }
     } else {
-      // 普通产品更新
-      if (editingProduct.value.id) {
-        adminStore.updateProduct(editingProduct.value.id, editingProduct.value)
-      } else {
-        adminStore.addProduct(editingProduct.value)
-      }
+      // 创建新产品
+      success = await adminStore.createProduct(editingProduct.value)
     }
     
-    showToastMessage($t('admin.products.saveSuccess'))
-    showProductModal.value = false
-    editingProduct.value = null
+    if (success) {
+      showToastMessage($t('admin.products.saveSuccess'))
+      showProductModal.value = false
+      editingProduct.value = null
+    } else {
+      showToastMessage(adminStore.error || $t('admin.products.saveError'))
+    }
   } catch (error) {
     console.error('Error saving product:', error)
     showToastMessage($t('admin.products.saveError'))
@@ -988,10 +1049,41 @@ function saveProduct() {
   }
 }
 
-function deleteProduct(productId: number) {
+async function deleteProduct(productId: number) {
   if (confirm($t('admin.products.confirmDelete'))) {
-    adminStore.deleteProduct(productId)
-    showToastMessage($t('admin.products.deleteSuccess'))
+    const success = await adminStore.deleteProduct(productId)
+    if (success) {
+      showToastMessage($t('admin.products.deleteSuccess'))
+    } else {
+      showToastMessage(adminStore.error || $t('admin.products.deleteError'))
+    }
+  }
+}
+
+// Best Sellers management methods
+function isProductInBestSellers(productId: number) {
+  return adminStore.bestSellersProducts.some(p => p.id === productId)
+}
+
+function addProductToBestSellers(product: any) {
+  const success = adminStore.addProductToBestSellers(product)
+  if (success) {
+    showToastMessage($t('admin.products.addToBestSellersSuccess'))
+  } else {
+    if (adminStore.bestSellersProducts.length >= 8) {
+      showToastMessage($t('admin.products.maxBestSellersReached'))
+    } else {
+      showToastMessage($t('admin.products.addToBestSellersError'))
+    }
+  }
+}
+
+async function removeProductFromBestSellers(productId: number) {
+  const success = await adminStore.removeProductFromBestSellers(productId)
+  if (success) {
+    showToastMessage($t('admin.products.removeFromBestSellersSuccess'))
+  } else {
+    showToastMessage($t('admin.products.removeFromBestSellersError'))
   }
 }
 
@@ -1014,24 +1106,28 @@ function editDynasty(dynasty: any) {
   showDynastyModal.value = true
 }
 
-function saveDynasty() {
+async function saveDynasty() {
   if (!editingDynasty.value) return
   
   try {
     const dynastyData = {
+      id: editingDynasty.value.id,
       name: editingDynasty.value.name,
       name_cn: editingDynasty.value.name_cn,
       period: editingDynasty.value.period,
       description: editingDynasty.value.description || '',
-      image: editingDynasty.value.image,
+      description_cn: editingDynasty.value.description_cn || '',
+      image_url: editingDynasty.value.image,
       sort_order: editingDynasty.value.sort_order,
       is_enabled: editingDynasty.value.is_enabled
     }
     
     if (editingDynasty.value.id) {
-      adminStore.updateDynasty(editingDynasty.value.id, dynastyData)
-  } else {
-      adminStore.addDynasty(dynastyData)
+      // 更新现有朝代
+      await adminStore.updateDynasties([dynastyData])
+    } else {
+      // 创建新朝代 - 这里需要实现addDynasty方法
+      console.log('Add dynasty functionality needs to be implemented')
     }
     
     showToastMessage($t('admin.dynasties.saveSuccess'))
@@ -1043,11 +1139,11 @@ function saveDynasty() {
   }
 }
 
-function toggleDynasty(dynastyId: number) {
+async function toggleDynasty(dynastyId: number) {
   const dynasty = dynasties.value.find(d => d.id === dynastyId)
   if (dynasty) {
     dynasty.is_enabled = !dynasty.is_enabled
-    adminStore.updateDynasty(dynastyId, dynasty)
+    await adminStore.updateDynasties([dynasty])
     showToastMessage(dynasty.is_enabled ? $t('admin.dynasties.enabled') : $t('admin.dynasties.disabled'))
   }
 }
@@ -1068,7 +1164,7 @@ function editShape(shape: any) {
   showShapeModal.value = true
 }
 
-function saveShape() {
+async function saveShape() {
   if (!editingShape.value) return
   
   try {
@@ -1080,9 +1176,12 @@ function saveShape() {
     }
     
     if (editingShape.value.id) {
-      adminStore.updateShape(editingShape.value.id, shapeData)
+      // 更新现有器型
+      const shapeData = [editingShape.value]
+      await adminStore.updateShapes(shapeData)
     } else {
-      adminStore.addShape(shapeData)
+      // 创建新器型 - 这里需要实现addShape方法
+      console.log('Add shape functionality needs to be implemented')
     }
     
     showToastMessage($t('admin.shapes.saveSuccess'))
@@ -1094,11 +1193,11 @@ function saveShape() {
   }
 }
 
-function toggleShape(shapeId: number) {
+async function toggleShape(shapeId: number) {
   const shape = shapes.value.find(s => s.id === shapeId)
   if (shape) {
     shape.is_enabled = !shape.is_enabled
-    adminStore.updateShape(shapeId, shape)
+    await adminStore.updateShapes([shape])
     showToastMessage(shape.is_enabled ? $t('admin.shapes.enabled') : $t('admin.shapes.disabled'))
   }
 }
@@ -1106,6 +1205,13 @@ function toggleShape(shapeId: number) {
 // Image management methods
 function openImageSelector(type: 'primary' | 'additional') {
   currentImageSelectionType.value = type
+  showImageSelector.value = true
+  // Load media library when opening selector
+  loadMediaLibrary()
+}
+
+function openDynastyImageSelector() {
+  currentImageSelectionType.value = 'dynasty'
   showImageSelector.value = true
   // Load media library when opening selector
   loadMediaLibrary()
@@ -1120,7 +1226,7 @@ async function loadMediaLibrary() {
       return
     }
 
-    const response = await fetch('/api/media-library-oss', {
+    const response = await fetch(`http://106.75.68.99:3000/api/media-data`, {
       headers: {
         'Authorization': `Bearer ${token}`,
         'Content-Type': 'application/json'
@@ -1185,8 +1291,10 @@ function confirmMediaSelection() {
 function selectImage(imageName: string) {
   if (currentImageSelectionType.value === 'primary') {
     handlePrimaryImageSelect(imageName)
-  } else {
+  } else if (currentImageSelectionType.value === 'additional') {
     handleAdditionalImageSelect(imageName)
+  } else if (currentImageSelectionType.value === 'dynasty') {
+    handleDynastyImageSelect(imageName)
   }
 }
 
@@ -1210,6 +1318,14 @@ function handleAdditionalImageSelect(imageFileName: string) {
     alt_text: imageFileName
   })
   editingProduct.value.thumbnails.push(imagePath)
+  showImageSelector.value = false
+}
+
+function handleDynastyImageSelect(imageFileName: string) {
+  if (!editingDynasty.value) return
+  
+  const imagePath = `/src/assets/tea_image/${imageFileName}`
+  editingDynasty.value.image = imagePath
   showImageSelector.value = false
 }
 
@@ -1241,7 +1357,19 @@ function getImageDisplayPath(imagePath: string) {
 }
 
 // Initialize
-onMounted(() => {
-  adminStore.loadSettings()
+onMounted(async () => {
+  // Initialize authentication
+  adminStore.initializeAuth()
+  
+  // Load all admin data (including bestsellers which will convert to products)
+  await adminStore.loadAllData()
+  
+  // Load media library
+  await loadMediaLibrary()
+  
+  // Debug: Log loaded data
+  console.log('AdminView - Products loaded:', adminStore.products.length)
+  console.log('AdminView - Best Sellers loaded:', adminStore.bestSellersProducts.length)
+  console.log('AdminView - Dynasties loaded:', adminStore.dynasties.length)
 })
 </script>

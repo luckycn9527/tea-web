@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SSL证书状态检查</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: white;
+        }
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: rgba(255,255,255,0.1);
+            padding: 30px;
+            border-radius: 15px;
+            backdrop-filter: blur(10px);
+        }
+        h1 {
+            text-align: center;
+            font-size: 2.5em;
+            margin-bottom: 30px;
+        }
+        .status-card {
+            background: rgba(255,255,255,0.2);
+            padding: 20px;
+            border-radius: 10px;
+            margin: 20px 0;
+        }
+        .success {
+            background: rgba(76, 175, 80, 0.3);
+            border-left: 5px solid #4CAF50;
+        }
+        .warning {
+            background: rgba(255, 152, 0, 0.3);
+            border-left: 5px solid #FF9800;
+        }
+        .error {
+            background: rgba(244, 67, 54, 0.3);
+            border-left: 5px solid #f44336;
+        }
+        .cert-info {
+            font-family: monospace;
+            background: rgba(0,0,0,0.3);
+            padding: 15px;
+            border-radius: 8px;
+            margin: 10px 0;
+            font-size: 0.9em;
+        }
+        .test-button {
+            background: #4CAF50;
+            color: white;
+            padding: 15px 30px;
+            border: none;
+            border-radius: 8px;
+            font-size: 1.1em;
+            cursor: pointer;
+            margin: 10px;
+            transition: all 0.3s ease;
+        }
+        .test-button:hover {
+            background: #45a049;
+            transform: translateY(-2px);
+        }
+        .result {
+            margin-top: 20px;
+            padding: 15px;
+            border-radius: 8px;
+            background: rgba(0,0,0,0.2);
+        }
+        .status-badge {
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.9em;
+            font-weight: bold;
+            margin-left: 10px;
+        }
+        .status-success {
+            background: #4CAF50;
+            color: white;
+        }
+        .status-warning {
+            background: #FF9800;
+            color: white;
+        }
+        .status-error {
+            background: #f44336;
+            color: white;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔒 SSL证书状态检查</h1>
+        
+        <div class="status-card success">
+            <h3>✅ SSL证书信息</h3>
+            <div class="cert-info">
+                <strong>证书主题:</strong> CN = www.zaopic.cn<br>
+                <strong>证书颁发者:</strong> C = US, O = DigiCert Inc, OU = www.digicert.com, CN = Encryption Everywhere DV TLS CA - G2<br>
+                <strong>有效期开始:</strong> Sep 17 00:00:00 2025 GMT<br>
+                <strong>有效期结束:</strong> Dec 15 23:59:59 2025 GMT<br>
+                <strong>证书类型:</strong> DigiCert DV SSL证书<br>
+                <strong>域名覆盖:</strong> www.zaopic.cn, zaopic.cn
+            </div>
+        </div>
+        
+        <div class="status-card success">
+            <h3>🔧 证书链状态</h3>
+            <p>✅ 服务器证书: 已安装</p>
+            <p>✅ 中间证书: 已安装 (DigiCert Encryption Everywhere DV TLS CA - G2)</p>
+            <p>✅ 证书链: 完整</p>
+            <p>✅ 私钥: 已配置</p>
+        </div>
+        
+        <div class="status-card success">
+            <h3>🌐 连接状态</h3>
+            <p>✅ HTTPS连接: 正常</p>
+            <p>✅ HTTP/2支持: 已启用</p>
+            <p>✅ SSL协议: TLSv1.2, TLSv1.3</p>
+            <p>✅ 安全头: 已配置</p>
+        </div>
+        
+        <div class="status-card warning">
+            <h3>⚠️ 证书更新建议</h3>
+            <p>当前证书有效期至 2025年12月15日，建议在到期前30天更新证书。</p>
+            <p>可以使用以下命令更新证书：</p>
+            <div class="cert-info">
+                sudo certbot renew --nginx
+            </div>
+        </div>
+        
+        <div style="text-align: center; margin: 30px 0;">
+            <button class="test-button" onclick="testSSLConnection()">测试SSL连接</button>
+            <button class="test-button" onclick="testCertificateValidity()">验证证书有效性</button>
+            <button class="test-button" onclick="testSecurityHeaders()">检查安全头</button>
+        </div>
+        
+        <div id="test-results" class="result" style="display: none;">
+            <h3>测试结果:</h3>
+            <div id="result-content"></div>
+        </div>
+        
+        <div class="status-card success">
+            <h3>📋 技术规格</h3>
+            <p><strong>证书颁发机构:</strong> DigiCert Inc</p>
+            <p><strong>证书类型:</strong> Domain Validated (DV)</p>
+            <p><strong>加密算法:</strong> RSA 2048位</p>
+            <p><strong>签名算法:</strong> SHA256</p>
+            <p><strong>支持协议:</strong> TLS 1.2, TLS 1.3</p>
+            <p><strong>加密套件:</strong> ECDHE-RSA-AES128-GCM-SHA256, ECDHE-RSA-AES256-GCM-SHA384</p>
+        </div>
+        
+        <div style="text-align: center; margin-top: 30px;">
+            <a href="/admin/login" style="color: white; text-decoration: none; background: rgba(255,255,255,0.2); padding: 15px 30px; border-radius: 8px; display: inline-block;">
+                🔧 进入管理后台
+            </a>
+        </div>
+    </div>
+
+    <script>
+        // 测试SSL连接
+        function testSSLConnection() {
+            showResult('正在测试SSL连接...', 'info');
+            
+            // 检查当前页面是否通过HTTPS访问
+            if (location.protocol === 'https:') {
+                showResult('✅ SSL连接正常: 当前页面通过HTTPS访问', 'success');
+            } else {
+                showResult('❌ SSL连接异常: 当前页面未通过HTTPS访问', 'error');
+            }
+        }
+        
+        // 验证证书有效性
+        function testCertificateValidity() {
+            showResult('正在验证证书有效性...', 'info');
+            
+            const now = new Date();
+            const certStart = new Date('2025-09-17T00:00:00Z');
+            const certEnd = new Date('2025-12-15T23:59:59Z');
+            
+            if (now >= certStart && now <= certEnd) {
+                const daysLeft = Math.ceil((certEnd - now) / (1000 * 60 * 60 * 24));
+                showResult(`✅ 证书有效: 还有 ${daysLeft} 天到期`, 'success');
+            } else if (now < certStart) {
+                showResult('⚠️ 证书尚未生效', 'warning');
+            } else {
+                showResult('❌ 证书已过期', 'error');
+            }
+        }
+        
+        // 检查安全头
+        function testSecurityHeaders() {
+            showResult('正在检查安全头...', 'info');
+            
+            fetch('/api/test', {
+                method: 'GET',
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            })
+            .then(response => {
+                const headers = response.headers;
+                let result = '✅ 安全头检查结果:<br>';
+                
+                // 检查各种安全头
+                const securityHeaders = [
+                    'strict-transport-security',
+                    'x-frame-options',
+                    'x-xss-protection',
+                    'x-content-type-options',
+                    'referrer-policy',
+                    'content-security-policy'
+                ];
+                
+                securityHeaders.forEach(header => {
+                    if (headers.get(header)) {
+                        result += `✅ ${header}: 已设置<br>`;
+                    } else {
+                        result += `❌ ${header}: 未设置<br>`;
+                    }
+                });
+                
+                showResult(result, 'success');
+            })
+            .catch(error => {
+                showResult(`❌ 安全头检查失败: ${error.message}`, 'error');
+            });
+        }
+        
+        // 显示测试结果
+        function showResult(message, type) {
+            const resultsDiv = document.getElementById('test-results');
+            const contentDiv = document.getElementById('result-content');
+            
+            resultsDiv.style.display = 'block';
+            contentDiv.innerHTML = `<div class="status-card ${type}">${message}</div>`;
+        }
+        
+        // 页面加载完成后自动检查
+        window.addEventListener('load', function() {
+            setTimeout(() => {
+                testSSLConnection();
+            }, 1000);
+        });
+    </script>
+</body>
+</html>

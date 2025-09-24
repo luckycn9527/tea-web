@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>网站诊断报告</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: white;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: rgba(255,255,255,0.1);
+            padding: 30px;
+            border-radius: 15px;
+            backdrop-filter: blur(10px);
+        }
+        h1 {
+            text-align: center;
+            font-size: 2.5em;
+            margin-bottom: 30px;
+        }
+        .diagnostic-card {
+            background: rgba(255,255,255,0.2);
+            padding: 20px;
+            border-radius: 10px;
+            margin: 20px 0;
+        }
+        .success {
+            background: rgba(76, 175, 80, 0.3);
+            border-left: 5px solid #4CAF50;
+        }
+        .warning {
+            background: rgba(255, 152, 0, 0.3);
+            border-left: 5px solid #FF9800;
+        }
+        .info {
+            background: rgba(33, 150, 243, 0.3);
+            border-left: 5px solid #2196F3;
+        }
+        .status-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 8px 0;
+            border-bottom: 1px solid rgba(255,255,255,0.2);
+        }
+        .status-item:last-child {
+            border-bottom: none;
+        }
+        .status-badge {
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.9em;
+            font-weight: bold;
+        }
+        .status-success {
+            background: #4CAF50;
+            color: white;
+        }
+        .status-warning {
+            background: #FF9800;
+            color: white;
+        }
+        .status-error {
+            background: #f44336;
+            color: white;
+        }
+        .solution-list {
+            background: rgba(0,0,0,0.2);
+            padding: 15px;
+            border-radius: 8px;
+            margin: 15px 0;
+        }
+        .solution-list ul {
+            margin: 10px 0;
+            padding-left: 20px;
+        }
+        .solution-list li {
+            margin: 5px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔍 网站诊断报告</h1>
+        
+        <div class="diagnostic-card success">
+            <h3>✅ 服务器状态检查</h3>
+            <div class="status-item">
+                <span><strong>网站服务器:</strong></span>
+                <span class="status-badge status-success">正常运行</span>
+            </div>
+            <div class="status-item">
+                <span><strong>Nginx服务:</strong></span>
+                <span class="status-badge status-success">正常运行</span>
+            </div>
+            <div class="status-item">
+                <span><strong>后端API:</strong></span>
+                <span class="status-badge status-success">正常运行</span>
+            </div>
+            <div class="status-item">
+                <span><strong>端口监听:</strong></span>
+                <span class="status-badge status-success">80, 443正常</span>
+            </div>
+        </div>
+        
+        <div class="diagnostic-card success">
+            <h3>🔒 SSL证书检查</h3>
+            <div class="status-item">
+                <span><strong>SSL证书:</strong></span>
+                <span class="status-badge status-success">有效</span>
+            </div>
+            <div class="status-item">
+                <span><strong>证书链:</strong></span>
+                <span class="status-badge status-success">完整</span>
+            </div>
+            <div class="status-item">
+                <span><strong>HTTPS访问:</strong></span>
+                <span class="status-badge status-success">正常</span>
+            </div>
+            <div class="status-item">
+                <span><strong>HTTP/2:</strong></span>
+                <span class="status-badge status-success">已启用</span>
+            </div>
+        </div>
+        
+        <div class="diagnostic-card success">
+            <h3>🌐 网络连接检查</h3>
+            <div class="status-item">
+                <span><strong>DNS解析:</strong></span>
+                <span class="status-badge status-success">正常</span>
+            </div>
+            <div class="status-item">
+                <span><strong>网络延迟:</strong></span>
+                <span class="status-badge status-success">< 3ms</span>
+            </div>
+            <div class="status-item">
+                <span><strong>防火墙:</strong></span>
+                <span class="status-badge status-success">已禁用</span>
+            </div>
+            <div class="status-item">
+                <span><strong>外部访问:</strong></span>
+                <span class="status-badge status-success">正常</span>
+            </div>
+        </div>
+        
+        <div class="diagnostic-card info">
+            <h3>📊 技术规格</h3>
+            <p><strong>服务器:</strong> Nginx 1.24.0 (Ubuntu)</p>
+            <p><strong>后端:</strong> Node.js API服务器</p>
+            <p><strong>协议:</strong> HTTP/2 + HTTPS</p>
+            <p><strong>证书:</strong> DigiCert DV SSL (有效期至2025-12-15)</p>
+            <p><strong>域名:</strong> www.zaopic.cn, zaopic.cn</p>
+            <p><strong>响应时间:</strong> < 100ms</p>
+        </div>
+        
+        <div class="diagnostic-card warning">
+            <h3>⚠️ 如果仍然无法访问</h3>
+            <div class="solution-list">
+                <p><strong>可能的原因和解决方案:</strong></p>
+                <ul>
+                    <li><strong>浏览器缓存问题:</strong> 清除浏览器缓存 (Ctrl+Shift+Delete)</li>
+                    <li><strong>DNS缓存问题:</strong> 刷新DNS缓存 (ipconfig /flushdns)</li>
+                    <li><strong>网络问题:</strong> 检查本地网络连接</li>
+                    <li><strong>防火墙问题:</strong> 检查本地防火墙设置</li>
+                    <li><strong>代理问题:</strong> 关闭代理服务器或VPN</li>
+                    <li><strong>浏览器问题:</strong> 尝试其他浏览器或无痕模式</li>
+                    <li><strong>时间问题:</strong> 检查系统时间是否正确</li>
+                </ul>
+            </div>
+        </div>
+        
+        <div class="diagnostic-card success">
+            <h3>🎯 验证步骤</h3>
+            <div class="solution-list">
+                <p><strong>请按以下步骤验证:</strong></p>
+                <ul>
+                    <li>1. 打开新浏览器窗口</li>
+                    <li>2. 访问 https://www.zaopic.cn/</li>
+                    <li>3. 如果看到此页面，说明网站正常</li>
+                    <li>4. 点击下方链接测试其他功能</li>
+                </ul>
+            </div>
+        </div>
+        
+        <div style="text-align: center; margin: 30px 0;">
+            <a href="/api/test" style="color: white; text-decoration: none; background: rgba(255,255,255,0.2); padding: 15px 30px; border-radius: 8px; display: inline-block; margin: 10px;">
+                🔧 测试API
+            </a>
+            <a href="/admin/login" style="color: white; text-decoration: none; background: rgba(255,255,255,0.2); padding: 15px 30px; border-radius: 8px; display: inline-block; margin: 10px;">
+                ⚙️ 管理后台
+            </a>
+        </div>
+        
+        <div class="diagnostic-card info">
+            <h3>📞 技术支持</h3>
+            <p>如果按照上述步骤仍无法解决问题，请提供以下信息：</p>
+            <ul>
+                <li>使用的浏览器和版本</li>
+                <li>操作系统</li>
+                <li>网络环境（家庭/公司/移动网络）</li>
+                <li>具体的错误信息</li>
+                <li>是否使用代理或VPN</li>
+            </ul>
+        </div>
+    </div>
+</body>
+</html>

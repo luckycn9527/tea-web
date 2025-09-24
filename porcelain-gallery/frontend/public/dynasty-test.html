@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Dynasty Data Test</title>
+</head>
+<body>
+    <h1>Dynasty Data Test</h1>
+    <div id="test-results"></div>
+
+    <script>
+        // 测试朝代 API 数据
+        async function testDynastyData() {
+            try {
+                const response = await fetch('http://106.75.68.99:3000/api/dynasties?is_enabled=true');
+                const data = await response.json();
+                
+                if (data.success && data.data) {
+                    const dynasties = data.data;
+                    let result = '<h2>✅ Dynasty Data Loaded Successfully</h2>';
+                    result += '<ul>';
+                    
+                    dynasties.forEach((dynasty, index) => {
+                        result += `<li>
+                            <strong>${dynasty.name}</strong> (${dynasty.name_cn})<br>
+                            ID: ${dynasty.id} | Period: ${dynasty.period}<br>
+                            Image: ${dynasty.image_url}<br>
+                            Sort Order: ${dynasty.sort_order}
+                        </li>`;
+                    });
+                    
+                    result += '</ul>';
+                    
+                    // 检查是否与前端匹配
+                    const expectedNames = ['Tang Dynasty', 'Song Dynasty', 'Yuan Dynasty', 'Ming Dynasty', 'Qing Dynasty'];
+                    const actualNames = dynasties.map(d => d.name);
+                    
+                    if (JSON.stringify(expectedNames) === JSON.stringify(actualNames)) {
+                        result += '<p style="color: green;">✅ Dynasty names match frontend expectations!</p>';
+                    } else {
+                        result += '<p style="color: red;">❌ Dynasty names do not match frontend expectations!</p>';
+                    }
+                    
+                    return result;
+                } else {
+                    return '❌ Failed to load dynasty data';
+                }
+            } catch (error) {
+                return `❌ Error: ${error.message}`;
+            }
+        }
+        
+        // 运行测试
+        testDynastyData().then(result => {
+            document.getElementById('test-results').innerHTML = result;
+        });
+    </script>
+</body>
+</html>
+
+

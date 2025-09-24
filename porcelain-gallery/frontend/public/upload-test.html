@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Media Upload Test</title>
+</head>
+<body>
+    <h1>Media Library Upload Test</h1>
+    <div id="test-results"></div>
+
+    <script>
+        // 测试上传端点是否可访问
+        async function testUploadEndpoint() {
+            try {
+                const response = await fetch('http://106.75.68.99:3000/api/media-library/upload', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                });
+                
+                const data = await response.json();
+                
+                if (data.message === '未提供认证令牌') {
+                    return '✅ Upload endpoint is working (requires authentication)';
+                } else {
+                    return `❌ Unexpected response: ${JSON.stringify(data)}`;
+                }
+            } catch (error) {
+                return `❌ Error: ${error.message}`;
+            }
+        }
+        
+        // 运行测试
+        testUploadEndpoint().then(result => {
+            document.getElementById('test-results').innerHTML = `<p>${result}</p>`;
+        });
+    </script>
+</body>
+</html>
+
+

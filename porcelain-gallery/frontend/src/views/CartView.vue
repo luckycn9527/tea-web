@@ -151,18 +151,33 @@
       </div>
     </div>
   </div>
+  
+  <!-- Confirmation Dialog -->
+  <ConfirmationDialog 
+    :show="showConfirmDialog"
+    title="Clear Shopping Cart"
+    message="Are you sure you want to clear your cart? This action cannot be undone."
+    confirm-text="Clear Cart"
+    cancel-text="Cancel"
+    @confirm="handleConfirmClear"
+    @cancel="handleCancelClear"
+  />
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue'
+import { computed, ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { useI18n } from 'vue-i18n'
 import { useCartStore } from '@/stores/cart'
 import API_CONFIG from '@/config/api'
+import ConfirmationDialog from '@/components/ConfirmationDialog.vue'
 
 const { locale } = useI18n()
 const router = useRouter()
 const cartStore = useCartStore()
+
+// Confirmation dialog state
+const showConfirmDialog = ref(false)
 
 const currentLocale = computed(() => locale.value)
 
@@ -205,9 +220,16 @@ function removeItem(productId: number) {
 }
 
 function clearCart() {
-  if (confirm('Are you sure you want to clear your cart?')) {
-    cartStore.clearCart()
-  }
+  showConfirmDialog.value = true
+}
+
+function handleConfirmClear() {
+  cartStore.clearCart()
+  showConfirmDialog.value = false
+}
+
+function handleCancelClear() {
+  showConfirmDialog.value = false
 }
 
 function proceedToCheckout() {

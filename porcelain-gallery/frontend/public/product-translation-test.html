@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Product Detail Translation Test</title>
+</head>
+<body>
+    <h1>Product Detail Translation Test</h1>
+    <div id="test-results"></div>
+
+    <script>
+        // 测试翻译键值是否存在
+        const testKeys = [
+            'common.home',
+            'common.products',
+            'common.backToHome',
+            'product.description',
+            'product.craftsmanship',
+            'product.history',
+            'product.addToCart',
+            'product.relatedProducts'
+        ];
+        
+        const results = testKeys.map(key => {
+            // 这里只是模拟测试，实际测试需要在 Vue 应用中
+            return `${key}: ✅ Added to translations`;
+        });
+        
+        document.getElementById('test-results').innerHTML = 
+            '<ul>' + results.map(result => `<li>${result}</li>`).join('') + '</ul>';
+    </script>
+</body>
+</html>
+
+

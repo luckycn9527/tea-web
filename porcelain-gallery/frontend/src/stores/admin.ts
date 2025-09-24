@@ -163,6 +163,7 @@ export const useAdminStore = defineStore('admin', () => {
   // Best Sellers Products (8 products with 3 thumbnails each)
   const bestSellersProducts = ref([
     {
+      id: 1,
       name: 'Landscape Jasper Bracelet IV (42mm)',
       price: '$211',
       mainImage: '/src/assets/tea_image/5.png',
@@ -186,6 +187,7 @@ export const useAdminStore = defineStore('admin', () => {
       stock_quantity: 10
     },
     {
+      id: 2,
       name: 'Dragon Blood Jasper V (4mm)',
       price: '$275',
       mainImage: '/src/assets/tea_image/14.png',
@@ -209,6 +211,7 @@ export const useAdminStore = defineStore('admin', () => {
       stock_quantity: 8
     },
     {
+      id: 3,
       name: 'Landscape Jasper Bracelet VII (6mm)',
       price: '$285',
       mainImage: '/src/assets/tea_image/22.png',
@@ -232,6 +235,7 @@ export const useAdminStore = defineStore('admin', () => {
       stock_quantity: 6
     },
     {
+      id: 4,
       name: 'Camel-Turquoise Hematite Bracelet V (4mm)',
       price: '$185',
       mainImage: '/src/assets/tea_image/23.png',
@@ -255,6 +259,7 @@ export const useAdminStore = defineStore('admin', () => {
       stock_quantity: 12
     },
     {
+      id: 5,
       name: 'Amethyst Bracelet XVII (6mm)',
       price: '$195',
       mainImage: '/src/assets/tea_image/13.png',
@@ -278,6 +283,7 @@ export const useAdminStore = defineStore('admin', () => {
       stock_quantity: 9
     },
     {
+      id: 6,
       name: 'Tiger Eye Bracelet I (6mm)',
       price: '$205',
       mainImage: '/src/assets/tea_image/16.png',
@@ -301,6 +307,7 @@ export const useAdminStore = defineStore('admin', () => {
       stock_quantity: 7
     },
     {
+      id: 7,
       name: 'Landscape Jasper Bracelet IV (4mm)',
       price: '$255',
       mainImage: '/src/assets/tea_image/20.png',
@@ -324,6 +331,7 @@ export const useAdminStore = defineStore('admin', () => {
       stock_quantity: 5
     },
     {
+      id: 8,
       name: 'Dragon Blood Jasper V (4mm)',
       price: '$275',
       mainImage: '/src/assets/tea_image/21.png',
@@ -373,275 +381,123 @@ export const useAdminStore = defineStore('admin', () => {
     title: 'Forget mass-produced',
     description1: 'From our hands to yours. In China, the birthplace of porcelain, our family-owned business creates each piece with meticulous care, using only the finest materials and traditional techniques.',
     description2: 'A timeless design, authentic craftsmanship - a piece as unique as you are.',
-    image: '/src/assets/tea_image/zhizuo.png'
+    image: '/src/assets/tea_image/zhizuo.png',
+    buttonText: 'Explore Collection'
   })
 
-  // Products Management
-  const products = ref<Product[]>([
-    {
-      id: 1,
-      name_en: "Blue and White Porcelain Vase",
-      name_cn: "青花瓷花瓶",
-      description_en: "Classic blue and white porcelain vase from the Ming Dynasty, featuring traditional Chinese motifs and exquisite craftsmanship.",
-      description_cn: "明代经典青花瓷花瓶，采用传统中国图案，工艺精湛。",
-      craftsmanship_en: "Hand-painted with cobalt blue underglaze on white porcelain body.",
-      craftsmanship_cn: "在白瓷胎上手工绘制钴蓝釉下彩。",
-      history_en: "Blue and white porcelain originated in the Tang Dynasty and reached its peak during the Ming Dynasty.",
-      history_cn: "青花瓷起源于唐代，在明代达到鼎盛。",
-      price: 255,
-      dimensions: "Height: 25cm, Width: 15cm",
-      weight: "1.2kg",
-      age: "Antique",
-      dynasty_id: 4,
-      shape_id: 1,
-      dynasty_name: "Ming Dynasty",
-      shape_name: "Vase",
-      primary_image: "/src/assets/tea_image/1.png",
-      images: [
-        { id: 1, image_path: "/src/assets/tea_image/1.png", is_primary: true, sort_order: 1 },
-        { id: 2, image_path: "/src/assets/tea_image/2.png", is_primary: false, sort_order: 2 }
-      ],
+  // Products Management - Convert bestSellersProducts to products format
+  const products = ref<Product[]>([])
+  
+  // Function to convert bestSellersProducts to products format
+  function convertBestSellersToProducts() {
+    const convertedProducts: Product[] = bestSellersProducts.value.map((bestSeller, index) => ({
+      id: bestSeller.id,
+      name_en: bestSeller.name_en || bestSeller.name,
+      name_cn: bestSeller.name_cn || bestSeller.name,
+      description_en: bestSeller.description_en || 'Beautiful handcrafted product',
+      description_cn: bestSeller.description_cn || '精美的手工艺品',
+      craftsmanship_en: bestSeller.craftsmanship_en || 'Handcrafted with traditional techniques',
+      craftsmanship_cn: bestSeller.craftsmanship_cn || '采用传统工艺手工制作',
+      history_en: bestSeller.history_en || 'Rich cultural heritage',
+      history_cn: bestSeller.history_cn || '丰富的文化遗产',
+      price: typeof bestSeller.price === 'string' ? parseFloat(bestSeller.price.replace('$', '')) : bestSeller.price,
+      dimensions: bestSeller.dimensions || 'Various sizes available',
+      weight: bestSeller.weight || 'Lightweight',
+      age: bestSeller.age || 'Modern',
+      dynasty_id: bestSeller.dynasty_id || 1,
+      shape_id: bestSeller.shape_id || 1,
+      dynasty_name: bestSeller.dynasty_name || 'Tang Dynasty',
+      shape_name: bestSeller.shape_name || 'Vase',
+      primary_image: bestSeller.mainImage || bestSeller.primary_image || '/src/assets/tea_image/1.png',
+      images: bestSeller.thumbnails ? bestSeller.thumbnails.map((thumb: string, imgIndex: number) => ({
+        id: imgIndex + 1,
+        image_path: thumb,
+        is_primary: imgIndex === 0,
+        sort_order: imgIndex + 1
+      })) : [],
       videos: [],
-      is_featured: true,
-      is_available: true
-    },
-    {
-      id: 2,
-      name_en: "Celadon Tea Set",
-      name_cn: "青瓷茶具",
-      description_en: "Elegant celadon tea set from the Song Dynasty, known for its jade-like color and delicate form.",
-      description_cn: "宋代优雅青瓷茶具，以其玉般的颜色和精致的造型而闻名。",
-      craftsmanship_en: "Fired at high temperature with iron-rich glaze creating the characteristic celadon color.",
-      craftsmanship_cn: "高温烧制，富含铁的釉料创造出特有的青瓷颜色。",
-      history_en: "Celadon ware was highly prized during the Song Dynasty for its aesthetic beauty.",
-      history_cn: "青瓷在宋代因其美学价值而备受推崇。",
-      price: 180,
-      dimensions: "Teapot: 15cm height, Cups: 6cm height",
-      weight: "0.8kg",
-      age: "Antique",
-      dynasty_id: 2,
-      shape_id: 2,
-      dynasty_name: "Song Dynasty",
-      shape_name: "Tea Set",
-      primary_image: "/src/assets/tea_image/3.png",
-      images: [
-        { id: 3, image_path: "/src/assets/tea_image/3.png", is_primary: true, sort_order: 1 },
-        { id: 4, image_path: "/src/assets/tea_image/4.png", is_primary: false, sort_order: 2 }
-      ],
-      videos: [],
-      is_featured: true,
-      is_available: true
-    },
-    {
-      id: 3,
-      name_en: "Tang Dynasty Horse Figurine",
-      name_cn: "唐代马俑",
-      description_en: "Exquisite Tang Dynasty horse figurine, symbolizing prosperity and power in ancient China.",
-      description_cn: "精美的唐代马俑，象征着古代中国的繁荣和权力。",
-      craftsmanship_en: "Hand-molded terracotta with detailed carving and painted decoration.",
-      craftsmanship_cn: "手工塑造的陶器，带有精细的雕刻和彩绘装饰。",
-      history_en: "Tang Dynasty horses were symbols of wealth and military power.",
-      history_cn: "唐代马匹是财富和军事实力的象征。",
-      price: 320,
-      dimensions: "Height: 20cm, Length: 25cm",
-      weight: "1.5kg",
-      age: "Antique",
-      dynasty_id: 1,
-      shape_id: 3,
-      dynasty_name: "Tang Dynasty",
-      shape_name: "Figurine",
-      primary_image: "/src/assets/tea_image/5.png",
-      images: [
-        { id: 5, image_path: "/src/assets/tea_image/5.png", is_primary: true, sort_order: 1 },
-        { id: 6, image_path: "/src/assets/tea_image/6.png", is_primary: false, sort_order: 2 }
-      ],
-      videos: [],
-      is_featured: true,
-      is_available: true
-    },
-    {
-      id: 4,
-      name_en: "Yuan Dynasty Blue and White Bowl",
-      name_cn: "元代青花碗",
-      description_en: "Exquisite blue and white bowl from the Yuan Dynasty, showcasing the early development of blue and white porcelain.",
-      description_cn: "元代精美的青花碗，展示了青花瓷的早期发展。",
-      craftsmanship_en: "Hand-painted cobalt blue designs on white porcelain with traditional Chinese motifs.",
-      craftsmanship_cn: "在白瓷上手工绘制钴蓝图案，采用传统中国纹样。",
-      history_en: "The Yuan Dynasty marked the beginning of blue and white porcelain production in China.",
-      history_cn: "元代标志着中国青花瓷生产的开始。",
-      price: 180,
-      dimensions: "Diameter: 20cm, Height: 8cm",
-      weight: "0.8kg",
-      age: "Antique",
-      dynasty_id: 3,
-      shape_id: 4,
-      dynasty_name: "Yuan Dynasty",
-      shape_name: "Bowl",
-      primary_image: "/src/assets/tea_image/7.png",
-      images: [
-        { id: 7, image_path: "/src/assets/tea_image/7.png", is_primary: true, sort_order: 1 }
-      ],
-      videos: [],
-      is_featured: true,
-      is_available: true
-    },
-    {
-      id: 5,
-      name_en: "Ming Dynasty Celadon Vase",
-      name_cn: "明代青瓷花瓶",
-      description_en: "Beautiful celadon vase from the Ming Dynasty, featuring the characteristic jade-like green glaze.",
-      description_cn: "明代美丽的青瓷花瓶，具有特有的玉绿色釉面。",
-      craftsmanship_en: "High-fired celadon with iron-rich glaze creating the characteristic green color.",
-      craftsmanship_cn: "高温烧制的青瓷，富含铁的釉料创造出特有的绿色。",
-      history_en: "Celadon ware was highly prized during the Ming Dynasty for its aesthetic beauty.",
-      history_cn: "青瓷在明代因其美学价值而备受推崇。",
-      price: 320,
-      dimensions: "Height: 30cm, Width: 18cm",
-      weight: "1.5kg",
-      age: "Antique",
-      dynasty_id: 4,
-      shape_id: 1,
-      dynasty_name: "Ming Dynasty",
-      shape_name: "Vase",
-      primary_image: "/src/assets/tea_image/8.png",
-      images: [
-        { id: 8, image_path: "/src/assets/tea_image/8.png", is_primary: true, sort_order: 1 }
-      ],
-      videos: [],
-      is_featured: true,
-      is_available: true
-    },
-    {
-      id: 6,
-      name_en: "Song Dynasty White Porcelain Plate",
-      name_cn: "宋代白瓷盘",
-      description_en: "Elegant white porcelain plate from the Song Dynasty, known for its pure white color and refined craftsmanship.",
-      description_cn: "宋代优雅的白瓷盘，以其纯白色和精湛工艺而闻名。",
-      craftsmanship_en: "High-fired white porcelain with pure white glaze and delicate form.",
-      craftsmanship_cn: "高温烧制的白瓷，具有纯白釉面和精致造型。",
-      history_en: "White porcelain reached its peak during the Song Dynasty.",
-      history_cn: "白瓷在宋代达到鼎盛。",
-      price: 150,
-      dimensions: "Diameter: 25cm, Height: 3cm",
-      weight: "0.6kg",
-      age: "Antique",
-      dynasty_id: 2,
-      shape_id: 5,
-      dynasty_name: "Song Dynasty",
-      shape_name: "Plate",
-      primary_image: "/src/assets/tea_image/9.png",
-      images: [
-        { id: 9, image_path: "/src/assets/tea_image/9.png", is_primary: true, sort_order: 1 }
-      ],
-      videos: [],
-      is_featured: true,
-      is_available: true
-    },
-    {
-      id: 7,
-      name_en: "Qing Dynasty Famille Rose Vase",
-      name_cn: "清代粉彩花瓶",
-      description_en: "Exquisite famille rose vase from the Qing Dynasty, featuring vibrant colors and intricate designs.",
-      description_cn: "清代精美的粉彩花瓶，具有鲜艳的色彩和复杂的设计。",
-      craftsmanship_en: "Hand-painted with famille rose enamels over white porcelain.",
-      craftsmanship_cn: "在白瓷上手工绘制粉彩釉料。",
-      history_en: "Famille rose was a distinctive Qing Dynasty innovation in Chinese porcelain.",
-      history_cn: "粉彩是清代中国瓷器的独特创新。",
-      price: 450,
-      dimensions: "Height: 35cm, Width: 20cm",
-      weight: "2.0kg",
-      age: "Antique",
-      dynasty_id: 5,
-      shape_id: 1,
-      dynasty_name: "Qing Dynasty",
-      shape_name: "Vase",
-      primary_image: "/src/assets/tea_image/10.png",
-      images: [
-        { id: 10, image_path: "/src/assets/tea_image/10.png", is_primary: true, sort_order: 1 }
-      ],
-      videos: [],
-      is_featured: true,
-      is_available: true
-    },
-    {
-      id: 8,
-      name_en: "Tang Dynasty Sancai Pottery",
-      name_cn: "唐代三彩陶器",
-      description_en: "Colorful sancai pottery from the Tang Dynasty, known for its three-color glaze technique.",
-      description_cn: "唐代彩色三彩陶器，以其三色釉技术而闻名。",
-      craftsmanship_en: "Three-color glaze technique with yellow, green, and white glazes.",
-      craftsmanship_cn: "三色釉技术，使用黄、绿、白三色釉料。",
-      history_en: "Sancai pottery was a hallmark of Tang Dynasty ceramic art.",
-      history_cn: "三彩陶器是唐代陶瓷艺术的标志。",
-      price: 280,
-      dimensions: "Height: 22cm, Width: 16cm",
-      weight: "1.3kg",
-      age: "Antique",
-      dynasty_id: 1,
-      shape_id: 2,
-      dynasty_name: "Tang Dynasty",
-      shape_name: "Tea Set",
-      primary_image: "/src/assets/tea_image/11.png",
-      images: [
-        { id: 11, image_path: "/src/assets/tea_image/11.png", is_primary: true, sort_order: 1 }
-      ],
-      videos: [],
-      is_featured: false,
-      is_available: true
-    },
-    {
-      id: 9,
-      name_en: "Ming Dynasty Blue and White Plate",
-      name_cn: "明代青花盘",
-      description_en: "Classic blue and white plate from the Ming Dynasty, featuring traditional dragon motifs.",
-      description_cn: "明代经典青花盘，采用传统龙纹图案。",
-      craftsmanship_en: "Hand-painted cobalt blue dragon designs on white porcelain.",
-      craftsmanship_cn: "在白瓷上手工绘制钴蓝龙纹图案。",
-      history_en: "Dragon motifs were symbols of imperial power in Ming Dynasty porcelain.",
-      history_cn: "龙纹图案是明代瓷器中皇权的象征。",
-      price: 200,
-      dimensions: "Diameter: 30cm, Height: 4cm",
-      weight: "1.0kg",
-      age: "Antique",
-      dynasty_id: 4,
-      shape_id: 5,
-      dynasty_name: "Ming Dynasty",
-      shape_name: "Plate",
-      primary_image: "/src/assets/tea_image/12.png",
-      images: [
-        { id: 12, image_path: "/src/assets/tea_image/12.png", is_primary: true, sort_order: 1 }
-      ],
-      videos: [],
-      is_featured: false,
-      is_available: true
-    },
-    {
-      id: 10,
-      name_en: "Song Dynasty Ding Ware Bowl",
-      name_cn: "宋代定窑碗",
-      description_en: "Elegant Ding ware bowl from the Song Dynasty, known for its pure white color and thin walls.",
-      description_cn: "宋代优雅的定窑碗，以其纯白色和薄壁而闻名。",
-      craftsmanship_en: "High-fired white porcelain with extremely thin walls and pure white glaze.",
-      craftsmanship_cn: "高温烧制的白瓷，具有极薄的壁和纯白釉面。",
-      history_en: "Ding ware was one of the five great kilns of the Song Dynasty.",
-      history_cn: "定窑是宋代五大名窑之一。",
-      price: 220,
-      dimensions: "Diameter: 18cm, Height: 6cm",
-      weight: "0.7kg",
-      age: "Antique",
-      dynasty_id: 2,
-      shape_id: 4,
-      dynasty_name: "Song Dynasty",
-      shape_name: "Bowl",
-      primary_image: "/src/assets/tea_image/13.png",
-      images: [
-        { id: 13, image_path: "/src/assets/tea_image/13.png", is_primary: true, sort_order: 1 }
-      ],
-      videos: [],
-      is_featured: false,
-      is_available: true
+      is_featured: bestSeller.is_featured || false,
+      is_available: bestSeller.is_available !== false
+    }))
+    
+    products.value = convertedProducts
+    console.log('Converted bestSellersProducts to products:', convertedProducts.length)
+  }
+  
+  // Initialize products from bestSellersProducts
+  convertBestSellersToProducts()
+  
+  // Function to add product to bestsellers (max 8)
+  function addProductToBestSellers(product: Product) {
+    if (bestSellersProducts.value.length >= 8) {
+      console.warn('Maximum 8 bestsellers allowed')
+      return false
     }
-  ])
+    
+    // Check if product already exists in bestsellers
+    if (bestSellersProducts.value.some(p => p.id === product.id)) {
+      console.warn('Product already exists in bestsellers')
+      return false
+    }
+    
+    // Convert product to bestseller format
+    const bestSellerProduct = {
+      id: product.id,
+      name: product.name_en,
+      price: `$${product.price}`,
+      mainImage: product.primary_image,
+      thumbnails: product.images?.map(img => img.image_path) || [product.primary_image],
+      name_en: product.name_en,
+      name_cn: product.name_cn,
+      description_en: product.description_en,
+      description_cn: product.description_cn,
+      craftsmanship_en: product.craftsmanship_en,
+      craftsmanship_cn: product.craftsmanship_cn,
+      history_en: product.history_en,
+      history_cn: product.history_cn,
+      dynasty_id: product.dynasty_id,
+      shape_id: product.shape_id,
+      dimensions: product.dimensions,
+      weight: product.weight,
+      age: product.age,
+      material: 'Premium Porcelain',
+      origin: 'China',
+      stock_quantity: 10,
+      dynasty_name: product.dynasty_name,
+      shape_name: product.shape_name,
+      is_featured: product.is_featured,
+      is_available: product.is_available
+    }
+    
+    bestSellersProducts.value.push(bestSellerProduct)
+    
+    // Update products list
+    convertBestSellersToProducts()
+    
+    console.log('Added product to bestsellers:', bestSellerProduct.name)
+    return true
+  }
+  
+  // Function to remove product from bestsellers
+  function removeProductFromBestSellers(productId: number) {
+    const index = bestSellersProducts.value.findIndex(p => p.id === productId)
+    if (index !== -1) {
+      const removedProduct = bestSellersProducts.value.splice(index, 1)[0]
+      
+      // Update products list
+      convertBestSellersToProducts()
+      
+      console.log('Removed product from bestsellers:', removedProduct.name)
+      return true
+    }
+    return false
+  }
+  
+  // Function to get available products for selection (products not in bestsellers)
+  function getAvailableProductsForBestSellers() {
+    const bestSellerIds = bestSellersProducts.value.map(p => p.id)
+    return products.value.filter(p => !bestSellerIds.includes(p.id))
+  }
   const dynasties = ref<Dynasty[]>([
     {
       id: 1,
@@ -806,35 +662,171 @@ export const useAdminStore = defineStore('admin', () => {
     }
   }
 
-  // Best Sellers Product Management
+  // Best Sellers Product Management - API based
 
-  function updateBestSellerName(index: number, newName: string) {
-    if (index >= 0 && index < bestSellersProducts.value.length) {
-      bestSellersProducts.value[index].name = newName
-      localStorage.setItem('bestSellersProducts', JSON.stringify(bestSellersProducts.value))
+  async function loadBestSellers() {
+    try {
+      const response = await fetch(`http://106.75.68.99:3000/api/admin/best-sellers`, {
+        method: 'GET',
+        headers: {
+          'Authorization': `Bearer ${localStorage.getItem('admin_token')}`,
+          'Content-Type': 'application/json'
+        }
+      });
+
+      if (response.ok) {
+        const result = await response.json();
+        if (result.success) {
+          bestSellersProducts.value = result.data;
+          console.log('Loaded Best Sellers from API:', bestSellersProducts.value.length, 'products');
+        }
+      } else {
+        console.error('Failed to load Best Sellers from API');
+        // Fallback to localStorage if API fails
+        const savedBestSellers = localStorage.getItem('bestSellersProducts');
+        if (savedBestSellers) {
+          bestSellersProducts.value = JSON.parse(savedBestSellers);
+        }
+      }
+    } catch (error) {
+      console.error('Error loading Best Sellers from API:', error);
+      // Fallback to localStorage if API fails
+      const savedBestSellers = localStorage.getItem('bestSellersProducts');
+      if (savedBestSellers) {
+        bestSellersProducts.value = JSON.parse(savedBestSellers);
+      }
     }
   }
 
-  function updateBestSellerPrice(index: number, newPrice: string) {
+  async function updateBestSellerName(index: number, newName: string) {
     if (index >= 0 && index < bestSellersProducts.value.length) {
-      bestSellersProducts.value[index].price = newPrice
-      localStorage.setItem('bestSellersProducts', JSON.stringify(bestSellersProducts.value))
+      const product = bestSellersProducts.value[index];
+      bestSellersProducts.value[index].name = newName;
+      
+      try {
+        const response = await fetch(`http://106.75.68.99:3000/api/admin/best-sellers/${product.id}`, {
+          method: 'PUT',
+          headers: {
+            'Authorization': `Bearer ${localStorage.getItem('admin_token')}`,
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({ name: newName })
+        });
+
+        if (response.ok) {
+          // Also update localStorage as backup
+          localStorage.setItem('bestSellersProducts', JSON.stringify(bestSellersProducts.value));
+        } else {
+          console.error('Failed to update Best Seller name via API');
+        }
+      } catch (error) {
+        console.error('Error updating Best Seller name:', error);
+        // Fallback to localStorage
+        localStorage.setItem('bestSellersProducts', JSON.stringify(bestSellersProducts.value));
+      }
     }
   }
 
-  function updateBestSellerMainImage(index: number, newImagePath: string) {
+  async function updateBestSellerPrice(index: number, newPrice: string) {
     if (index >= 0 && index < bestSellersProducts.value.length) {
-      bestSellersProducts.value[index].mainImage = newImagePath
-      localStorage.setItem('bestSellersProducts', JSON.stringify(bestSellersProducts.value))
+      const product = bestSellersProducts.value[index];
+      bestSellersProducts.value[index].price = newPrice;
+      
+      try {
+        const response = await fetch(`http://106.75.68.99:3000/api/admin/best-sellers/${product.id}`, {
+          method: 'PUT',
+          headers: {
+            'Authorization': `Bearer ${localStorage.getItem('admin_token')}`,
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({ price: newPrice })
+        });
+
+        if (response.ok) {
+          // Also update localStorage as backup
+          localStorage.setItem('bestSellersProducts', JSON.stringify(bestSellersProducts.value));
+        } else {
+          console.error('Failed to update Best Seller price via API');
+        }
+      } catch (error) {
+        console.error('Error updating Best Seller price:', error);
+        // Fallback to localStorage
+        localStorage.setItem('bestSellersProducts', JSON.stringify(bestSellersProducts.value));
+      }
     }
   }
 
-  function updateBestSellerThumbnail(productIndex: number, thumbnailIndex: number, newImagePath: string) {
+  async function updateBestSellerMainImage(index: number, newImagePath: string) {
+    if (index >= 0 && index < bestSellersProducts.value.length) {
+      const product = bestSellersProducts.value[index];
+      bestSellersProducts.value[index].mainImage = newImagePath;
+      
+      try {
+        const response = await fetch(`http://106.75.68.99:3000/api/admin/best-sellers/${product.id}`, {
+          method: 'PUT',
+          headers: {
+            'Authorization': `Bearer ${localStorage.getItem('admin_token')}`,
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({ mainImage: newImagePath })
+        });
+
+        if (response.ok) {
+          // Also update localStorage as backup
+          localStorage.setItem('bestSellersProducts', JSON.stringify(bestSellersProducts.value));
+        } else {
+          console.error('Failed to update Best Seller image via API');
+        }
+      } catch (error) {
+        console.error('Error updating Best Seller image:', error);
+        // Fallback to localStorage
+        localStorage.setItem('bestSellersProducts', JSON.stringify(bestSellersProducts.value));
+      }
+    }
+  }
+
+  async function updateBestSellerThumbnail(productIndex: number, thumbnailIndex: number, newImagePath: string) {
     if (productIndex >= 0 && productIndex < bestSellersProducts.value.length &&
         thumbnailIndex >= 0 && thumbnailIndex < bestSellersProducts.value[productIndex].thumbnails.length) {
-      bestSellersProducts.value[productIndex].thumbnails[thumbnailIndex] = newImagePath
-      localStorage.setItem('bestSellersProducts', JSON.stringify(bestSellersProducts.value))
+      bestSellersProducts.value[productIndex].thumbnails[thumbnailIndex] = newImagePath;
+      
+      // Update localStorage as backup (API doesn't handle thumbnails separately)
+      localStorage.setItem('bestSellersProducts', JSON.stringify(bestSellersProducts.value));
     }
+  }
+
+  async function saveBestSellersConfiguration() {
+    try {
+      const response = await fetch(`http://106.75.68.99:3000/api/admin/best-sellers`, {
+        method: 'PUT',
+        headers: {
+          'Authorization': `Bearer ${localStorage.getItem('admin_token')}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ bestSellers: bestSellersProducts.value })
+      });
+
+      if (response.ok) {
+        const result = await response.json();
+        if (result.success) {
+          console.log('Best Sellers configuration saved to server');
+          // Also update localStorage as backup
+          localStorage.setItem('bestSellersProducts', JSON.stringify(bestSellersProducts.value));
+          return true;
+        }
+      } else {
+        console.error('Failed to save Best Sellers configuration via API');
+        // Fallback to localStorage
+        localStorage.setItem('bestSellersProducts', JSON.stringify(bestSellersProducts.value));
+        return false;
+      }
+    } catch (error) {
+      console.error('Error saving Best Sellers configuration:', error);
+      // Fallback to localStorage
+      localStorage.setItem('bestSellersProducts', JSON.stringify(bestSellersProducts.value));
+      return false;
+    }
+    return false;
   }
 
   // Rare Dynasty Collection Management
@@ -900,7 +892,12 @@ export const useAdminStore = defineStore('admin', () => {
     localStorage.setItem('heritageStory', JSON.stringify(heritageStory.value))
   }
 
-  function loadSettings() {
+  function updateHeritageStoryButtonText(newButtonText: string) {
+    heritageStory.value.buttonText = newButtonText
+    localStorage.setItem('heritageStory', JSON.stringify(heritageStory.value))
+  }
+
+  async function loadSettings() {
     // Load site settings
     const savedSiteSettings = localStorage.getItem('siteSettings')
     if (savedSiteSettings) {
@@ -913,16 +910,25 @@ export const useAdminStore = defineStore('admin', () => {
       contentSettings.value = JSON.parse(savedContentSettings)
     }
 
-    // Load products from localStorage to ensure admin and frontend sync
-    const savedProducts = localStorage.getItem('products')
-    if (savedProducts) {
-      // Use existing products from localStorage (preserves user operations)
-      products.value = JSON.parse(savedProducts)
-      console.log('Using products from localStorage in loadSettings:', products.value.length)
+    // Load bestsellers from localStorage first
+    const savedBestSellers = localStorage.getItem('bestSellersProducts')
+    if (savedBestSellers) {
+      bestSellersProducts.value = JSON.parse(savedBestSellers)
+      // Convert bestsellers to products format
+      convertBestSellersToProducts()
+      console.log('Using bestsellers from localStorage in loadSettings:', bestSellersProducts.value.length)
     } else {
-      // Only use default products if localStorage is empty (first time load)
-      console.log('Using default products in loadSettings (first load):', products.value.length)
-      localStorage.setItem('products', JSON.stringify(products.value))
+      // If no localStorage data, try to load from API
+      try {
+        console.log('No localStorage data, loading from API...')
+        await loadBestSellers()
+        console.log('Loaded bestsellers from API in loadSettings:', bestSellersProducts.value.length)
+      } catch (error) {
+        console.error('Failed to load from API, using default products:', error)
+        // Use default products if API fails
+        console.log('Using default products in loadSettings (API failed):', products.value.length)
+        localStorage.setItem('products', JSON.stringify(products.value))
+      }
     }
 
     // Always use default product images configuration for consistency
@@ -1383,7 +1389,7 @@ export const useAdminStore = defineStore('admin', () => {
   // Media Library Methods
   async function loadMediaLibrary() {
     try {
-      const response = await fetch('http://localhost:3000/api/media-library', {
+      const response = await fetch('http://106.75.68.99:3000/api/media-library', {
         method: 'GET',
         headers: {
           'Authorization': `Bearer ${localStorage.getItem('admin_token')}`,
@@ -1401,7 +1407,7 @@ export const useAdminStore = defineStore('admin', () => {
         mediaLibrary.value = []
       }
     } catch (error) {
-      console.error('Error loading media library:', error)
+      console.error('Error loading media library:', error as Error)
       // 使用默认数据
       mediaLibrary.value = []
     }
@@ -1409,7 +1415,7 @@ export const useAdminStore = defineStore('admin', () => {
 
   function addMediaFile(file: File, tags: string[] = []) {
     return new Promise<string>((resolve, reject) => {
-      const newId = Math.max(...mediaLibrary.value.map(m => m.id), 0) + 1
+      const newId = Math.max(...mediaLibrary.value.map(m => typeof m.id === 'number' ? m.id : 0), 0) + 1
       
       // Create a simple path identifier instead of storing base64
       const fileName = `media_${newId}_${Date.now()}.${file.name.split('.').pop()}`
@@ -1417,12 +1423,21 @@ export const useAdminStore = defineStore('admin', () => {
       
       const mediaItem = {
         id: newId,
-        name: file.name,
-        type: file.type.startsWith('image/') ? 'image' as const : 'video' as const,
-        url: localPath, // Use simple path instead of base64
-        size: file.size,
-        uploadDate: new Date().toISOString(),
-        tags
+        filename: file.name,
+        original_filename: file.name,
+        file_path: localPath,
+        file_url: localPath,
+        mime_type: file.type,
+        file_size: file.size,
+        width: 0,
+        height: 0,
+        alt_text: '',
+        caption: '',
+        tags: tags.join(','),
+        is_public: true,
+        uploaded_by: 1,
+        created_at: new Date().toISOString(),
+        is_existing: false
       }
       
       mediaLibrary.value.push(mediaItem)
@@ -1447,22 +1462,15 @@ export const useAdminStore = defineStore('admin', () => {
     }
   }
 
-  // Load all data from localStorage
+  // Load all data from API and localStorage
   async function loadAllData() {
     loadSettings()
     
     // loadSettings() already handles products loading, so no need to duplicate here
     // This ensures consistency between local and public access
     
-    // Load Best Sellers data from localStorage
-    const savedBestSellers = localStorage.getItem('bestSellersProducts')
-    if (savedBestSellers) {
-      bestSellersProducts.value = JSON.parse(savedBestSellers)
-      console.log('Loaded Best Sellers from localStorage:', bestSellersProducts.value.length, 'products')
-    } else {
-      console.log('No Best Sellers data in localStorage, using default')
-      // Keep default bestSellersProducts values
-    }
+    // Load Best Sellers data from API first, fallback to localStorage
+    await loadBestSellers()
     
     // Always use default dynasties configuration
     const savedDynasties = localStorage.getItem('dynasties')
@@ -1527,6 +1535,8 @@ export const useAdminStore = defineStore('admin', () => {
     loadMediaLibrary,
     updateBestSellerName,
     updateBestSellerPrice,
+    loadBestSellers,
+    saveBestSellersConfiguration,
     updateRareDynastyTitle,
     updateRareDynastyDescription,
     updateRareDynastyButtonText,
@@ -1535,7 +1545,14 @@ export const useAdminStore = defineStore('admin', () => {
     updateHeritageStoryDescription1,
     updateHeritageStoryDescription2,
     updateHeritageStoryImage,
+    updateHeritageStoryButtonText,
     loadSettings,
+    
+    // Product management functions
+    convertBestSellersToProducts,
+    addProductToBestSellers,
+    removeProductFromBestSellers,
+    getAvailableProductsForBestSellers,
     
     // Image processing utilities
     fileToCompressedBase64,

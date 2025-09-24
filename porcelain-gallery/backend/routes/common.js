@@ -10,10 +10,15 @@ const database = require('../config/database');
 router.get('/dynasties', async (req, res) => {
   try {
     console.log('Dynasties API called');
-    const { is_enabled = 'true' } = req.query;
+    const { is_enabled } = req.query;
     console.log('is_enabled param:', is_enabled);
     
-    const dynasties = await Dynasty.findAll(database, { is_enabled: is_enabled === 'true' });
+    const options = {};
+    if (is_enabled !== undefined) {
+      options.is_enabled = is_enabled === 'true';
+    }
+    
+    const dynasties = await Dynasty.findAll(database, options);
     console.log('Dynasties found:', dynasties.length);
 
     res.json({
@@ -142,8 +147,28 @@ router.delete('/dynasties/:id', async (req, res) => {
 router.get('/shapes', async (req, res) => {
   try {
     const { is_enabled = true } = req.query;
-    const shapes = await Shape.findAll(database, { is_enabled: is_enabled === 'true' });
-
+    
+    // 直接创建数据库连接而不是使用database对象
+    const mysql = require('mysql2/promise');
+    const pool = mysql.createPool({
+      host: process.env.DB_HOST || 'localhost',
+      user: process.env.DB_USER || 'root',
+      password: process.env.DB_PASSWORD || '',
+      database: process.env.DB_NAME || 'porcelain_gallery',
+      port: process.env.DB_PORT || 3306
+    });
+    
+    const sql = 'SELECT * FROM shapes WHERE is_enabled = ? ORDER BY sort_order ASC';
+    const params = [is_enabled === 'true' ? 1 : 0];
+    
+    console.log('Shapes API SQL:', sql);
+    console.log('Shapes API params:', params);
+    
+    const [shapes] = await pool.execute(sql, params);
+    console.log('Shapes API result:', shapes.length, 'rows');
+    
+    await pool.end();
+    
     res.json({
       success: true,
       data: shapes
@@ -401,9 +426,13 @@ router.delete('/categories/:id', async (req, res) => {
 router.get('/settings', async (req, res) => {
   try {
     const { is_public } = req.query;
-    const settings = await SiteSettings.findAll(database, { 
-      is_public: is_public !== undefined ? is_public === 'true' : undefined
-    });
+    const options = {};
+    
+    if (is_public !== undefined) {
+      options.is_public = is_public === 'true';
+    }
+    
+    const settings = await SiteSettings.findAll(database, options);
 
     res.json({
       success: true,
@@ -501,10 +530,14 @@ router.put('/settings/:key', async (req, res) => {
 // Get all content sections
 router.get('/content-sections', async (req, res) => {
   try {
-    const { is_active = true } = req.query;
-    const sections = await ContentSection.findAll(database, { 
-      is_active: is_active === 'true'
-    });
+    const { is_active } = req.query;
+    const options = {};
+    
+    if (is_active !== undefined) {
+      options.is_active = is_active === 'true';
+    }
+    
+    const sections = await ContentSection.findAll(database, options);
 
     res.json({
       success: true,

@@ -610,7 +610,7 @@ async function deleteMedia(media: any) {
         throw new Error('No admin token found')
       }
 
-      const response = await fetch(`/api/media-library-oss/${media.id}`, {
+      const response = await fetch(`http://106.75.68.99:3000/api/media-library-oss/${media.id}`, {
         method: 'DELETE',
         headers: {
           'Authorization': `Bearer ${token}`,
@@ -644,7 +644,7 @@ async function saveMediaDetails() {
       throw new Error('No admin token found')
     }
 
-    const response = await fetch(`/api/media-library-oss/${selectedMedia.value.id}`, {
+    const response = await fetch(`http://106.75.68.99:3000/api/media-library-oss/${selectedMedia.value.id}`, {
       method: 'PATCH',
       headers: {
         'Authorization': `Bearer ${token}`,
@@ -758,7 +758,7 @@ async function uploadFileInChunks(file: File): Promise<void> {
   }
   
   // 创建上传会话
-  const sessionResponse = await fetch('/api/media-library-oss/upload-session', {
+  const sessionResponse = await fetch(`http://106.75.68.99:3000/api/media-library-oss/upload-session`, {
     method: 'POST',
     headers: {
       'Authorization': `Bearer ${token}`,
@@ -784,7 +784,7 @@ async function uploadFileInChunks(file: File): Promise<void> {
     formData.append('chunkIndex', i.toString())
     formData.append('sessionId', session.sessionId)
     
-    const response = await fetch('/api/media-library-oss/upload-chunk', {
+    const response = await fetch(`http://106.75.68.99:3000/api/media-library-oss/upload-chunk`, {
       method: 'POST',
       headers: {
         'Authorization': `Bearer ${token}`
@@ -800,7 +800,7 @@ async function uploadFileInChunks(file: File): Promise<void> {
   }
   
   // 完成上传
-  const completeResponse = await fetch('/api/media-library-oss/upload-complete', {
+  const completeResponse = await fetch(`http://106.75.68.99:3000/api/media-library-oss/upload-complete`, {
     method: 'POST',
     headers: {
       'Authorization': `Bearer ${token}`,
@@ -921,7 +921,7 @@ async function uploadFiles() {
     formData.append('category', uploadCategory.value)
     formData.append('is_public', isPublic.value.toString())
 
-    const response = await fetch('/api/media-library-oss/upload', {
+    const response = await fetch(`http://106.75.68.99:3000/api/media-library/upload`, {
       method: 'POST',
       headers: {
         'Authorization': `Bearer ${token}`
@@ -975,7 +975,7 @@ async function loadMediaLibrary() {
       params.append('category', selectedCategory.value)
     }
 
-    const response = await fetch(`/api/media-library-oss?${params}`, {
+    const response = await fetch(`http://106.75.68.99:3000/api/media-library`, {
       headers: {
         'Authorization': `Bearer ${token}`,
         'Content-Type': 'application/json'

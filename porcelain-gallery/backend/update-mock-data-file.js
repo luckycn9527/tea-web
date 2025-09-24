@@ -1,9 +1,10 @@
-// Update frontend mock data with real database data
+// Script to update frontend mockData.ts file with database data
 const mysql = require('mysql2/promise');
 const fs = require('fs');
 const path = require('path');
 require('dotenv').config();
 
+// Database connection
 const dbConfig = {
   host: process.env.DB_HOST || 'localhost',
   user: process.env.DB_USER || 'root',
@@ -16,62 +17,113 @@ async function updateMockDataFile() {
   let connection;
   
   try {
+    console.log('Connecting to database...');
     connection = await mysql.createConnection(dbConfig);
-    console.log('Connected to database for data fetch');
+    console.log('Database connected successfully');
 
     // Fetch all data from database
     const [products] = await connection.execute(`
-      SELECT 
-        p.*,
-        d.name as dynasty_name,
-        d.name_cn as dynasty_name_cn,
-        s.name as shape_name,
-        s.name_cn as shape_name_cn,
-        pi.image_url as primary_image_url,
-        pi.alt_text as primary_image_alt
+      SELECT p.*, 
+             pi.image_url as primary_image_url,
+             GROUP_CONCAT(pi2.image_url) as additional_images
       FROM products p
-      LEFT JOIN dynasties d ON p.dynasty_id = d.id
-      LEFT JOIN shapes s ON p.shape_id = s.id
       LEFT JOIN product_images pi ON p.primary_image_id = pi.id
+      LEFT JOIN product_images pi2 ON p.id = pi2.product_id AND pi2.id != p.primary_image_id
+      GROUP BY p.id
       ORDER BY p.id
     `);
 
-    const [dynasties] = await connection.execute('SELECT * FROM dynasties ORDER BY sort_order');
-    const [shapes] = await connection.execute('SELECT * FROM shapes ORDER BY sort_order');
-    const [contentSections] = await connection.execute('SELECT * FROM content_sections ORDER BY sort_order');
+    const [dynasties] = await connection.execute('SELECT * FROM dynasties ORDER BY id');
+    const [shapes] = await connection.execute('SELECT * FROM shapes ORDER BY id');
+    const [contentSections] = await connection.execute('SELECT * FROM content_sections ORDER BY id');
     const [siteSettings] = await connection.execute('SELECT * FROM site_settings ORDER BY id');
 
-    // Fetch product images for each product
-    for (const product of products) {
-      const [images] = await connection.execute(`
-        SELECT * FROM product_images 
-        WHERE product_id = ? 
-        ORDER BY sort_order
-      `, [product.id]);
-      product.images = images;
-    }
+    console.log(`Fetched data: ${products.length} products, ${dynasties.length} dynasties, ${shapes.length} shapes`);
 
-    console.log('Data fetched from database:');
-    console.log(`- ${products.length} products`);
-    console.log(`- ${dynasties.length} dynasties`);
-    console.log(`- ${shapes.length} shapes`);
-    console.log(`- ${contentSections.length} content sections`);
-    console.log(`- ${siteSettings.length} site settings`);
+    // Process dynasties data
+    const processedDynasties = dynasties.map(dynasty => ({
+      ...dynasty,
+      is_enabled: Boolean(dynasty.is_enabled)
+    }));
 
-    // Generate the new mock data file content
+    // Process shapes data
+    const processedShapes = shapes.map(shape => ({
+      ...shape,
+      is_enabled: Boolean(shape.is_enabled)
+    }));
+
+    // Process content sections data
+    const processedContentSections = contentSections.map(section => ({
+      ...section,
+      button_url: section.button_url || undefined,
+      is_active: Boolean(section.is_active)
+    }));
+
+    // Process site settings data
+    const processedSiteSettings = siteSettings.map(setting => ({
+      ...setting,
+      description: setting.description || undefined,
+      is_public: Boolean(setting.is_public),
+      setting_type: setting.setting_type
+    }));
+
+    // Process products data
+    const processedProducts = products.map(product => {
+      const additionalImages = product.additional_images ? 
+        product.additional_images.split(',').map(img => img.trim()) : [];
+      
+      return {
+        id: product.id,
+        name_en: product.name_en,
+        name_cn: product.name_cn,
+        slug: product.slug,
+        description_en: product.description_en,
+        description_cn: product.description_cn,
+        craftsmanship_en: product.craftsmanship_en,
+        craftsmanship_cn: product.craftsmanship_cn,
+        history_en: product.history_en,
+        history_cn: product.history_cn,
+        price: parseFloat(product.price),
+        original_price: parseFloat(product.original_price),
+        dimensions: product.dimensions,
+        weight: product.weight,
+        age: product.age,
+        material: product.material,
+        color: product.color,
+        dynasty_id: product.dynasty_id,
+        shape_id: product.shape_id,
+        category_id: product.category_id || undefined,
+        primary_image_id: product.primary_image_id,
+        sku: product.sku,
+        stock_quantity: product.stock_quantity,
+        is_featured: Boolean(product.is_featured),
+        is_available: Boolean(product.is_available),
+        is_digital: Boolean(product.is_digital),
+        meta_title: product.meta_title,
+        meta_description: product.meta_description,
+        meta_keywords: product.meta_keywords,
+        view_count: product.view_count,
+        created_at: product.created_at,
+        updated_at: product.updated_at,
+        primary_image_url: product.primary_image_url,
+        images: [product.primary_image_url, ...additionalImages].filter(Boolean)
+      };
+    });
+
+    // Generate mockData.ts content
     const mockDataContent = `// Initialize admin store with database data
 import { useAdminStore } from '@/stores/admin-new'
 
 // Mock data based on database content
-const mockProducts = ${JSON.stringify(products, null, 2)};
+const mockProducts = ${JSON.stringify(processedProducts, null, 2)};
 
-const mockDynasties = ${JSON.stringify(dynasties, null, 2)};
+const mockDynasties = ${JSON.stringify(processedDynasties, null, 2)};
 
-const mockShapes = ${JSON.stringify(shapes, null, 2)};
+const mockShapes = ${JSON.stringify(processedShapes, null, 2)};
 
-const mockContentSections = ${JSON.stringify(contentSections, null, 2)};
+const mockContentSections = ${JSON.stringify(processedContentSections, null, 2)};
 
-const mockSiteSettings = ${JSON.stringify(siteSettings, null, 2)};
+const mockSiteSettings = ${JSON.stringify(processedSiteSettings, null, 2)};
 
 // Initialize admin store with mock data
 export function initializeAdminStore() {
@@ -109,35 +161,32 @@ export function initializeAdminStore() {
 export { mockProducts, mockDynasties, mockShapes, mockContentSections, mockSiteSettings }
 `;
 
-    // Write the updated mock data file
-    const frontendPath = path.join(__dirname, '../frontend/src/utils/mockData.ts');
-    fs.writeFileSync(frontendPath, mockDataContent, 'utf8');
+    // Write to mockData.ts file
+    const mockDataPath = path.join(__dirname, '../frontend/src/utils/mockData.ts');
+    fs.writeFileSync(mockDataPath, mockDataContent, 'utf8');
     
-    console.log('✅ Mock data file updated successfully!');
-    console.log(`File written to: ${frontendPath}`);
+    console.log('✅ MockData file updated successfully!');
+    console.log(`📁 File path: ${mockDataPath}`);
+    console.log(`📊 Updated with ${processedProducts.length} products, ${dynasties.length} dynasties, ${shapes.length} shapes`);
 
   } catch (error) {
-    console.error('Error updating mock data file:', error);
+    console.error('❌ Error updating mockData file:', error);
     throw error;
   } finally {
     if (connection) {
       await connection.end();
+      console.log('Database connection closed');
     }
   }
 }
 
-if (require.main === module) {
-  updateMockDataFile()
-    .then(() => {
-      console.log('\n🎉 Frontend mock data has been updated with real database data!');
-      console.log('The admin page at http://localhost:5174/admin should now show real database data.');
-      process.exit(0);
-    })
-    .catch((error) => {
-      console.error('Failed to update mock data file:', error);
-      process.exit(1);
-    });
-}
-
-module.exports = { updateMockDataFile };
-
+// Run the update
+updateMockDataFile()
+  .then(() => {
+    console.log('🎉 MockData file update completed successfully!');
+    process.exit(0);
+  })
+  .catch((error) => {
+    console.error('Failed to update mockData file:', error);
+    process.exit(1);
+  });

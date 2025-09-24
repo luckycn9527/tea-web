@@ -1,7 +1,9 @@
 // API Configuration
+import { ossImageManager } from '@/utils/oss-image-manager'
+
 export const API_CONFIG = {
-  // Use environment variable if available, otherwise fallback to localhost
-  BASE_URL: import.meta.env.VITE_API_BASE_URL || '/api',
+  // Force use server IP to avoid localhost issues
+  BASE_URL: 'http://106.75.68.99:3000/api',
   
   // Helper function to get full API URL
   getApiUrl: (path: string) => {
@@ -10,7 +12,7 @@ export const API_CONFIG = {
     return `${baseUrl}${cleanPath}`
   },
   
-  // Helper function to get image URL
+  // Helper function to get image URL - now uses OSS manager
   getImageUrl: (imagePath: string) => {
     if (!imagePath) return ''
     
@@ -34,14 +36,8 @@ export const API_CONFIG = {
       return API_CONFIG.getApiUrl(imagePath)
     }
     
-    // If it's a local static asset path, don't modify it
-    // Vite will handle these paths correctly
-    if (imagePath.startsWith('/src/assets/') || imagePath.includes('tea_image')) {
-      return imagePath
-    }
-    
-    // For other backend paths, construct full URL
-    return API_CONFIG.getApiUrl(imagePath)
+    // Use OSS image manager for all other image paths
+    return ossImageManager.getImageUrl(imagePath)
   }
 }
 
