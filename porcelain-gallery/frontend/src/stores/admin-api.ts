@@ -159,12 +159,13 @@ export const useAdminStore = defineStore('admin', () => {
         });
         
         // Handle authentication errors
-        if (handleAuthError(response)) {
-          return; // Auth error handled, redirecting to login
-        }
-        
-        // If auth error but not in admin area, fall back to public API
         if (response.status === 401 || response.status === 403) {
+          if (handleAuthError(response)) {
+            return; // Auth error handled, redirecting to login
+          }
+          
+          // If not in admin area, fall back to public API
+          console.log('Falling back to public API due to auth error');
           response = await fetch(`http://106.75.68.99:3000/api/best-sellers`, {
             method: 'GET',
             headers: {
