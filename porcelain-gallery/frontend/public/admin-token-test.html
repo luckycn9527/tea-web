@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Token Test</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        .test-section { margin: 20px 0; padding: 15px; border: 1px solid #ccc; border-radius: 5px; }
+        .success { background-color: #d4edda; border-color: #c3e6cb; }
+        .error { background-color: #f8d7da; border-color: #f5c6cb; }
+        button { padding: 10px 15px; margin: 5px; cursor: pointer; }
+        pre { background: #f8f9fa; padding: 10px; border-radius: 3px; overflow-x: auto; }
+    </style>
+</head>
+<body>
+    <h1>Admin Token Test</h1>
+    
+    <div class="test-section">
+        <h3>1. Check Current Token</h3>
+        <button onclick="checkToken()">Check Token</button>
+        <div id="token-status"></div>
+    </div>
+    
+    <div class="test-section">
+        <h3>2. Login Test</h3>
+        <input type="text" id="username" placeholder="Username" value="admin">
+        <input type="password" id="password" placeholder="Password" value="123456">
+        <button onclick="testLogin()">Test Login</button>
+        <div id="login-result"></div>
+    </div>
+    
+    <div class="test-section">
+        <h3>3. Best Sellers API Test</h3>
+        <button onclick="testBestSellers()">Test Best Sellers API</button>
+        <div id="api-result"></div>
+    </div>
+    
+    <div class="test-section">
+        <h3>4. Token Verification</h3>
+        <button onclick="verifyToken()">Verify Token</button>
+        <div id="verify-result"></div>
+    </div>
+
+    <script>
+        function checkToken() {
+            const token = localStorage.getItem('admin_token');
+            const statusDiv = document.getElementById('token-status');
+            
+            if (token) {
+                statusDiv.innerHTML = `
+                    <div class="success">
+                        <strong>Token Found:</strong><br>
+                        <pre>${token.substring(0, 50)}...</pre>
+                        <button onclick="clearToken()">Clear Token</button>
+                    </div>
+                `;
+            } else {
+                statusDiv.innerHTML = `
+                    <div class="error">
+                        <strong>No Token Found</strong><br>
+                        Please login first.
+                    </div>
+                `;
+            }
+        }
+        
+        function clearToken() {
+            localStorage.removeItem('admin_token');
+            localStorage.removeItem('admin_user');
+            checkToken();
+        }
+        
+        async function testLogin() {
+            const username = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
+            const resultDiv = document.getElementById('login-result');
+            
+            try {
+                const response = await fetch('http://106.75.68.99:3000/api/admin-auth/login', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ username, password }),
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    localStorage.setItem('admin_token', data.data.token);
+                    localStorage.setItem('admin_user', JSON.stringify(data.data.user));
+                    
+                    resultDiv.innerHTML = `
+                        <div class="success">
+                            <strong>Login Successful!</strong><br>
+                            <pre>${JSON.stringify(data, null, 2)}</pre>
+                        </div>
+                    `;
+                } else {
+                    resultDiv.innerHTML = `
+                        <div class="error">
+                            <strong>Login Failed:</strong><br>
+                            ${data.message}
+                        </div>
+                    `;
+                }
+            } catch (error) {
+                resultDiv.innerHTML = `
+                    <div class="error">
+                        <strong>Error:</strong><br>
+                        ${error.message}
+                    </div>
+                `;
+            }
+        }
+        
+        async function testBestSellers() {
+            const token = localStorage.getItem('admin_token');
+            const resultDiv = document.getElementById('api-result');
+            
+            if (!token) {
+                resultDiv.innerHTML = `
+                    <div class="error">
+                        <strong>No Token:</strong><br>
+                        Please login first.
+                    </div>
+                `;
+                return;
+            }
+            
+            try {
+                const response = await fetch('http://106.75.68.99:3000/api/admin/best-sellers', {
+                    method: 'GET',
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json'
+                    }
+                });
+                
+                const data = await response.json();
+                
+                if (response.ok) {
+                    resultDiv.innerHTML = `
+                        <div class="success">
+                            <strong>API Success!</strong><br>
+                            <pre>${JSON.stringify(data, null, 2)}</pre>
+                        </div>
+                    `;
+                } else {
+                    resultDiv.innerHTML = `
+                        <div class="error">
+                            <strong>API Error (${response.status}):</strong><br>
+                            <pre>${JSON.stringify(data, null, 2)}</pre>
+                        </div>
+                    `;
+                }
+            } catch (error) {
+                resultDiv.innerHTML = `
+                    <div class="error">
+                        <strong>Network Error:</strong><br>
+                        ${error.message}
+                    </div>
+                `;
+            }
+        }
+        
+        async function verifyToken() {
+            const token = localStorage.getItem('admin_token');
+            const resultDiv = document.getElementById('verify-result');
+            
+            if (!token) {
+                resultDiv.innerHTML = `
+                    <div class="error">
+                        <strong>No Token:</strong><br>
+                        Please login first.
+                    </div>
+                `;
+                return;
+            }
+            
+            try {
+                const response = await fetch('http://106.75.68.99:3000/api/admin-auth/verify', {
+                    method: 'GET',
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json'
+                    }
+                });
+                
+                const data = await response.json();
+                
+                if (response.ok) {
+                    resultDiv.innerHTML = `
+                        <div class="success">
+                            <strong>Token Valid!</strong><br>
+                            <pre>${JSON.stringify(data, null, 2)}</pre>
+                        </div>
+                    `;
+                } else {
+                    resultDiv.innerHTML = `
+                        <div class="error">
+                            <strong>Token Invalid (${response.status}):</strong><br>
+                            <pre>${JSON.stringify(data, null, 2)}</pre>
+                        </div>
+                    `;
+                }
+            } catch (error) {
+                resultDiv.innerHTML = `
+                    <div class="error">
+                        <strong>Verification Error:</strong><br>
+                        ${error.message}
+                    </div>
+                `;
+            }
+        }
+        
+        // Auto-check token on page load
+        window.onload = function() {
+            checkToken();
+        };
+    </script>
+</body>
+</html>

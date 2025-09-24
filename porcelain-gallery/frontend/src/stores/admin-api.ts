@@ -157,6 +157,21 @@ export const useAdminStore = defineStore('admin', () => {
             'Content-Type': 'application/json'
           }
         });
+        
+        // Handle authentication errors
+        if (handleAuthError(response)) {
+          return; // Auth error handled, redirecting to login
+        }
+        
+        // If auth error but not in admin area, fall back to public API
+        if (response.status === 401 || response.status === 403) {
+          response = await fetch(`http://106.75.68.99:3000/api/best-sellers`, {
+            method: 'GET',
+            headers: {
+              'Content-Type': 'application/json'
+            }
+          });
+        }
       } else {
         // Use public API without authentication
         response = await fetch(`http://106.75.68.99:3000/api/best-sellers`, {
@@ -188,7 +203,7 @@ export const useAdminStore = defineStore('admin', () => {
           console.log('Loaded Best Sellers from API:', bestSellersProducts.value.length, 'products');
         }
       } else {
-        console.error('Failed to load Best Sellers from API');
+        console.error('Failed to load Best Sellers from API:', response.status, response.statusText);
       }
     } catch (error) {
       console.error('Error loading Best Sellers from API:', error);
@@ -198,6 +213,23 @@ export const useAdminStore = defineStore('admin', () => {
   // 新增：设置 best sellers 产品的方法，保证响应式
   function setBestSellersProducts(data: any[]) {
     bestSellersProducts.value = [...data]; // 使用展开运算符保证响应式
+  }
+
+  // 新增：处理认证错误的通用函数
+  function handleAuthError(response: Response): boolean {
+    if (response.status === 401 || response.status === 403) {
+      console.warn('Token expired or invalid, clearing auth data');
+      localStorage.removeItem('admin_token');
+      localStorage.removeItem('admin_user');
+      authToken.value = null;
+      
+      // Redirect to login page if in admin area
+      if (window.location.pathname.startsWith('/admin')) {
+        window.location.href = '/admin/login';
+        return true; // Indicates auth error was handled
+      }
+    }
+    return false; // No auth error
   }
 
   // 新增：处理 thumbnails 的工具函数
@@ -482,6 +514,15 @@ export const useAdminStore = defineStore('admin', () => {
 
       console.log('Backend response status:', response.status)
       console.log('Backend response ok:', response.ok)
+
+      // Handle authentication errors
+      if (handleAuthError(response)) {
+        // Restore the product to local array
+        bestSellersProducts.value.splice(index, 0, removedProduct);
+        convertBestSellersToProducts();
+        error.value = '登录已过期，请重新登录';
+        return false;
+      }
 
       if (response.ok) {
         console.log('Removed product from bestsellers:', removedProduct.name)
